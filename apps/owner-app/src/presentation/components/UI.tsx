@@ -91,9 +91,9 @@ export function Badge({
     <View
       style={{
         alignSelf: "flex-start",
-        borderRadius: 20,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        borderRadius: 999,
+        paddingHorizontal: 14,
+        paddingVertical: 4,
         backgroundColor:
           tone === "orange"
             ? "#FFF0DA"
@@ -102,14 +102,7 @@ export function Badge({
               : "#ECECF2",
       }}
     >
-      <T
-        style={{
-          fontSize: 10,
-          fontWeight: "800",
-          color:
-            tone === "orange" ? C.orange : tone === "green" ? C.green : C.navy,
-        }}
-      >
+      <T style={{ fontSize: 12, fontWeight: "600", color: C.navy }}>
         {children}
       </T>
     </View>
@@ -159,6 +152,22 @@ export function Button({
         {title}
       </T>
     </Pressable>
+  );
+}
+export function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={{ gap: 8 }}>
+      <T muted style={{ fontSize: 13, fontWeight: "600", marginLeft: 4 }}>
+        {title}
+      </T>
+      <View style={styles.sectionCard}>{children}</View>
+    </View>
   );
 }
 export function Link({
@@ -543,11 +552,19 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   card: { backgroundColor: C.white, borderRadius: 18, padding: 17, gap: 12 },
+  sectionCard: {
+    backgroundColor: C.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.line,
+    overflow: "hidden",
+  },
   linkRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 13,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
   },
   linkRowDivider: { borderBottomWidth: 1, borderBottomColor: C.line },
   button: {

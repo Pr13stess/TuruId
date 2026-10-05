@@ -18,6 +18,7 @@ import {
   Page,
   Photo,
   Row,
+  Section,
   T,
   Title,
   Toggle,
@@ -193,28 +194,37 @@ export function ProfileScreen() {
               />
             </Card>
           )}
-          <T muted style={{ fontSize: 13, fontWeight: "600", marginLeft: 4 }}>
-            Akun & pengelolaan
-          </T>
-          <Card style={{ padding: 0, gap: 0 }}>
-            {[
-              ["Ubah profil", "EditProfile"],
-              ["Ubah password", "Password"],
-              ["Ringkasan keuangan", "Finance"],
-              ["Notifikasi", "Notifications"],
-              ["Laporan & permintaan", "Reports"],
-              ["Pengaturan notifikasi", "Settings"],
-              ["Hapus akun", "DeleteAccount"],
-            ].map(([label, route], i, arr) => (
-              <Link
-                key={route}
-                title={label}
-                last={i === arr.length - 1}
-                onPress={() => nav.navigate(route as "EditProfile")}
-              />
-            ))}
-          </Card>
-          <Card style={{ padding: 0, gap: 0 }}>
+          <Section title="Akun">
+            <Link title="Ubah profil" onPress={() => nav.navigate("EditProfile")} />
+            <Link
+              title="Ubah password"
+              last
+              onPress={() => nav.navigate("Password")}
+            />
+          </Section>
+          <Section title="Pengelolaan">
+            <Link
+              title="Ringkasan keuangan"
+              onPress={() => nav.navigate("Finance")}
+            />
+            <Link
+              title="Laporan & permintaan"
+              last
+              onPress={() => nav.navigate("Reports")}
+            />
+          </Section>
+          <Section title="Notifikasi">
+            <Link
+              title="Notifikasi"
+              onPress={() => nav.navigate("Notifications")}
+            />
+            <Link
+              title="Pengaturan notifikasi"
+              last
+              onPress={() => nav.navigate("Settings")}
+            />
+          </Section>
+          <Section title="Bantuan dan kebijakan">
             <Link
               title="Bantuan & tentang aplikasi"
               onPress={() => nav.navigate("Policy", { kind: "help" })}
@@ -228,15 +238,21 @@ export function ProfileScreen() {
               last
               onPress={() => nav.navigate("Policy", { kind: "terms" })}
             />
-          </Card>
-          <Card>
-            <Button
-              title="Keluar"
-              secondary
-              disabled={a.busy}
-              onPress={() => void a.run(() => auth.signOut())}
+          </Section>
+          <Section title="Pengaturan akun">
+            <Link
+              title="Hapus akun"
+              danger
+              last
+              onPress={() => nav.navigate("DeleteAccount")}
             />
-          </Card>
+          </Section>
+          <Button
+            title="Keluar"
+            secondary
+            disabled={a.busy}
+            onPress={() => void a.run(() => auth.signOut())}
+          />
           {mode === "demo" && (
             <Card>
               <Badge>DEMO</Badge>
