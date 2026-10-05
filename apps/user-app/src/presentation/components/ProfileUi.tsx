@@ -9,6 +9,7 @@ import {
   type TextInputProps,
 } from "react-native";
 import { colors, radius } from "../theme";
+import { Ionicons } from "@expo/vector-icons";
 
 export function Avatar({
   uri,
@@ -135,6 +136,65 @@ export function MenuRow({
     </Pressable>
   );
 }
+type IconName = React.ComponentProps<typeof Ionicons>["name"];
+
+export function DangerButton({
+  title,
+  icon,
+  onPress,
+  loading = false,
+  variant = "soft",
+}: {
+  title: string;
+  icon: IconName;
+  onPress: () => void;
+  loading?: boolean;
+  variant?: "soft" | "solid";
+}) {
+  const solid = variant === "solid";
+  const tint = solid ? "#fff" : colors.danger;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: loading, busy: loading }}
+      disabled={loading}
+      onPress={onPress}
+      style={({ pressed }) => [
+        s.dangerButton,
+        solid ? s.dangerSolid : s.dangerSoft,
+        (pressed || loading) && { opacity: 0.7 },
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator color={tint} />
+      ) : (
+        <>
+          <Ionicons name={icon} size={20} color={tint} />
+          <Text style={[s.dangerButtonText, { color: tint }]}>{title}</Text>
+        </>
+      )}
+    </Pressable>
+  );
+}
+
+export function DangerZone({
+  description,
+  children,
+}: {
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={s.dangerZone}>
+      <View style={s.dangerHead}>
+        <Ionicons name="warning-outline" size={18} color={colors.danger} />
+        <Text style={s.dangerTitle}>Zona berbahaya</Text>
+      </View>
+      <Text style={s.dangerText}>{description}</Text>
+      {children}
+    </View>
+  );
+}
 
 export function ErrorState({
   message,
@@ -214,6 +274,33 @@ const s = StyleSheet.create({
   rowDivider: { borderBottomWidth: 1, borderBottomColor: colors.line },
   rowText: { color: colors.ink, fontSize: 15 },
   chevron: { color: colors.muted, fontSize: 22 },
+    dangerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    minHeight: 48,
+    borderRadius: radius.button,
+  },
+  dangerSoft: {
+    backgroundColor: "#FBEDED",
+    borderWidth: 1,
+    borderColor: "#EBCACA",
+  },
+  dangerSolid: { backgroundColor: colors.danger },
+  dangerButtonText: { fontWeight: "700", fontSize: 15 },
+  dangerZone: {
+    marginTop: 32,
+    padding: 16,
+    gap: 12,
+    backgroundColor: "#FFF5F5",
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: "#EBCACA",
+  },
+  dangerHead: { flexDirection: "row", alignItems: "center", gap: 8 },
+  dangerTitle: { color: colors.danger, fontSize: 14, fontWeight: "700" },
+  dangerText: { color: colors.ink, fontSize: 13, lineHeight: 19 },
   center: { flex: 1, padding: 24, justifyContent: "center", gap: 12 },
   errorTitle: { color: colors.ink, fontSize: 17, fontWeight: "700" },
   errorBody: { color: colors.muted, fontSize: 14, marginBottom: 4 },

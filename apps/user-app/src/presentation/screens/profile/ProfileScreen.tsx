@@ -11,7 +11,8 @@ import type { TabScreenProps } from "../../../navigation/types";
 import { useRepositories } from "../../../providers/RepositoryProvider";
 import { useProfile } from "../../hooks/useProfile";
 import {
-  ActionButton,
+  DangerButton,
+  DangerZone,
   Avatar,
   ErrorState,
   MenuRow,
@@ -122,11 +123,21 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
         />
       </MenuSection>
 
-      <MenuSection title="Pengaturan akun">
-        <MenuRow
-          label="Hapus akun"
-          danger
-          last
+
+      <View style={s.logout}>
+        <DangerButton
+          title="Keluar"
+          icon="log-out-outline"
+          loading={signingOut}
+          onPress={confirmLogout}
+        />
+      </View>
+
+      <DangerZone description="Catatan, favorit, dan foto profilmu akan ikut dihapus secara permanen.">
+        <DangerButton
+          title="Hapus akun"
+          icon="trash-outline"
+          variant="solid"
           onPress={() =>
             soon(
               "Hapus akun",
@@ -134,16 +145,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
             )
           }
         />
-      </MenuSection>
-
-      <View style={s.logout}>
-        <ActionButton
-          title="Keluar"
-          variant="outline"
-          loading={signingOut}
-          onPress={confirmLogout}
-        />
-      </View>
+      </DangerZone>
     </ScrollView>
   );
 }
