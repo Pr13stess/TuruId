@@ -177,35 +177,39 @@ export function PropertyDetailScreen({
           accessibilityRole="button"
           onPress={openChat}
           disabled={openingChat}
-          style={styles.smallAction}
+          style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
         >
-          <Text style={styles.actionText}>
+          <Text style={styles.actionText} numberOfLines={1}>
             {openingChat ? "Membuka…" : "Chat"}
           </Text>
         </Pressable>
+        {["Call", "Catatan"].map((label) => (
+          <Pressable
+            accessibilityRole="button"
+            key={label}
+            onPress={future}
+            style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
+          >
+            <Text style={styles.actionText} numberOfLines={1}>
+              {label}
+            </Text>
+          </Pressable>
+        ))}
         <Pressable
           accessibilityRole="button"
-          onPress={future}
-          style={styles.smallAction}
+          accessibilityState={{ disabled: !canChoose }}
+          disabled={!canChoose}
+          onPress={() => navigation.navigate("RoomSelection", { propertyId })}
+          style={({ pressed }) => [
+            styles.primaryAction,
+            !canChoose && styles.primaryDisabled,
+            pressed && styles.pressed,
+          ]}
         >
-          <Text style={styles.actionText}>Call</Text>
+          <Text style={styles.primaryText} numberOfLines={1}>
+            Pilih kamar
+          </Text>
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() =>
-            navigation.navigate("Note", { propertyId, propertyName: p.name })
-          }
-          style={styles.smallAction}
-        >
-          <Text style={styles.actionText}>Catatan</Text>
-        </Pressable>
-        <View style={{ flex: 1.5 }}>
-          <Button
-            title="Pilih kamar"
-            disabled={!canChoose}
-            onPress={() => navigation.navigate("RoomSelection", { propertyId })}
-          />
-        </View>
       </View>
       <Modal
         visible={zoom}
@@ -350,21 +354,36 @@ const styles = StyleSheet.create({
   },
   ownerName: { fontSize: 13, fontWeight: "700", color: colors.ink },
   actions: {
-    padding: 14,
-    gap: 7,
-    flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-    width: "100%",
-    maxWidth: 600,
-    alignSelf: "center",
+  paddingHorizontal: 16,
+  paddingVertical: 12,
+  gap: 8,
+  flexDirection: "row",
+  alignItems: "center",
+  borderTopWidth: 1,
+  borderTopColor: colors.line,
+  backgroundColor: colors.surface,
+  width: "100%",
+  maxWidth: 600,
+  alignSelf: "center",
   },
   smallAction: {
     flex: 1,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.soft,
-    borderRadius: 8,
+    borderRadius: 12,
   },
-  actionText: { fontSize: 11, color: colors.muted },
+  actionText: { fontSize: 12, fontWeight: "700", color: colors.ink },
+  primaryAction: {
+    flex: 1.5,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+  },
+  primaryDisabled: { opacity: 0.45 },
+  primaryText: { fontSize: 13, fontWeight: "700", color: "#fff" },
+  pressed: { opacity: 0.7 },
 });
