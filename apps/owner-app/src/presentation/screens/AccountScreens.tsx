@@ -193,10 +193,10 @@ export function ProfileScreen() {
               />
             </Card>
           )}
-          <T muted style={{ fontSize: 11, letterSpacing: 1 }}>
-            AKUN & PENGELOLAAN
+          <T muted style={{ fontSize: 13, fontWeight: "600", marginLeft: 4 }}>
+            Akun & pengelolaan
           </T>
-          <Card>
+          <Card style={{ padding: 0, gap: 0 }}>
             {[
               ["Ubah profil", "EditProfile"],
               ["Ubah password", "Password"],
@@ -205,27 +205,31 @@ export function ProfileScreen() {
               ["Laporan & permintaan", "Reports"],
               ["Pengaturan notifikasi", "Settings"],
               ["Hapus akun", "DeleteAccount"],
-            ].map(([label, route]) => (
+            ].map(([label, route], i, arr) => (
               <Link
                 key={route}
-                title={`${label}  →`}
+                title={label}
+                last={i === arr.length - 1}
                 onPress={() => nav.navigate(route as "EditProfile")}
               />
             ))}
           </Card>
-          <Card>
+          <Card style={{ padding: 0, gap: 0 }}>
             <Link
-              title="Bantuan & tentang aplikasi →"
+              title="Bantuan & tentang aplikasi"
               onPress={() => nav.navigate("Policy", { kind: "help" })}
             />
             <Link
-              title="Privacy Policy →"
+              title="Privacy Policy"
               onPress={() => nav.navigate("Policy", { kind: "privacy" })}
             />
             <Link
-              title="Terms →"
+              title="Terms"
+              last
               onPress={() => nav.navigate("Policy", { kind: "terms" })}
             />
+          </Card>
+          <Card>
             <Button
               title="Keluar"
               secondary

@@ -91,9 +91,9 @@ export function Badge({
     <View
       style={{
         alignSelf: "flex-start",
-        borderRadius: 8,
-        paddingHorizontal: 9,
-        paddingVertical: 4,
+        borderRadius: 20,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
         backgroundColor:
           tone === "orange"
             ? "#FFF0DA"
@@ -164,19 +164,25 @@ export function Button({
 export function Link({
   title,
   onPress,
+  danger = false,
+  last = false,
 }: {
   title: string;
   onPress: () => void;
+  danger?: boolean;
+  last?: boolean;
 }) {
+  // Older call sites bake a trailing arrow into the label string; strip
+  // it so the row can draw its own chevron consistently.
+  const label = title.replace(/\s*(→|->)\s*$/, "");
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={{ paddingVertical: 10 }}
+      style={[styles.linkRow, last ? null : styles.linkRowDivider]}
     >
-      <T style={{ color: C.orange, fontWeight: "700", fontSize: 12 }}>
-        {title}
-      </T>
+      <T style={{ color: danger ? C.red : C.navy, fontSize: 15 }}>{label}</T>
+      <T style={{ color: C.muted, fontSize: 22 }}>›</T>
     </Pressable>
   );
 }
@@ -537,6 +543,13 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   card: { backgroundColor: C.white, borderRadius: 18, padding: 17, gap: 12 },
+  linkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 13,
+  },
+  linkRowDivider: { borderBottomWidth: 1, borderBottomColor: C.line },
   button: {
     paddingVertical: 14,
     paddingHorizontal: 18,
