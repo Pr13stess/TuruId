@@ -1,14 +1,20 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import type { MainTabParamList } from "./types";
 import { colors } from "../presentation/theme";
+import { HomeIcon, ChatIcon, BookmarkIcon, ProfileIcon } from "./NavIcons";
 
-const ITEMS: Record<keyof MainTabParamList, { icon: string; label: string }> = {
-  HomeTab: { icon: "⌂", label: "Home" },
-  ChatTab: { icon: "☷", label: "Chat" },
-  BookingTab: { icon: "▣", label: "Booking" },
-  ProfileTab: { icon: "◎", label: "Profil" },
+type IconProps = { color: string; size?: number };
+
+const ITEMS: Record<
+  keyof MainTabParamList,
+  { Icon: (p: IconProps) => React.JSX.Element; label: string }
+> = {
+  HomeTab: { Icon: HomeIcon, label: "Home" },
+  ChatTab: { Icon: ChatIcon, label: "Chat" },
+  BookingTab: { Icon: BookmarkIcon, label: "Booking" },
+  ProfileTab: { Icon: ProfileIcon, label: "Profil" },
 };
 
 export function FloatingNavBar({ state, navigation }: BottomTabBarProps) {
@@ -42,18 +48,8 @@ export function FloatingNavBar({ state, navigation }: BottomTabBarProps) {
               style={styles.dockItem}
             >
               <View style={[styles.dockIcon, focused && styles.dockActive]}>
-                <Text style={[styles.navSymbol, focused && { color: "#fff" }]}>
-                  {item.icon}
-                </Text>
+                <item.Icon size={22} color={focused ? "#fff" : colors.primary} />
               </View>
-              <Text
-                style={[
-                  styles.dockLabel,
-                  focused && { color: colors.primary, fontWeight: "700" },
-                ]}
-              >
-                {item.label}
-              </Text>
             </Pressable>
           );
         })}
@@ -61,6 +57,8 @@ export function FloatingNavBar({ state, navigation }: BottomTabBarProps) {
     </View>
   );
 }
+
+const SIZE = 52;
 
 const styles = StyleSheet.create({
   wrap: {
@@ -71,24 +69,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   dock: {
-    borderRadius: 32,
+    borderRadius: 40,
     backgroundColor: "#fff",
-    paddingVertical: 9,
+    padding: 8,
     flexDirection: "row",
     justifyContent: "space-around",
+    alignItems: "center",
     boxShadow: "0px 4px 14px #00000015",
     borderWidth: 1,
     borderColor: colors.line,
   },
-  dockItem: { alignItems: "center", gap: 3, minWidth: 52 },
+  dockItem: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   dockIcon: {
-    width: 35,
-    height: 35,
-    borderRadius: 22,
+    width: SIZE,
+    height: SIZE,
+    borderRadius: SIZE / 2,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
   dockActive: { backgroundColor: colors.primary },
-  navSymbol: { fontSize: 23, color: colors.primary },
-  dockLabel: { fontSize: 9, color: colors.muted },
 });
