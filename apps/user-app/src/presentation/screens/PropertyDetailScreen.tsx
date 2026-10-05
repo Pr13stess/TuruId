@@ -54,18 +54,17 @@ export function PropertyDetailScreen({
   if (!p) return <Status empty="Kos tidak tersedia atau sudah diarsipkan" />;
   const roomList = state.data?.rooms ?? [];
   const canChoose = roomList.some((r) => r.available > 0 && r.plans.length > 0);
-  const future = () =>
-    setNotice("Panggilan dan catatan akan tersedia pada tahap berikutnya.");
+  const future = () => setNotice("Panggilan akan tersedia pada tahap berikutnya.");
   const openChat = async () => {
     if (openingChat) return;
     setOpeningChat(true);
     try {
       const conversation = await chat.startConversation(propertyId, p.name);
       navigation.navigate("Chat", {
-      conversationId: conversation.id,
-      propertyId,
-      propertyName: conversation.property_name,
-    });
+        conversationId: conversation.id,
+        propertyId,
+        propertyName: conversation.property_name,
+      });
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Chat gagal dibuka.");
     } finally {
@@ -184,16 +183,22 @@ export function PropertyDetailScreen({
             {openingChat ? "Membuka…" : "Chat"}
           </Text>
         </Pressable>
-        {["Call", "Catatan"].map((label) => (
-          <Pressable
-            accessibilityRole="button"
-            key={label}
-            onPress={future}
-            style={styles.smallAction}
-          >
-            <Text style={styles.actionText}>{label}</Text>
-          </Pressable>
-        ))}
+        <Pressable
+          accessibilityRole="button"
+          onPress={future}
+          style={styles.smallAction}
+        >
+          <Text style={styles.actionText}>Call</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            navigation.navigate("Note", { propertyId, propertyName: p.name })
+          }
+          style={styles.smallAction}
+        >
+          <Text style={styles.actionText}>Catatan</Text>
+        </Pressable>
         <View style={{ flex: 1.5 }}>
           <Button
             title="Pilih kamar"

@@ -144,7 +144,7 @@ test("Migrations, seed, RLS isolation, aggregates and integrity", async (t) => {
       },
     );
     await t.test(
-      "Clients cannot write roles, verification, inventory, bookings, payments or notes",
+      "Clients cannot write roles, verification, inventory, bookings or payments",
       async () => {
         await as("authenticated", id(3));
         for (const table of [
@@ -156,12 +156,77 @@ test("Migrations, seed, RLS isolation, aggregates and integrity", async (t) => {
           "inventory_allocations",
           "payments",
           "room_type_inventory",
-          "notes",
         ])
           await assert.rejects(
             db.exec(`delete from public.${table}`),
             /permission denied/,
           );
+      },
+    );
+    await t.test(
+      "Notes are writable only by their own owner; version bumps server-side and guards against stale overwrites",
+      async () => {
+        // id(3) already has a note on property 100 from the seed.
+        await as("authenticated", id(3));
+        assert.equal(
+          (
+            await rows(
+              `select version from public.notes where user_id='${id(3)}' and property_id='${id(100)}'`,
+            )
+          )[0].version,
+          1,
+        );
+        // A stale version in the WHERE clause matches 0 rows instead
+        // of silently overwriting — this is the optimistic-lock check
+        // the client relies on.
+        assert.equal(
+          (
+            await rows(`update public.notes set content='stale-write'
+              where user_id='${id(3)}' and property_id='${id(100)}' and version=0
+              returning *`)
+          ).length,
+          0,
+        );
+        // The real, current version succeeds and the trigger bumps it,
+        // ignoring whatever version the client tried to send.
+        const updated = await rows(`update public.notes
+          set content='updated-note', version=999
+          where user_id='${id(3)}' and property_id='${id(100)}' and version=1
+          returning content, version`);
+        assert.deepEqual(updated[0], { content: "updated-note", version: 2 });
+        // Writing a brand-new note on another property works the same way.
+        await db.exec(`insert into public.notes (user_id, property_id, content)
+          values ('${id(3)}', '${id(101)}', 'first note')`);
+        assert.equal(
+          (
+            await rows(
+              `select version from public.notes where user_id='${id(3)}' and property_id='${id(101)}'`,
+            )
+          )[0].version,
+          1,
+        );
+        // id(3) cannot touch id(4)'s note: RLS filters it out of the
+        // UPDATE/DELETE target rather than raising, so it is a silent
+        // no-op, and id(4)'s row is untouched.
+        await db.exec(
+          `delete from public.notes where user_id='${id(4)}' and property_id='${id(100)}'`,
+        );
+        await as("authenticated", id(4));
+        assert.equal(
+          (
+            await rows(
+              `select content from public.notes where user_id='${id(4)}' and property_id='${id(100)}'`,
+            )
+          )[0].content,
+          "PRIVATE-NOTE-USER-TWO",
+        );
+        // Nor can id(3) insert a note claiming to be id(4).
+        await as("authenticated", id(3));
+        await assert.rejects(
+          db.exec(`insert into public.notes (user_id, property_id, content)
+            values ('${id(4)}', '${id(102)}', 'forged')`),
+          /permission denied|violates row-level security/,
+        );
       },
     );
     await t.test(

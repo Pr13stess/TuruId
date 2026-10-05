@@ -25,6 +25,13 @@ Seluruh bagian 1–21 dokumen ditelaah sebelum implementasi. Dokumen revisi 2.0 
 16. Voice/video call (Bagian 9) belum diimplementasikan: memerlukan Edge Function penerbit token Agora dan Expo Development Build (R7, R8), di luar cakupan lingkungan pengembangan saat ini. Tabel `calls` dan RLS SELECT-nya sudah ada dari first commit; tombol Call di UI tetap placeholder.
 17. `ChatListScreen` diisi sebagai konten tab `ChatTab` pada `MainTabs`, sedangkan `ChatScreen` (thread percakapan) tetap di root stack navigator supaya tab bar tersembunyi saat membuka satu percakapan, mengikuti pola `PropertyDetail`/`RoomSelection`.
 
+## Catatan privat per kos (Bagian 10, menyusul first commit)
+
+18. `notes` mendapat `grant insert, update, delete` langsung ke `authenticated` plus policy `with check (user_id = auth.uid())`/`using (user_id = auth.uid())` — bukan lewat RPC seperti chat — karena tulisan ini murni milik satu baris per (user, property) tanpa logika lintas tabel yang perlu disembunyikan dari client, berbeda dari `start_conversation` yang harus menghitung `owner_id` dan memeriksa `user_restrictions` di server.
+19. Optimistic concurrency memakai kolom `version` yang sudah ada di skema: trigger `bump_note_version` menaikkan nilainya di server pada setiap UPDATE, mengabaikan apa pun yang dikirim client di kolom itu, sementara client menyertakan `version` yang terakhir dibacanya sebagai filter `WHERE version = :expected`. Jika sudah berubah di perangkat lain, filter itu cocok dengan 0 baris alih-alih menimpa diam-diam, dan repository menerjemahkannya menjadi `NoteConflictError`.
+20. `NoteRepository.getByProperty`/`save` menerima `propertyName` dari pemanggil (sudah tersedia di layar yang membuka Catatan) dan menumpangkannya ke objek `Note` yang dikembalikan, karena tabel `notes` sendiri tidak menyimpan nama properti — menghindari join tambahan hanya untuk label tampilan.
+21. Baris "Clients cannot write ... notes" di `tests/database.test.mjs` diperbarui: `notes` sengaja dikeluarkan dari daftar tabel yang tulisannya ditolak (satu-satunya tabel privat yang client boleh tulis sendiri), dengan test terpisah yang memverifikasi isolasi antar-user dan perilaku version bump/konflik.
+
 ## Entitas
 
 Identitas: profiles, user_roles, owner_profiles.

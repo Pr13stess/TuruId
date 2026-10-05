@@ -11,6 +11,7 @@ import { RoomSelectionScreen } from "../presentation/screens/RoomSelectionScreen
 import { PlanSelectionScreen } from "../presentation/screens/PlanSelectionScreen";
 import { CheckoutScreen } from "../presentation/screens/CheckoutScreen";
 import { ChatScreen } from "../presentation/screens/chat/ChatScreen";
+import { NoteScreen } from "../presentation/screens/notes/NoteScreen";
 import { EditProfileScreen } from "../presentation/screens/profile/EditProfileScreen";
 import { ChangePasswordScreen } from "../presentation/screens/profile/ChangePasswordScreen";
 import { PolicyScreen } from "../presentation/screens/profile/PolicyScreen";
@@ -88,6 +89,11 @@ export function RootNavigator() {
               name="Chat"
               component={ChatScreen}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Note"
+              component={NoteScreen}
+              options={{ title: "Catatan" }}
             />
             <Stack.Screen
               name="EditProfile"

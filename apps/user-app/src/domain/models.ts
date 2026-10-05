@@ -94,6 +94,15 @@ export interface Conversation {
   updated_at: string;
   last_message: Message | null;
 }
+export const NOTE_MAX_LENGTH = 10000;
+export interface Note {
+  id: string;
+  property_id: string;
+  property_name: string;
+  content: string;
+  version: number;
+  updated_at: string;
+}
 export type BookingStatus =
   | "DRAFT"
   | "HELD"
