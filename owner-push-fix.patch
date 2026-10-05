@@ -1,0 +1,65 @@
+diff --git a/apps/owner-app/App.tsx b/apps/owner-app/App.tsx
+index d4dc3bc..7872dac 100644
+--- a/apps/owner-app/App.tsx
++++ b/apps/owner-app/App.tsx
+@@ -11,6 +11,7 @@ import {
+   RepositoriesProvider,
+   useRepositories,
+ } from "./src/application/RepositoriesProvider";
++import { canUsePushNotifications } from "./src/application/runtimeEnv";
+ import { Routes } from "./src/presentation/navigation";
+ import {
+   HomeScreen,
+@@ -99,6 +100,10 @@ function SignedIn() {
+   }, [communication, session?.id]);
+   useEffect(() => {
+     if (Platform.OS === "web" || mode === "demo") return;
++    // Importing expo-notifications at all crashes Expo Go's Android
++    // runtime for remote push (SDK 53+); it must stay a development or
++    // standalone build concern, checked before the import ever runs.
++    if (!canUsePushNotifications()) return;
+     let remove: (() => void) | undefined;
+     let active = true;
+     void import("expo-notifications")
+diff --git a/apps/owner-app/src/application/runtimeEnv.ts b/apps/owner-app/src/application/runtimeEnv.ts
+new file mode 100644
+index 0000000..63fc45e
+--- /dev/null
++++ b/apps/owner-app/src/application/runtimeEnv.ts
+@@ -0,0 +1,12 @@
++import Constants, { ExecutionEnvironment } from "expo-constants";
++/**
++ * expo-notifications crashes the whole app the moment it's imported for
++ * Android remote push inside Expo Go (SDK 53+); it only works in a
++ * development/standalone build. Check this BEFORE ever importing
++ * "expo-notifications", since even a dynamic, try/caught import still
++ * triggers the crash — it throws from the module's own side-effectful
++ * auto-registration code, not from anything we call.
++ */
++export function canUsePushNotifications(): boolean {
++  return Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
++}
+diff --git a/apps/owner-app/src/presentation/screens/SupportScreens.tsx b/apps/owner-app/src/presentation/screens/SupportScreens.tsx
+index 3cf14ac..d12a627 100644
+--- a/apps/owner-app/src/presentation/screens/SupportScreens.tsx
++++ b/apps/owner-app/src/presentation/screens/SupportScreens.tsx
+@@ -3,6 +3,7 @@ import { Platform, Pressable } from "react-native";
+ import { useRepositories } from "../../application/RepositoriesProvider";
+ import { Props, useNav } from "../navigation";
+ import { useAction, useLoad } from "../hooks";
++import { canUsePushNotifications } from "../../application/runtimeEnv";
+ import { chooseImage } from "../media";
+ import {
+   Badge,
+@@ -203,9 +204,9 @@ export function SettingsScreen() {
+             onChange={(enabled) =>
+               void a.run(async () => {
+                 if (enabled && mode === "supabase") {
+-                  if (Platform.OS === "web")
++                  if (Platform.OS === "web" || !canUsePushNotifications())
+                     throw new Error(
+-                      "Push tersedia pada development build Android/iOS.",
++                      "Push tersedia pada development build Android/iOS, bukan di Expo Go.",
+                     );
+                   const Notifications = await import("expo-notifications");
+                   if (Platform.OS === "android")

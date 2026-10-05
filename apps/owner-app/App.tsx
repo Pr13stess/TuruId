@@ -11,6 +11,7 @@ import {
   RepositoriesProvider,
   useRepositories,
 } from "./src/application/RepositoriesProvider";
+import { canUsePushNotifications } from "./src/application/runtimeEnv";
 import { Routes } from "./src/presentation/navigation";
 import {
   HomeScreen,
@@ -99,6 +100,10 @@ function SignedIn() {
   }, [communication, session?.id]);
   useEffect(() => {
     if (Platform.OS === "web" || mode === "demo") return;
+    // Importing expo-notifications at all crashes Expo Go's Android
+    // runtime for remote push (SDK 53+); it must stay a development or
+    // standalone build concern, checked before the import ever runs.
+    if (!canUsePushNotifications()) return;
     let remove: (() => void) | undefined;
     let active = true;
     void import("expo-notifications")

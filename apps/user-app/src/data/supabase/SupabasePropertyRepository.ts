@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PropertyRepository } from "../../domain/repositories/PropertyRepository";
 import type { SearchQuery } from "../../domain/models";
 import { array, parseProperty, parseSearchRow } from "../mappers/catalog";
+import { resolveOwnerMediaImages } from "./resolveOwnerMedia";
 export class SupabasePropertyRepository implements PropertyRepository {
   constructor(private readonly client: SupabaseClient) {}
   async search(q: SearchQuery) {
@@ -22,7 +23,7 @@ export class SupabasePropertyRepository implements PropertyRepository {
       page_number: q.page,
     });
     if (error) throw new Error(`Katalog gagal dimuat: ${error.message}`);
-    return array(data, parseSearchRow);
+    return resolveOwnerMediaImages(this.client, array(data, parseSearchRow));
   }
   async get(id: string) {
     const { data, error } = await this.client
@@ -31,6 +32,10 @@ export class SupabasePropertyRepository implements PropertyRepository {
       .eq("id", id)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return data ? parseProperty(data) : null;
+    if (!data) return null;
+    const [resolved] = await resolveOwnerMediaImages(this.client, [
+      parseProperty(data),
+    ]);
+    return resolved;
   }
 }

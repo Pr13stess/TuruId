@@ -1,0 +1,93 @@
+diff --git a/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts b/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts
+index 995aace..81ab1c2 100644
+--- a/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts
++++ b/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts
+@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
+ import type { PropertyRepository } from "../../domain/repositories/PropertyRepository";
+ import type { SearchQuery } from "../../domain/models";
+ import { array, parseProperty, parseSearchRow } from "../mappers/catalog";
++import { resolveOwnerMediaImages } from "./resolveOwnerMedia";
+ export class SupabasePropertyRepository implements PropertyRepository {
+   constructor(private readonly client: SupabaseClient) {}
+   async search(q: SearchQuery) {
+@@ -22,7 +23,7 @@ export class SupabasePropertyRepository implements PropertyRepository {
+       page_number: q.page,
+     });
+     if (error) throw new Error(`Katalog gagal dimuat: ${error.message}`);
+-    return array(data, parseSearchRow);
++    return resolveOwnerMediaImages(this.client, array(data, parseSearchRow));
+   }
+   async get(id: string) {
+     const { data, error } = await this.client
+@@ -31,6 +32,10 @@ export class SupabasePropertyRepository implements PropertyRepository {
+       .eq("id", id)
+       .maybeSingle();
+     if (error) throw new Error(error.message);
+-    return data ? parseProperty(data) : null;
++    if (!data) return null;
++    const [resolved] = await resolveOwnerMediaImages(this.client, [
++      parseProperty(data),
++    ]);
++    return resolved;
+   }
+ }
+diff --git a/apps/user-app/src/data/supabase/resolveOwnerMedia.ts b/apps/user-app/src/data/supabase/resolveOwnerMedia.ts
+new file mode 100644
+index 0000000..89b8127
+--- /dev/null
++++ b/apps/user-app/src/data/supabase/resolveOwnerMedia.ts
+@@ -0,0 +1,39 @@
++import type { SupabaseClient } from "@supabase/supabase-js";
++const OWNER_MEDIA_PREFIX = "owner-media/";
++const SIGNED_URL_TTL_SECONDS = 3600;
++function isOwnerMediaPath(value: string): boolean {
++  return value.startsWith(OWNER_MEDIA_PREFIX) && !value.startsWith("http");
++}
++/**
++ * property_media.storage_path (and similar columns) are raw paths into
++ * the private "owner-media" bucket — e.g. "owner-media/<id>/property/x.jpg"
++ * — not loadable URLs. This resolves every such path found across a page
++ * of results into a temporary signed URL, in one batched Storage call.
++ * Paths that are already a URL (http...) or a mock "demo://..." id are
++ * left untouched.
++ */
++export async function resolveOwnerMediaImages<T extends { images: string[] }>(
++  client: SupabaseClient,
++  items: T[],
++): Promise<T[]> {
++  const paths = new Set<string>();
++  for (const item of items)
++    for (const img of item.images)
++      if (isOwnerMediaPath(img)) paths.add(img.slice(OWNER_MEDIA_PREFIX.length));
++  if (paths.size === 0) return items;
++  const { data, error } = await client.storage
++    .from("owner-media")
++    .createSignedUrls([...paths], SIGNED_URL_TTL_SECONDS);
++  if (error) return items; // Fall back to raw paths; PropertyImage shows a placeholder instead of crashing.
++  const resolved = new Map<string, string>();
++  for (const row of data)
++    if (row.path && row.signedUrl) resolved.set(row.path, row.signedUrl);
++  return items.map((item) => ({
++    ...item,
++    images: item.images.map((img) =>
++      isOwnerMediaPath(img)
++        ? (resolved.get(img.slice(OWNER_MEDIA_PREFIX.length)) ?? img)
++        : img,
++    ),
++  }));
++}
+diff --git a/apps/user-app/src/presentation/components/PropertyCard.tsx b/apps/user-app/src/presentation/components/PropertyCard.tsx
+index a8dece0..70b01b9 100644
+--- a/apps/user-app/src/presentation/components/PropertyCard.tsx
++++ b/apps/user-app/src/presentation/components/PropertyCard.tsx
+@@ -77,6 +77,10 @@ const styles = StyleSheet.create({
+     borderRadius: 9,
+     overflow: "hidden",
+     flex: 1,
++    // Caps width at roughly half the row so a lone card in an odd-count
++    // row (e.g. 3 results in a 2-column grid) doesn't stretch to fill
++    // the whole row width on its own.
++    maxWidth: "48.5%",
+     borderWidth: 1,
+     borderColor: "#EEECE7",
+   },

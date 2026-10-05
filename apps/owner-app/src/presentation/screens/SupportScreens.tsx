@@ -3,6 +3,7 @@ import { Platform, Pressable } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
+import { canUsePushNotifications } from "../../application/runtimeEnv";
 import { chooseImage } from "../media";
 import {
   Badge,
@@ -203,9 +204,9 @@ export function SettingsScreen() {
             onChange={(enabled) =>
               void a.run(async () => {
                 if (enabled && mode === "supabase") {
-                  if (Platform.OS === "web")
+                  if (Platform.OS === "web" || !canUsePushNotifications())
                     throw new Error(
-                      "Push tersedia pada development build Android/iOS.",
+                      "Push tersedia pada development build Android/iOS, bukan di Expo Go.",
                     );
                   const Notifications = await import("expo-notifications");
                   if (Platform.OS === "android")

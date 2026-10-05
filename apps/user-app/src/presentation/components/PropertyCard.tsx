@@ -77,6 +77,10 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     overflow: "hidden",
     flex: 1,
+    // Caps width at roughly half the row so a lone card in an odd-count
+    // row (e.g. 3 results in a 2-column grid) doesn't stretch to fill
+    // the whole row width on its own.
+    maxWidth: "48.5%",
     borderWidth: 1,
     borderColor: "#EEECE7",
   },
