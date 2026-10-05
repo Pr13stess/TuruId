@@ -62,9 +62,10 @@ export function PropertyDetailScreen({
     try {
       const conversation = await chat.startConversation(propertyId, p.name);
       navigation.navigate("Chat", {
-        conversationId: conversation.id,
-        propertyName: conversation.property_name,
-      });
+      conversationId: conversation.id,
+      propertyId,
+      propertyName: conversation.property_name,
+    });
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Chat gagal dibuka.");
     } finally {

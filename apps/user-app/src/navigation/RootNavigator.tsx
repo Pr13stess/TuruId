@@ -87,7 +87,7 @@ export function RootNavigator() {
             <Stack.Screen
               name="Chat"
               component={ChatScreen}
-              options={{ title: "Chat" }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="EditProfile"

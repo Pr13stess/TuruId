@@ -35,9 +35,10 @@ export function ChatListScreen({ navigation }: TabScreenProps<"ChatTab">) {
             item={item}
             onPress={() =>
               navigation.navigate("Chat", {
-                conversationId: item.id,
-                propertyName: item.property_name,
-              })
+              conversationId: item.id,
+              propertyId: item.property_id,
+              propertyName: item.property_name,
+            })
             }
           />
         )}

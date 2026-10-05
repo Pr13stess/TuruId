@@ -20,8 +20,7 @@ export type RootStackParamList = {
   RoomSelection: { propertyId: string };
   PlanSelection: { propertyId: string; roomId: string };
   Checkout: { bookingId: string; planId: string };
-  Chat: { conversationId: string; propertyName: string };
-  EditProfile: undefined;
+  Chat: { conversationId: string; propertyId: string; propertyName: string };  EditProfile: undefined;
   ChangePassword: undefined;
   Policy: { kind: "privacy" | "terms" };
   Info: { kind: "help" | "about" };

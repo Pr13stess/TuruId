@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,34 +13,54 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { ScreenProps } from "../../../navigation/types";
 import { useRepositories } from "../../../providers/RepositoryProvider";
 import { useAuthSession } from "../../hooks/useAuthSession";
 import { useResource } from "../../hooks/useResource";
 import { Status } from "../../components/Primitives";
 import { colors, radius } from "../../theme";
-import { timeLabel } from "../../format";
+import { dayKey, dayLabel, timeLabel } from "../../format";
 import { clientMessageId } from "../../clientId";
+import { AddImageIcon, CallIcon, VideoCallIcon } from "../../Icons/Icons";
 import type { Message } from "../../../domain/models";
+
+
+type Row =
+  | { kind: "date"; key: string; label: string }
+  | { kind: "message"; key: string; message: Message };
+
 export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
-  const { conversationId, propertyName } = route.params;
-  const { chat } = useRepositories();
+  const { conversationId, propertyId, propertyName } = route.params;
+  const { chat, properties } = useRepositories();
   const { session } = useAuthSession();
+  const insets = useSafeAreaInsets();
   const myId = session?.user.id ?? null;
+  
   const loader = useCallback(
     () => chat.listMessages(conversationId),
     [chat, conversationId],
   );
   const state = useResource(loader);
-  // Pesan awal datang dari useResource; pesan yang tiba lewat realtime
-  // (atau baru saja dikirim sendiri) ditambahkan di sini, lalu keduanya
-  // digabung saat render supaya tidak perlu setState di dalam efek.
+
+  const metaLoader = useCallback(
+    () => properties.get(propertyId),
+    [properties, propertyId],
+  );
+  const meta = useResource(metaLoader);
+  const ownerName = meta.data?.owner_name ?? "";
+  const avatarUri = meta.data?.images?.[0] ?? null;
+
   const [liveMessages, setLiveMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const listRef = useRef<FlatList<Row>>(null);
+
   const baseIds = useMemo(
     () => new Set((state.data ?? []).map((m) => m.client_message_id)),
     [state.data],
@@ -47,6 +69,25 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
     () => [...(state.data ?? []), ...liveMessages],
     [state.data, liveMessages],
   );
+
+  const rows = useMemo<Row[]>(() => {
+    const out: Row[] = [];
+    let lastDay = "";
+    for (const message of messages) {
+      const day = dayKey(message.created_at);
+      if (day !== lastDay) {
+        out.push({
+          kind: "date",
+          key: `date-${day}`,
+          label: dayLabel(message.created_at),
+        });
+        lastDay = day;
+      }
+      out.push({ kind: "message", key: message.client_message_id, message });
+    }
+    return out;
+  }, [messages]);
+
   const addLive = useCallback(
     (message: Message) =>
       setLiveMessages((prev) =>
@@ -57,13 +98,40 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
       ),
     [baseIds],
   );
-  useEffect(() => {
-    navigation.setOptions({ title: propertyName });
-  }, [navigation, propertyName]);
+
   useEffect(
     () => chat.subscribeMessages(conversationId, addLive),
     [chat, conversationId, addLive],
   );
+
+
+  useEffect(() => {
+    const ios = Platform.OS === "ios";
+    const show = Keyboard.addListener(
+      ios ? "keyboardWillShow" : "keyboardDidShow",
+      () => setKeyboardOpen(true),
+    );
+    const hide = Keyboard.addListener(
+      ios ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardOpen(false),
+    );
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  const scrollToEnd = useCallback(
+    () => listRef.current?.scrollToEnd({ animated: false }),
+    [],
+  );
+
+  const comingSoon = () =>
+    Alert.alert(
+      "Segera hadir",
+      "Panggilan suara dan video akan tersedia pada tahap berikutnya.",
+    );
+
   const sendText = async () => {
     const text = draft.trim();
     if (!text || sending) return;
@@ -83,6 +151,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
       setSending(false);
     }
   };
+
   const sendImage = async () => {
     if (sending) return;
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -110,67 +179,141 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
       setSending(false);
     }
   };
+
   return (
-    <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        {state.loading || state.error ? (
+    <KeyboardAvoidingView style={styles.root} behavior="padding">
+      {/* Header: kiri = kembali, foto, nama; kanan = call dan video call */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Kembali"
+          onPress={() => navigation.goBack()}
+          hitSlop={8}
+          style={styles.iconButton}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+        </Pressable>
+        {avatarUri && !avatarFailed ? (
+          <Image
+            source={{ uri: avatarUri }}
+            style={styles.avatar}
+            onError={() => setAvatarFailed(true)}
+          />
+        ) : (
+          <View style={[styles.avatar, styles.avatarPlaceholder]}>
+            <Ionicons name="person" size={22} color={colors.muted} />
+          </View>
+        )}
+        <View style={styles.headerText}>
+          <Text numberOfLines={1} style={styles.headerTitle}>
+            {propertyName}
+          </Text>
+          {!!ownerName && (
+            <Text numberOfLines={1} style={styles.headerSub}>
+              {ownerName}
+            </Text>
+          )}
+        </View>
+        <View style={styles.headerActions}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Panggilan suara"
+            onPress={comingSoon}
+            hitSlop={8}
+            style={styles.iconButton}
+          >
+            <CallIcon color={colors.primary} size={22} />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Panggilan video"
+            onPress={comingSoon}
+            hitSlop={8}
+            style={styles.iconButton}
+          >
+            <VideoCallIcon color={colors.primary} size={22} />
+          </Pressable>
+        </View>
+      </View>
+
+      {state.loading || state.error ? (
+        <View style={styles.flex}>
           <Status
             loading={state.loading}
             error={state.error}
             onRetry={state.retry}
           />
-        ) : (
-          <FlatList
-            data={messages}
-            keyExtractor={(item) => item.client_message_id}
-            contentContainerStyle={styles.list}
-            renderItem={({ item }) => (
-              <Bubble item={item} mine={item.sender_id === myId} />
-            )}
-          />
-        )}
-        {sendError && <Text style={styles.error}>{sendError}</Text>}
-        <View style={styles.composer}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={sendImage}
-            disabled={sending}
-            style={styles.attach}
-          >
-            <Text style={styles.attachIcon}>🖼️</Text>
-          </Pressable>
-          <TextInput
-            style={styles.input}
-            value={draft}
-            onChangeText={setDraft}
-            placeholder="Tulis pesan…"
-            placeholderTextColor={colors.muted}
-            multiline
-          />
-          <Pressable
-            accessibilityRole="button"
-            onPress={sendText}
-            disabled={sending || !draft.trim()}
-            style={[
-              styles.send,
-              (sending || !draft.trim()) && { opacity: 0.5 },
-            ]}
-          >
-            {sending ? (
-              <ActivityIndicator color={colors.surface} size="small" />
-            ) : (
-              <Text style={styles.sendIcon}>➤</Text>
-            )}
-          </Pressable>
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      ) : (
+        <FlatList
+          ref={listRef}
+          data={rows}
+          keyExtractor={(item) => item.key}
+          contentContainerStyle={styles.list}
+          style={styles.flex}
+          onContentSizeChange={scrollToEnd}
+          onLayout={scrollToEnd}
+          renderItem={({ item }) =>
+            item.kind === "date" ? (
+              <View style={styles.dateWrap}>
+                <Text style={styles.dateChip}>{item.label}</Text>
+              </View>
+            ) : (
+              <Bubble
+                item={item.message}
+                mine={item.message.sender_id === myId}
+              />
+            )
+          }
+        />
+      )}
+
+      {sendError && <Text style={styles.error}>{sendError}</Text>}
+
+      <View
+        style={[
+          styles.composer,
+          { paddingBottom: keyboardOpen ? 12 : 12 + insets.bottom },
+        ]}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Kirim gambar"
+          onPress={sendImage}
+          disabled={sending}
+          style={styles.attach}
+        >
+          <AddImageIcon color={colors.primary} size={24} />
+        </Pressable>
+        <TextInput
+          style={styles.input}
+          value={draft}
+          onChangeText={setDraft}
+          placeholder="Tulis pesan…"
+          placeholderTextColor={colors.muted}
+          multiline
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Kirim pesan"
+          onPress={sendText}
+          disabled={sending || !draft.trim()}
+          style={[
+            styles.send,
+            (sending || !draft.trim()) && { opacity: 0.5 },
+          ]}
+        >
+          {sending ? (
+            <ActivityIndicator color={colors.surface} size="small" />
+          ) : (
+            <Text style={styles.sendIcon}>➤</Text>
+          )}
+        </Pressable>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
+
 function Bubble({ item, mine }: { item: Message; mine: boolean }) {
   return (
     <View style={[styles.bubbleRow, mine && styles.bubbleRowMine]}>
@@ -193,10 +336,59 @@ function Bubble({ item, mine }: { item: Message; mine: boolean }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
+  root: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 12,
+    paddingBottom: 10,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatar: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  backgroundColor: colors.soft,   
+  },
+  avatarPlaceholder: {
+  alignItems: "center",
+  justifyContent: "center",
+  borderWidth: 1,
+  borderColor: colors.line,
+  },
+  avatarFallback: {
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarInitial: { color: colors.surface, fontSize: 16, fontWeight: "700" },
+  headerText: { flex: 1 },
+  headerTitle: { color: colors.ink, fontSize: 16, fontWeight: "700" },
+  headerSub: { color: colors.muted, fontSize: 12, marginTop: 1 },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 4 },
   list: { padding: 16, gap: 8 },
+  dateWrap: { alignItems: "center", marginVertical: 8 },
+  dateChip: {
+    backgroundColor: colors.soft,
+    color: colors.muted,
+    fontSize: 11,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
   error: {
     color: colors.danger,
     fontSize: 12,
@@ -229,7 +421,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
     gap: 8,
-    padding: 12,
+    paddingTop: 12,
+    paddingHorizontal: 12,
     borderTopWidth: 1,
     borderTopColor: colors.line,
     backgroundColor: colors.surface,
@@ -240,7 +433,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  attachIcon: { fontSize: 20 },
   input: {
     flex: 1,
     maxHeight: 100,
@@ -260,4 +452,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   sendIcon: { color: colors.surface, fontSize: 16 },
+  
 });
