@@ -150,7 +150,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
 
 const s = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  content: { padding: 16, paddingBottom: 40 },
+  content: { padding: 16, paddingBottom: 130 },
   header: { flexDirection: "row", alignItems: "center", gap: 16 },
   headerText: { flex: 1 },
   name: { color: colors.ink, fontSize: 20, fontWeight: "700" },
