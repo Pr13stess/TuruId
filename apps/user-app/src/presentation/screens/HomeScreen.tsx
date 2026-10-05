@@ -5,8 +5,10 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  Image,
   View,
 } from "react-native";
+import { FilterIcon, SortIcon, NotifIcon } from "../Icons/Icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { defaultQuery } from "../../domain/models";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -48,17 +50,19 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
     <SafeAreaView edges={["top", "left", "right"]} style={styles.safe}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.brand}>
-            <Text style={styles.logo}>⌂</Text>
-            <Text style={styles.brandName}>KosKu</Text>
-          </View>
+          <Image
+            source={require("../../../assets/LogoMain.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+            accessibilityLabel="KosKu"
+          />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Notifikasi, belum tersedia"
             onPress={() => setSheet("future")}
             style={styles.notification}
           >
-            <Text style={{ fontSize: 11, color: "#fff" }}>Notif</Text>
+            <NotifIcon color="#fff" />
           </Pressable>
         </View>
         <View style={styles.search}>
@@ -92,7 +96,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           <Text numberOfLines={1} style={styles.locationText}>
             {query.reference?.label ?? "Pilih lokasi acuanmu"}
           </Text>
-          <Text style={styles.chevron}>⌄</Text>
+          {/* <Text style={styles.chevron}>⌄</Text> */}
         </Pressable>
         <View style={styles.toolbar}>
           <View style={styles.tools}>
@@ -102,7 +106,8 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
               onPress={() => setSheet("filter")}
               style={styles.tool}
             >
-              <Text style={styles.toolText}>▽ {active ? "•" : ""}</Text>
+              <FilterIcon color="#fff" />
+              {active && <View style={styles.activeDot} />}
             </Pressable>
             <Pressable
               accessibilityRole="button"
@@ -110,10 +115,10 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
               onPress={() => setSheet("filter")}
               style={styles.tool}
             >
-              <Text style={styles.toolText}>≡</Text>
+              <SortIcon color="#fff" />
             </Pressable>
             <Text style={styles.resultLabel}>
-              {active ? "Filter aktif" : "Pilihan untukmu"}
+              {/* {active ? "Filter aktif" : "Pilihan untukmu"} */}
             </Text>
           </View>
           {mode === "mock" && <Text style={styles.demo}>DATA DEMO</Text>}
@@ -237,6 +242,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
 }
 
 const styles = StyleSheet.create({
+  logoImage: { height: 40, width: 140 },
   safe: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1, width: "100%", maxWidth: 600, alignSelf: "center" },
   future: { fontSize: 14, lineHeight: 22, color: colors.muted },
@@ -322,5 +328,14 @@ const styles = StyleSheet.create({
     gap: 12,
     justifyContent: "center",
     alignItems: "center",
+  },
+  activeDot: {
+  position: "absolute",
+  top: 4,
+  right: 4,
+  width: 7,
+  height: 7,
+  borderRadius: 4,
+  backgroundColor: "#F5A524",
   },
 });
