@@ -183,18 +183,26 @@ export function PropertyDetailScreen({
             {openingChat ? "Membuka…" : "Chat"}
           </Text>
         </Pressable>
-        {["Call", "Catatan"].map((label) => (
-          <Pressable
-            accessibilityRole="button"
-            key={label}
-            onPress={future}
-            style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
-          >
-            <Text style={styles.actionText} numberOfLines={1}>
-              {label}
-            </Text>
-          </Pressable>
-        ))}
+                <Pressable
+          accessibilityRole="button"
+          onPress={future}
+          style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
+        >
+          <Text style={styles.actionText} numberOfLines={1}>
+            Call
+          </Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            navigation.navigate("Note", { propertyId, propertyName: p.name })
+          }
+          style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
+        >
+          <Text style={styles.actionText} numberOfLines={1}>
+            Catatan
+          </Text>
+        </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ disabled: !canChoose }}
