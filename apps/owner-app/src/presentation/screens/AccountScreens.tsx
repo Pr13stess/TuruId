@@ -342,7 +342,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
       "Bukti dummy siap.",
     );
   return (
-    <Page title="Data diri">
+    <Page title="Data diri" aligned>
       <Row>
         {["Scan KTP", "Identitas", "Data kos"].map((label, i) => (
           <View key={label} style={{ alignItems: "center", gap: 7, flex: 1 }}>
@@ -356,9 +356,9 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
                 justifyContent: "center",
               }}
             >
-              <T style={{ color: C.white, fontWeight: "800" }}>{i + 1}</T>
+              <T style={{ color: C.white, fontWeight: "700" }}>{i + 1}</T>
             </View>
-            <T style={{ fontSize: 11 }}>{label}</T>
+            <T style={{ fontSize: 13, textAlign: "center" }}>{label}</T>
           </View>
         ))}
       </Row>
@@ -375,8 +375,8 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
             <View
               style={{
                 height: 210,
-                backgroundColor: C.soft,
-                borderRadius: 14,
+                backgroundColor: colors.soft,
+                borderRadius: radius.card,
                 alignItems: "center",
                 justifyContent: "center",
               }}
@@ -423,7 +423,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
               }
             />
           )}
-          <T muted style={{ fontSize: 11 }}>
+          <T muted style={{ fontSize: 13 }}>
             Dengan mengirim, Anda menyetujui Privacy Policy dan Terms demo.
             Tidak diperlukan rekening submerchant; payout hanya simulasi.
           </T>

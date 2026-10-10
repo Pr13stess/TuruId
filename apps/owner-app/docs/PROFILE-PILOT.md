@@ -34,9 +34,7 @@ execution policy. Runner tes awal gagal saat membaca informasi akun Windows
 
 Pratinjau menggunakan Expo web di localhost:8083, mode demo, dotenv dinonaktifkan,
 dan variabel Supabase dikosongkan pada proses server. Browser pengujian menggunakan
-profil terpisah. Screenshot awal diambil sebelum perubahan source.
-
-![Profil sebelum perubahan, 390×844](profile-pilot/before-390.png)
+profil terpisah.
 
 ## Tahap 2: acuan visual
 
@@ -86,10 +84,6 @@ Keluar tetap menjalankan logout langsung seperti Owner sebelumnya. Hapus akun
 tetap membuka halaman permintaan admin. Tidak menyalin placeholder penghapusan
 atau perilaku logout User App. Tombol reset demo juga dinonaktifkan selama aksi berjalan.
 
-![Profil sesudah perubahan, 390×844](profile-pilot/after-390.png)
-
-![Bagian bawah: pengaturan akun, keluar, dan demo](profile-pilot/after-bottom.png)
-
 ## Hasil verifikasi setelah perubahan
 
 - TypeScript Owner: lolos.
@@ -109,8 +103,6 @@ atau perilaku logout User App. Tombol reset demo juga dinonaktifkan selama aksi 
   verifikasi membuka onboarding.
 - Reset demo membuka onboarding. Penyimpanan demo browser dipulihkan ke kondisi
   sebelum pemeriksaan; tidak ada perubahan data Supabase.
-
-![Nama panjang dan verifikasi pending, 320×740](profile-pilot/after-long-pending.png)
 
 Pemeriksaan ini adalah pengujian web/demo dan tes lokal, bukan pengujian Android/iOS
 fisik, email/deep link, atau Supabase cloud. Error jaringan dan loading lambat

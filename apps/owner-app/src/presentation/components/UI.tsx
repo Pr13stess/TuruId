@@ -237,13 +237,17 @@ export function Field({
   secure?: boolean;
   placeholder?: string;
 }) {
+  const aligned = useContext(AlignedContent);
+  const [focused, setFocused] = useState(false);
   return (
     <View style={{ gap: 7, marginBottom: 15 }}>
-      <T style={{ fontSize: 12, fontWeight: "600" }}>{label}</T>
+      <T style={{ fontSize: aligned ? 14 : 12, fontWeight: "600" }}>{label}</T>
       <TextInput
         accessibilityLabel={label}
         value={value}
         onChangeText={onChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         multiline={multiline}
         secureTextEntry={secure}
         keyboardType={numeric ? "numeric" : "default"}
@@ -254,6 +258,14 @@ export function Field({
         }
         style={[
           styles.input,
+          aligned && {
+            backgroundColor: colors.surface,
+            color: colors.ink,
+            borderColor: focused ? colors.primary : colors.line,
+            borderRadius: radius.button,
+            fontSize: 15,
+            minHeight: 48,
+          },
           multiline && { minHeight: 90, textAlignVertical: "top" },
         ]}
       />
@@ -316,10 +328,13 @@ export function Toggle({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
+  const aligned = useContext(AlignedContent);
   return (
     <Pressable
       accessibilityRole="switch"
+      accessibilityLabel={label}
       accessibilityState={{ checked: value }}
+      aria-checked={aligned ? value : undefined}
       onPress={() => onChange(!value)}
       style={[styles.row, { paddingVertical: 13 }]}
     >
@@ -330,7 +345,8 @@ export function Toggle({
           height: 25,
           borderRadius: 14,
           padding: 3,
-          backgroundColor: value ? C.orange : C.line,
+          backgroundColor: value ? (aligned ? colors.primary : C.orange) : C.line,
+          flexShrink: 0,
           alignItems: value ? "flex-end" : "flex-start",
         }}
       >

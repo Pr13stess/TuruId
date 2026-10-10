@@ -61,7 +61,7 @@ export function PropertyFormScreen({
       "Foto siap. Simpan untuk menerapkan perubahan.",
     );
   return (
-    <Page title={old ? "Edit properti" : "Tambahkan kos"}>
+    <Page title={old ? "Edit properti" : "Tambahkan kos"} aligned>
       <Badge>DATA KOS</Badge>
       <Title>Ruang baru, cerita baru.</Title>
       <T muted>
@@ -142,7 +142,7 @@ export function PropertyFormScreen({
             { value: "INACTIVE", label: "Nonaktif" },
           ]}
         />
-        <T muted style={{ fontSize: 11 }}>
+        <T muted style={{ fontSize: 13 }}>
           Kos tampil publik setelah owner dan properti disetujui admin. Edit
           informasi mengajukan pemeriksaan ulang.
         </T>
@@ -152,8 +152,8 @@ export function PropertyFormScreen({
         {value.photos.map((p, i) => (
           <View key={p + i}>
             <Photo path={p} />
-            <Row>
-              <T muted style={{ fontSize: 11 }}>
+            <Row style={{ flexWrap: "wrap" }}>
+              <T muted style={{ fontSize: 13 }}>
                 {i === 0 ? "Foto sampul" : `Foto ${i + 1}`}
               </T>
               <Link
@@ -174,7 +174,7 @@ export function PropertyFormScreen({
             </Row>
           </View>
         ))}
-        <Row>
+        <Row style={{ flexWrap: "wrap" }}>
           <Button
             title="Pilih foto"
             secondary
@@ -195,14 +195,14 @@ export function PropertyFormScreen({
           Unggah bukti uji kepemilikan/pengelolaan untuk ditinjau admin. Gunakan
           dokumen dummy.
         </T>
-        {evidence && <Photo path={evidence} />}
+        {!!evidence && <Photo path={evidence} />}
         <Button
           title="Pilih bukti dummy"
           secondary
           disabled={action.busy}
           onPress={() => void upload("verification")}
         />
-        {old?.review_reason && <Feedback text={old.review_reason} />}
+        {!!old?.review_reason && <Feedback text={old.review_reason} />}
       </Card>
       <Feedback text={action.error} error />
       <Feedback text={action.message} />

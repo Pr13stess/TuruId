@@ -11,6 +11,7 @@ import {
 } from "../../domain/models";
 import { Props } from "../navigation";
 import { useAction, useLoad } from "../hooks";
+import { colors } from "../theme";
 import {
   Badge,
   Button,
@@ -57,7 +58,7 @@ export function RoomFormScreen({ route, navigation }: Props<"RoomForm">) {
   const set = <K extends keyof Room>(k: K, v: Room[K]) =>
     setR((s) => ({ ...s, [k]: v }));
   return (
-    <Page title={r.id ? "Edit tipe kamar" : "Tipe kamar baru"}>
+    <Page title={r.id ? "Edit tipe kamar" : "Tipe kamar baru"} aligned>
       <Card>
         <Title>Identitas kamar</Title>
         <Field
@@ -141,12 +142,13 @@ export function InventoryScreen({ route, navigation }: Props<"Inventory">) {
   );
   const current = q.data?.find((r) => r.id === route.params.room.id);
   return (
-    <Page title="Inventory kamar">
+    <Page title="Inventory kamar" aligned>
       <Load {...q} />
       {current && (
         <InventoryEditor
           key={`${current.id}-${current.inventory.version}`}
           room={current}
+          busy={a.busy}
           save={(i, reason) =>
             void a.run(
               () => rooms.updateInventory(current.id, i, reason),
@@ -162,9 +164,11 @@ export function InventoryScreen({ route, navigation }: Props<"Inventory">) {
 function InventoryEditor({
   room,
   save,
+  busy,
 }: {
   room: Room;
   save: (i: Inventory, reason: string) => void;
+  busy: boolean;
 }) {
   const [i, setI] = useState(room.inventory);
   const [reason, setReason] = useState("");
@@ -178,13 +182,13 @@ function InventoryEditor({
           style={{
             color: C.orange,
             fontSize: 38,
-            fontWeight: "800",
+            fontWeight: "700",
             lineHeight: 45,
           }}
         >
           {available(i)}
         </T>
-        <T style={{ color: "#D1D2DC", fontSize: 12 }}>
+        <T style={{ color: "#D1D2DC", fontSize: 13 }}>
           Dihitung otomatis dari kapasitas dan seluruh alokasi.
         </T>
       </Card>
@@ -201,19 +205,25 @@ function InventoryEditor({
           <Row key={key}>
             <T style={{ flex: 1 }}>{label}</T>
             <Pressable
+              accessibilityRole="button"
               accessibilityLabel={`Kurangi ${label}`}
+              disabled={busy || i[key] === 0}
+              accessibilityState={{ disabled: busy || i[key] === 0 }}
               onPress={() => setI({ ...i, [key]: Math.max(0, i[key] - 1) })}
-              style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
+              style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", backgroundColor: colors.soft, borderRadius: 10, opacity: busy || i[key] === 0 ? 0.45 : 1 }}
             >
               <T>−</T>
             </Pressable>
-            <T style={{ minWidth: 24, textAlign: "center", fontWeight: "800" }}>
+            <T style={{ minWidth: 24, textAlign: "center", fontWeight: "700" }}>
               {i[key]}
             </T>
             <Pressable
+              accessibilityRole="button"
               accessibilityLabel={`Tambah ${label}`}
+              disabled={busy}
+              accessibilityState={{ disabled: busy }}
               onPress={() => setI({ ...i, [key]: i[key] + 1 })}
-              style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
+              style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", backgroundColor: colors.soft, borderRadius: 10, opacity: busy ? 0.45 : 1 }}
             >
               <T>+</T>
             </Pressable>
@@ -235,14 +245,16 @@ function InventoryEditor({
         placeholder="Contoh: satu kamar selesai dibersihkan"
         multiline
       />
-      <T muted style={{ fontSize: 12 }}>
+      <T muted style={{ fontSize: 13 }}>
         Penyewa dengan booking aktif harus keluar melalui checkout booking.
         Akhir periode sewa tidak mengosongkan kamar otomatis.
       </T>
       <Feedback text={error} error />
       <Button
-        title="Simpan inventory"
+        title={busy ? "Menyimpan…" : "Simpan inventory"}
+        disabled={busy}
         onPress={() => {
+          setError("");
           try {
             validateInventory(i);
             if (reason.trim().length < 5)
@@ -265,7 +277,7 @@ export function PlansScreen({ route, navigation }: Props<"Plans">) {
     ),
   );
   return (
-    <Page title="Paket sewa">
+    <Page title="Paket sewa" aligned>
       <Title>{route.params.room.name}</Title>
       <Button
         title="+ Tambah paket sewa"
@@ -276,13 +288,13 @@ export function PlansScreen({ route, navigation }: Props<"Plans">) {
       <Load {...q} />
       {q.data?.map((p) => (
         <Card key={p.id}>
-          <Row>
+          <Row style={{ flexWrap: "wrap" }}>
             <Title>{p.name}</Title>
             <Badge tone={p.is_active ? "green" : "navy"}>
               {p.is_active ? "Aktif" : "Nonaktif"}
             </Badge>
           </Row>
-          <T style={{ color: C.orange, fontSize: 22, fontWeight: "800" }}>
+          <T style={{ color: colors.primary, fontSize: 22, fontWeight: "700" }}>
             {money(p.price)}
           </T>
           <T muted>
@@ -345,7 +357,7 @@ export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
   ] as const;
   const c = costs(p);
   return (
-    <Page title="Paket sewa">
+    <Page title="Paket sewa" aligned>
       <Card>
         <Field
           label="Nama paket"
@@ -393,7 +405,7 @@ export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
             onChange={(v) => set("down_payment_value", Number(v))}
           />
         )}
-        <T muted style={{ fontSize: 11 }}>
+        <T muted style={{ fontSize: 13 }}>
           Tanpa DP: seluruh harga sewa dibayar saat booking.
         </T>
         <Choices
@@ -446,9 +458,9 @@ export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
           ["Bayar saat booking", c.pay_now],
           ["Sisa sewa saat masuk", c.remaining],
         ].map(([label, value]) => (
-          <Row key={label}>
-            <T style={{ fontSize: 12 }}>{label}</T>
-            <T style={{ fontWeight: "700", fontSize: 12 }}>
+          <Row key={label} style={{ flexWrap: "wrap" }}>
+            <T style={{ fontSize: 13 }}>{label}</T>
+            <T style={{ fontWeight: "700", fontSize: 13 }}>
               {money(Number(value))}
             </T>
           </Row>

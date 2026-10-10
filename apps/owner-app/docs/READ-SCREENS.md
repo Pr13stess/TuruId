@@ -41,23 +41,6 @@ form, repository, hooks, kontrak route, database, dependensi, atau source User A
 - Loading/error/retry tetap dikendalikan `useLoad`. Aksi menggunakan `useAction`.
 - Foto tetap menggunakan implementasi `Photo` dan pengambilan URL privat yang ada.
 
-## Pratinjau
-
-| Halaman | Screenshot 390×844 |
-| --- | --- |
-| Dashboard | [Dashboard](read-screens/home.png) |
-| Daftar properti | [Properti](read-screens/properties.png) |
-| Daftar booking | [Booking](read-screens/bookings.png) |
-| Notifikasi | [Notifikasi](read-screens/notifications.png) |
-
-Contoh kondisi:
-
-- [Loading](read-screens/loading.png)
-- [Error dan tombol coba lagi](read-screens/error.png)
-- [Properti kosong](read-screens/empty.png)
-- [Teks properti panjang dan foto kosong pada 320 px](read-screens/long-property.png)
-- [Nama penyewa panjang pada 320 px](read-screens/long-booking.png)
-
 ## Verifikasi
 
 - `npm.cmd run typecheck --workspace=kosku-owner`: lolos.
