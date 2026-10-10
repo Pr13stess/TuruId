@@ -156,7 +156,7 @@ function SignedIn() {
             contentStyle: { backgroundColor: C.cream },
           }}
         >
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} options={{ animation: "none" }} />
           <Stack.Screen name="Properties" component={PropertiesScreen} />
           <Stack.Screen name="Property" component={PropertyScreen} />
           <Stack.Screen name="PropertyForm" component={PropertyFormScreen} />
@@ -164,14 +164,14 @@ function SignedIn() {
           <Stack.Screen name="Inventory" component={InventoryScreen} />
           <Stack.Screen name="Plans" component={PlansScreen} />
           <Stack.Screen name="PlanForm" component={PlanFormScreen} />
-          <Stack.Screen name="Bookings" component={BookingsScreen} />
+          <Stack.Screen name="Bookings" component={BookingsScreen} options={{ animation: "none" }} />
           <Stack.Screen name="Booking" component={BookingScreen} />
           <Stack.Screen name="Finance" component={FinanceScreen} />
-          <Stack.Screen name="ChatList" component={ChatListScreen} />
+          <Stack.Screen name="ChatList" component={ChatListScreen} options={{ animation: "none" }} />
           <Stack.Screen name="Chat" component={ChatScreen} />
           <Stack.Screen name="Call" component={CallScreen} />
           <Stack.Screen name="Restrictions" component={RestrictionsScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="Password" component={PasswordScreen} />
