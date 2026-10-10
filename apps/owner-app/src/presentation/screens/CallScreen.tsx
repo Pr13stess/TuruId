@@ -41,7 +41,7 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
     return () => clearInterval(timer);
   }, [communication, route.params.id, call?.status]);
   return (
-    <Page title="Panggilan survei">
+    <Page title="Panggilan survei" aligned>
       <Load {...q} />
       {call && (
         <>
@@ -70,7 +70,7 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
                 Simulasi panggilan
               </T>
               <T
-                style={{ color: "#C8C9D5", textAlign: "center", fontSize: 12 }}
+                style={{ color: "#C8C9D5", textAlign: "center", fontSize: 13 }}
               >
                 Tidak mengirim audio/video atau menghubungi orang lain.
               </T>
@@ -134,7 +134,7 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
               }
             />
           )}
-          <T muted style={{ fontSize: 12 }}>
+          <T muted style={{ fontSize: 13 }}>
             Panggilan tidak direkam. Catatan pribadi pencari kos tetap privat
             dan tidak ditampilkan kepada owner.
           </T>

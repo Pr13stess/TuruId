@@ -6,10 +6,10 @@ import { Restriction } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
+import { colors, radius } from "../theme";
 import {
   Badge,
   Button,
-  C,
   Card,
   Choices,
   date,
@@ -39,12 +39,14 @@ export function ChatListScreen() {
     10000,
   );
   return (
-    <Page title="Percakapan" tab="ChatList" back={false}>
+    <Page title="Percakapan" tab="ChatList" back={false} aligned>
       <Title>Terhubung dengan penghuni.</Title>
       <Load {...q} />
       {q.data?.chats.map((c) => (
         <Pressable
           key={c.id}
+          accessibilityRole="button"
+          accessibilityLabel={`Buka chat ${c.tenant}`}
           onPress={() => nav.navigate("Chat", { conversation: c })}
         >
           <Card>
@@ -54,24 +56,24 @@ export function ChatListScreen() {
                   width: 44,
                   height: 44,
                   borderRadius: 23,
-                  backgroundColor: C.soft,
+                  backgroundColor: colors.primary,
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <T style={{ fontWeight: "800", fontSize: 20 }}>
+                <T style={{ color: colors.surface, fontWeight: "700", fontSize: 20 }}>
                   {c.tenant.slice(0, 1)}
                 </T>
               </View>
               <View style={{ flex: 1, gap: 3 }}>
-                <T style={{ fontWeight: "800" }}>{c.tenant}</T>
-                <T muted style={{ fontSize: 11 }}>
+                <T style={{ fontWeight: "700" }}>{c.tenant}</T>
+                <T muted style={{ fontSize: 13 }}>
                   {c.property_name}
                 </T>
               </View>
               {c.unread > 0 && <Badge>{c.unread}</Badge>}
             </Row>
-            <T muted style={{ fontSize: 12 }}>
+            <T muted style={{ fontSize: 13 }}>
               {c.last_message || "Mulai percakapan"}
             </T>
           </Card>
@@ -87,10 +89,12 @@ export function ChatListScreen() {
       {q.data?.calls.map((c) => (
         <Pressable
           key={c.id}
+          accessibilityRole="button"
+          accessibilityLabel={`Lihat panggilan ${c.id}`}
           onPress={() => nav.navigate("Call", { id: c.id })}
         >
           <Card>
-            <Row>
+            <Row style={{ flexWrap: "wrap" }}>
               <T>
                 {c.call_type === "VOICE"
                   ? "Panggilan suara"
@@ -98,7 +102,7 @@ export function ChatListScreen() {
               </T>
               <Badge tone="navy">{c.status}</Badge>
             </Row>
-            <T muted style={{ fontSize: 11 }}>
+            <T muted style={{ fontSize: 13 }}>
               {date(c.created_at)} · {c.duration_seconds} detik
             </T>
           </Card>
@@ -146,9 +150,9 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
       "Foto siap dikirim.",
     );
   return (
-    <Page title={c.tenant}>
+    <Page title={c.tenant} aligned>
       <T muted>{c.property_name}</T>
-      <Row>
+      <Row style={{ flexWrap: "wrap" }}>
         <Button
           title="Suara"
           secondary
@@ -186,18 +190,20 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
             alignSelf: m.sender_id === session?.id ? "flex-end" : "flex-start",
             width: m.message_type === "IMAGE" ? "82%" : undefined,
             maxWidth: "88%",
-            backgroundColor: m.sender_id === session?.id ? "#FFF0DB" : C.white,
-            padding: 14,
-            borderRadius: 17,
+            backgroundColor: m.sender_id === session?.id ? colors.primary : colors.surface,
+            borderWidth: 1,
+            borderColor: m.sender_id === session?.id ? colors.primary : colors.line,
+            padding: 10,
+            borderRadius: radius.card,
             gap: 5,
           }}
         >
           {m.message_type === "IMAGE" ? (
             <Photo path={m.storage_path} height={180} />
           ) : (
-            <T style={{ fontSize: 13 }}>{m.text_content}</T>
+            <T style={{ fontSize: 14, color: m.sender_id === session?.id ? colors.surface : colors.ink }}>{m.text_content}</T>
           )}
-          <T muted style={{ fontSize: 9 }}>
+          <T style={{ fontSize: 10, alignSelf: "flex-end", color: m.sender_id === session?.id ? colors.selected : colors.muted }}>
             {new Date(m.created_at).toLocaleTimeString("id-ID", {
               hour: "2-digit",
               minute: "2-digit",
@@ -206,7 +212,7 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
         </View>
       ))}
       <Card>
-        {image && (
+        {!!image && (
           <>
             <Photo path={image} height={150} />
             <Link title="Batal lampiran" onPress={() => setImage("")} />
@@ -219,7 +225,7 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
           placeholder="Tulis pesan…"
           multiline
         />
-        <Row>
+        <Row style={{ flexWrap: "wrap" }}>
           <Link title="Galeri" onPress={() => pick(false)} />
           <Link title="Kamera" onPress={() => pick(true)} />
           <Button
@@ -248,7 +254,7 @@ export function RestrictionsScreen({ route }: Props<"Restrictions">) {
     useCallback(() => communication.restrictions(), [communication]),
   );
   return (
-    <Page title="Pembatasan pengguna">
+    <Page title="Pembatasan pengguna" aligned>
       <Title>{route.params.conversation.tenant}</Title>
       <Load {...q} />
       {q.data && (
@@ -306,7 +312,7 @@ function RestrictionForm({ initial }: { initial: Restriction }) {
         onChange={(v) => setR({ ...r, notes: v })}
         multiline
       />
-      <T muted style={{ fontSize: 12 }}>
+      <T muted style={{ fontSize: 13 }}>
         Pembatasan berlaku untuk kos Anda. Booking confirmed/active dan riwayat
         transaksi tetap berlaku.
       </T>
@@ -315,7 +321,7 @@ function RestrictionForm({ initial }: { initial: Restriction }) {
         disabled={a.busy}
         onPress={() => void a.run(() => communication.restrict(r))}
       />
-      {initial.id && (
+      {!!initial.id && (
         <Button
           title="Cabut pembatasan"
           secondary

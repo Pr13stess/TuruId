@@ -4,6 +4,7 @@ import type { IRtcEngine } from "react-native-agora";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Button, C, Card, Feedback, Row, T } from "./UI";
 import { CallMediaProps } from "./CallMedia.types";
+import { radius } from "../theme";
 export default function CallMedia({ callId, video, onError }: CallMediaProps) {
   const { communication } = useRepositories();
   const engine = useRef<IRtcEngine | null>(null);
@@ -120,7 +121,7 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
       <View
         style={{
           height: video ? 340 : 180,
-          borderRadius: 22,
+          borderRadius: radius.card,
           overflow: "hidden",
           backgroundColor: C.navy,
           alignItems: "center",
@@ -157,7 +158,7 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
       </View>
       <Feedback text={error} error />
       <Card>
-        <Row>
+        <Row style={{ flexWrap: "wrap" }}>
           <Button
             title={muted ? "Aktifkan mic" : "Matikan mic"}
             secondary
@@ -176,7 +177,7 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
           />
         </Row>
         {video && (
-          <Row>
+          <Row style={{ flexWrap: "wrap" }}>
             <Button
               title={camera ? "Matikan kamera" : "Aktifkan kamera"}
               secondary

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
@@ -89,13 +89,13 @@ export function BookingScreen({ route }: Props<"Booking">) {
   const q = useLoad(useCallback(() => bookings.list(), [bookings]));
   const b = q.data?.find((b) => b.id === route.params.id);
   return (
-    <Page title="Detail booking">
+    <Page title="Detail booking" aligned>
       <Load {...q} />
       {b && (
         <>
           <Card>
             <Row>
-              <Title>{b.tenant}</Title>
+              <View style={{ flex: 1 }}><Title>{b.tenant}</Title></View>
               <Badge>{b.status}</Badge>
             </Row>
             <T>{b.booking_code}</T>
@@ -127,16 +127,16 @@ export function BookingScreen({ route }: Props<"Booking">) {
               ["Deposit", b.security_deposit_snapshot],
               ["Sisa sewa saat masuk", b.remaining_rent_snapshot],
             ].map(([k, v]) => (
-              <Row key={k}>
-                <T style={{ fontSize: 12 }}>{k}</T>
-                <T style={{ fontWeight: "700", fontSize: 12 }}>
+              <Row key={k} style={{ flexWrap: "wrap" }}>
+                <T style={{ fontSize: 13 }}>{k}</T>
+                <T style={{ fontWeight: "700", fontSize: 13 }}>
                   {money(Number(v))}
                 </T>
               </Row>
             ))}
             <T>Pembayaran: {b.payment_status}</T>
             <T>Refund: {b.refund_status}</T>
-            {b.cancel_note && <Feedback text={b.cancel_note} />}
+            {!!b.cancel_note && <Feedback text={b.cancel_note} />}
           </Card>
           {["CONFIRMED", "ACTIVE"].includes(b.status) && (
             <Card>
@@ -185,7 +185,7 @@ export function BookingScreen({ route }: Props<"Booking">) {
                   )
                 }
               />
-              <T muted style={{ fontSize: 11 }}>
+              <T muted style={{ fontSize: 13 }}>
                 Booking terkonfirmasi tidak memerlukan persetujuan owner.
                 Permintaan khusus tidak membatalkan booking otomatis.
               </T>
@@ -196,9 +196,9 @@ export function BookingScreen({ route }: Props<"Booking">) {
           <Title>Riwayat status</Title>
           {b.events.map((e, i) => (
             <Card key={i}>
-              <Row>
+              <Row style={{ flexWrap: "wrap" }}>
                 <Badge tone="navy">{e.to_status}</Badge>
-                <T muted style={{ fontSize: 11 }}>
+                <T muted style={{ fontSize: 13 }}>
                   {date(e.created_at)}
                 </T>
               </Row>
