@@ -1,12 +1,13 @@
 import React, { useCallback, useRef, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import * as Crypto from "expo-crypto";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Restriction } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
-import { colors, radius } from "../theme";
+import { colors } from "../theme";
+import { ChatConversation } from "../components/ChatConversation";
 import {
   Badge,
   Button,
@@ -16,10 +17,8 @@ import {
   Empty,
   Feedback,
   Field,
-  Link,
   Load,
   Page,
-  Photo,
   Row,
   T,
   Title,
@@ -39,8 +38,7 @@ export function ChatListScreen() {
     10000,
   );
   return (
-    <Page title="Percakapan" tab="ChatList" back={false} aligned>
-      <Title>Terhubung dengan penghuni.</Title>
+    <Page title="Percakapan" tab="ChatList" back={false} aligned contentContainerStyle={{ gap: 4 }}>
       <Load {...q} />
       {q.data?.chats.map((c) => (
         <Pressable
@@ -49,34 +47,17 @@ export function ChatListScreen() {
           accessibilityLabel={`Buka chat ${c.tenant}`}
           onPress={() => nav.navigate("Chat", { conversation: c })}
         >
-          <Card>
-            <Row>
-              <View
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 23,
-                  backgroundColor: colors.primary,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <T style={{ color: colors.surface, fontWeight: "700", fontSize: 20 }}>
-                  {c.tenant.slice(0, 1)}
-                </T>
-              </View>
-              <View style={{ flex: 1, gap: 3 }}>
-                <T style={{ fontWeight: "700" }}>{c.tenant}</T>
-                <T muted style={{ fontSize: 13 }}>
-                  {c.property_name}
-                </T>
-              </View>
-              {c.unread > 0 && <Badge>{c.unread}</Badge>}
-            </Row>
-            <T muted style={{ fontSize: 13 }}>
-              {c.last_message || "Mulai percakapan"}
-            </T>
-          </Card>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.line }}>
+            <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.selected, alignItems: "center", justifyContent: "center" }}>
+              <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 16 }}>{c.tenant.trim().slice(0, 1) || "?"}</Text>
+            </View>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text numberOfLines={1} style={{ color: colors.ink, fontWeight: "700", fontSize: 15 }}>{c.tenant}</Text>
+              <Text numberOfLines={1} style={{ color: colors.muted, fontSize: 12 }}>{c.property_name}</Text>
+              <Text numberOfLines={1} style={{ color: colors.muted, fontSize: 13 }}>{c.last_message || "Belum ada pesan"}</Text>
+            </View>
+            {c.unread > 0 && <Badge>{c.unread}</Badge>}
+          </View>
         </Pressable>
       ))}
       {q.data?.chats.length === 0 && (
@@ -85,7 +66,7 @@ export function ChatListScreen() {
           body="Calon penghuni dapat menghubungi Anda dari halaman kos di aplikasi pencari kos."
         />
       )}
-      <Title>Riwayat panggilan</Title>
+      {!!q.data?.calls.length && <View style={{ marginTop: 20, marginBottom: 8 }}><Title>Riwayat panggilan</Title></View>}
       {q.data?.calls.map((c) => (
         <Pressable
           key={c.id}
@@ -150,102 +131,17 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
       "Foto siap dikirim.",
     );
   return (
-    <Page title={c.tenant} aligned>
-      <T muted>{c.property_name}</T>
-      <Row style={{ flexWrap: "wrap" }}>
-        <Button
-          title="Suara"
-          secondary
-          disabled={a.busy}
-          onPress={() =>
-            void a.run(async () => {
-              const call = await communication.startCall(c.id, "VOICE");
-              navigation.navigate("Call", { id: call.id });
-            })
-          }
-        />
-        <Button
-          title="Video"
-          secondary
-          disabled={a.busy}
-          onPress={() =>
-            void a.run(async () => {
-              const call = await communication.startCall(c.id, "VIDEO");
-              navigation.navigate("Call", { id: call.id });
-            })
-          }
-        />
-        <Link
-          title="Atur"
-          onPress={() =>
-            navigation.navigate("Restrictions", { conversation: c })
-          }
-        />
-      </Row>
-      <Load {...q} />
-      {q.data?.map((m) => (
-        <View
-          key={m.id}
-          style={{
-            alignSelf: m.sender_id === session?.id ? "flex-end" : "flex-start",
-            width: m.message_type === "IMAGE" ? "82%" : undefined,
-            maxWidth: "88%",
-            backgroundColor: m.sender_id === session?.id ? colors.primary : colors.surface,
-            borderWidth: 1,
-            borderColor: m.sender_id === session?.id ? colors.primary : colors.line,
-            padding: 10,
-            borderRadius: radius.card,
-            gap: 5,
-          }}
-        >
-          {m.message_type === "IMAGE" ? (
-            <Photo path={m.storage_path} height={180} />
-          ) : (
-            <T style={{ fontSize: 14, color: m.sender_id === session?.id ? colors.surface : colors.ink }}>{m.text_content}</T>
-          )}
-          <T style={{ fontSize: 10, alignSelf: "flex-end", color: m.sender_id === session?.id ? colors.selected : colors.muted }}>
-            {new Date(m.created_at).toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </T>
-        </View>
-      ))}
-      <Card>
-        {!!image && (
-          <>
-            <Photo path={image} height={150} />
-            <Link title="Batal lampiran" onPress={() => setImage("")} />
-          </>
-        )}
-        <Field
-          label="Pesan"
-          value={text}
-          onChange={setText}
-          placeholder="Tulis pesan…"
-          multiline
-        />
-        <Row style={{ flexWrap: "wrap" }}>
-          <Link title="Galeri" onPress={() => pick(false)} />
-          <Link title="Kamera" onPress={() => pick(true)} />
-          <Button
-            title={a.error ? "Coba kirim lagi" : "Kirim"}
-            disabled={a.busy || (!text.trim() && !image)}
-            onPress={send}
-          />
-        </Row>
-        <Feedback text={a.error} error />
-      </Card>
-      <Link
-        title="Laporkan pengguna"
-        onPress={() =>
-          navigation.navigate("Report", {
-            targetType: "USER",
-            targetId: c.user_id,
-          })
-        }
-      />
-    </Page>
+    <ChatConversation conversation={c} userId={session?.id} messages={q.data ?? []}
+      loading={q.loading} error={q.error} retry={q.retry} busy={a.busy} sendError={a.error}
+      text={text} image={image} onText={setText} onRemoveImage={() => setImage("")}
+      onSend={send} onPick={pick} onBack={() => navigation.goBack()}
+      onCall={(type) => void a.run(async () => {
+        const call = await communication.startCall(c.id, type);
+        navigation.navigate("Call", { id: call.id });
+      })}
+      onRestrictions={() => navigation.navigate("Restrictions", { conversation: c })}
+      onReport={() => navigation.navigate("Report", { targetType: "USER", targetId: c.user_id })}
+    />
   );
 }
 export function RestrictionsScreen({ route }: Props<"Restrictions">) {

@@ -59,3 +59,27 @@ Pengujian lintas User App/Owner App pada backend uji merupakan tahap 7 dan belum
 dijalankan. Masalah integrasi lama tetap perlu dicatat terpisah dari perubahan UI.
 Notifikasi sukses pembatasan dapat hilang saat form dimuat ulang setelah simpan;
 status tersimpan dan penolakan pesan sudah diperiksa langsung dalam pengujian.
+
+## Penyempurnaan tata letak chat
+
+Chat kini menggunakan `components/ChatConversation.tsx`, bukan layout form Page.
+Header berisi kembali, avatar inisial penyewa, nama, nama kos, ikon suara/video,
+dan menu tiga titik untuk pembatasan serta laporan. `components/ChatIcons.tsx`
+menyalin tiga SVG chat User App tanpa menambah dependensi atau mengimpor bundle
+aplikasi lain. Daftar percakapan memakai baris bergaris, avatar 44 px, dan
+pratinjau satu baris seperti User App; badge unread dan riwayat panggilan Owner
+tetap tersedia. Tidak menambahkan waktu pesan yang tidak tersedia pada model
+Conversation Owner.
+
+Riwayat pesan memakai FlatList, pemisah tanggal, bubble maksimal 78%, dan
+composer tetap di bawah dengan ikon galeri/kirim. Warna, radius, font,
+dan ikon mengacu pada ChatScreen/ChatListScreen User App. Header menampilkan
+identitas penyewa sesuai peran Owner. Pengiriman dan retry tetap memakai
+repository dan client ID sebelumnya; input dan lampiran dikunci saat aksi
+berlangsung agar draft tidak berubah sebelum pengiriman selesai.
+
+Pemeriksaan tambahan tanpa PNG: 60 pesan, pesan terakhir terlihat saat masuk,
+composer tetap terlihat pada 320/390 px, pilih/batal/kirim lampiran melalui
+galeri web, dan menu laporan. Regresi retry, panggilan demo, serta pembatasan
+tetap lolos; typecheck/lint dan 15 tes Owner lolos. Keyboard perangkat fisik
+dan media panggilan asli belum diuji.
