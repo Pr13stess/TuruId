@@ -494,6 +494,7 @@ export function Page({
   tab,
   back = true,
   action,
+  header,
   contentContainerStyle,
   aligned = false,
 }: {
@@ -502,6 +503,7 @@ export function Page({
   tab?: OwnerTab;
   back?: boolean;
   action?: React.ReactNode;
+  header?: React.ReactNode;
   contentContainerStyle?: StyleProp<ViewStyle>;
   aligned?: boolean;
 }) {
@@ -512,7 +514,7 @@ export function Page({
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={styles.header}>
+        {header ?? <View style={styles.header}>
           {back ? (
             <Pressable
               accessibilityRole="button"
@@ -527,7 +529,7 @@ export function Page({
           )}
           <T style={{ fontWeight: "800", fontSize: 16 }}>{title}</T>
           <View style={{ minWidth: 32 }}>{action}</View>
-        </View>
+        </View>}
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[{

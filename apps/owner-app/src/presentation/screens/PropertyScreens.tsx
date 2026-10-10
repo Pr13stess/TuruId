@@ -5,6 +5,7 @@ import { available, Property } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useLoad } from "../hooks";
 import { colors, radius, spacing } from "../theme";
+import { HomeHeader } from "../components/HomeHeader";
 import {
   Badge,
   Button,
@@ -77,19 +78,10 @@ export function HomeScreen() {
   return (
     <Page
       aligned
-      title="KosKu."
+      title="TuruId"
       tab="Home"
       back={false}
-      action={
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Notifikasi"
-          style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}
-          onPress={() => nav.navigate("Notifications")}
-        >
-          <T style={{ fontSize: 22 }}>♧</T>
-        </Pressable>
-      }
+      header={<HomeHeader onNotifications={() => nav.navigate("Notifications")} />}
     >
       <Row>
         <View style={{ flex: 1 }}>
