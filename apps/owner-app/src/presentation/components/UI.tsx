@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { useNav } from "../navigation";
+import { OwnerNavBar, type OwnerTab } from "./OwnerNavBar";
 import { colors, radius, spacing, typography } from "../theme";
 
 // Opt in per page while the remaining forms and transactional screens are reviewed.
@@ -482,7 +483,7 @@ export function Page({
 }: {
   children: React.ReactNode;
   title: string;
-  tab?: "Home" | "ChatList" | "Bookings" | "Profile";
+  tab?: OwnerTab;
   back?: boolean;
   action?: React.ReactNode;
   contentContainerStyle?: StyleProp<ViewStyle>;
@@ -521,69 +522,9 @@ export function Page({
         >
           <AlignedContent.Provider value={aligned}>{children}</AlignedContent.Provider>
         </ScrollView>
-        {tab && <Dock active={tab} />}
+        {tab && <OwnerNavBar active={tab} />}
       </KeyboardAvoidingView>
     </SafeAreaView>
-  );
-}
-function Dock({
-  active,
-}: {
-  active: "Home" | "ChatList" | "Bookings" | "Profile";
-}) {
-  const nav = useNav();
-  const items = [
-    ["Home", "⌂", "Beranda"],
-    ["ChatList", "▤", "Chat"],
-    ["add", "+", "Tambah"],
-    ["Bookings", "▦", "Booking"],
-    ["Profile", "◎", "Profil"],
-  ] as const;
-  return (
-    <View style={styles.dock}>
-      {items.map(([route, icon, label]) => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={label}
-          key={route}
-          onPress={() =>
-            route === "add"
-              ? nav.navigate("PropertyForm", {})
-              : nav.navigate(route)
-          }
-          style={{ alignItems: "center", minWidth: 44, gap: 3 }}
-        >
-          <View
-            style={{
-              width: route === "add" ? 46 : 34,
-              height: route === "add" ? 46 : 34,
-              borderRadius: 24,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor:
-                route === "add"
-                  ? C.orange
-                  : active === route
-                    ? C.navy
-                    : "transparent",
-            }}
-          >
-            <T
-              style={{
-                fontSize: route === "add" ? 32 : 23,
-                color: route === "add" || active === route ? C.white : C.navy,
-                lineHeight: route === "add" ? 37 : 29,
-              }}
-            >
-              {icon}
-            </T>
-          </View>
-          {route !== "add" && (
-            <T style={{ fontSize: 9, fontWeight: "700" }}>{label}</T>
-          )}
-        </Pressable>
-      ))}
-    </View>
   );
 }
 export const styles = StyleSheet.create({
@@ -643,20 +584,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 22,
-  },
-  dock: {
-    position: "absolute",
-    bottom: 12,
-    left: 14,
-    right: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 40,
-    backgroundColor: C.white,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    boxShadow: "0 3px 8px #0000001A",
   },
 });
 
