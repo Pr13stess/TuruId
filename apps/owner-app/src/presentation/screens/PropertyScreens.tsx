@@ -4,6 +4,7 @@ import { useRepositories } from "../../application/RepositoriesProvider";
 import { available, Property } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useLoad } from "../hooks";
+import { colors, radius, spacing } from "../theme";
 import {
   Badge,
   Button,
@@ -41,8 +42,8 @@ export function PropertyCard({
             <Photo path={property.photos[0]} height={88} />
           </View>
           <View style={{ flex: 1, gap: 4 }}>
-            <T style={{ fontWeight: "800" }}>{property.name}</T>
-            <T muted style={{ fontSize: 11 }}>
+            <T style={{ fontWeight: "700", fontSize: 15 }}>{property.name}</T>
+            <T muted style={{ fontSize: 13 }}>
               {property.city} · {capacity ?? property.publication_status}
             </T>
             <Badge
@@ -54,7 +55,7 @@ export function PropertyCard({
                 ? "Terverifikasi"
                 : property.verification_status}
             </Badge>
-            <T style={{ fontSize: 11, color: C.orange, fontWeight: "700" }}>
+            <T style={{ fontSize: 13, color: colors.primary, fontWeight: "700" }}>
               Kelola properti →
             </T>
           </View>
@@ -75,21 +76,24 @@ export function HomeScreen() {
   );
   return (
     <Page
+      aligned
       title="KosKu."
       tab="Home"
       back={false}
       action={
         <Pressable
+          accessibilityRole="button"
           accessibilityLabel="Notifikasi"
+          style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}
           onPress={() => nav.navigate("Notifications")}
         >
-          <T style={{ fontSize: 21 }}>♧</T>
+          <T style={{ fontSize: 22 }}>♧</T>
         </Pressable>
       }
     >
       <Row>
-        <View>
-          <T muted style={{ fontSize: 11, letterSpacing: 1.6 }}>
+        <View style={{ flex: 1 }}>
+          <T muted style={{ fontSize: 12, letterSpacing: 1 }}>
             RUANG UNTUK BERTUMBUH
           </T>
           <Title>
@@ -97,7 +101,7 @@ export function HomeScreen() {
             <T style={{ color: C.orange }}>☀</T>
           </Title>
         </View>
-        <Badge tone="navy">OWNER</Badge>
+        <Badge tone="navy">Pemilik kos</Badge>
       </Row>
       <Load {...q} />
       {q.data && (
@@ -105,34 +109,34 @@ export function HomeScreen() {
           <View
             style={{
               backgroundColor: C.navy,
-              borderRadius: 22,
-              padding: 22,
+              borderRadius: radius.card,
+              padding: spacing.page,
               gap: 8,
             }}
           >
-            <T style={{ color: "#DDDDE6", fontSize: 12 }}>
+            <T style={{ color: "#DDDDE6", fontSize: 13 }}>
               Ringkasan properti Anda
             </T>
             <T
               style={{
                 color: C.white,
-                fontSize: 25,
-                fontWeight: "800",
+                fontSize: 24,
+                fontWeight: "700",
                 lineHeight: 32,
               }}
             >
               Kelola kos, lebih mudah.
             </T>
-            <T style={{ color: "#C9CAD6", fontSize: 12 }}>
+            <T style={{ color: "#C9CAD6", fontSize: 14 }}>
               Semua aktivitas kos dalam satu tempat.
             </T>
             <Row style={{ marginTop: 13 }}>
-              <View>
+              <View style={{ flex: 1 }}>
                 <T
                   style={{
                     color: C.orange,
                     fontSize: 30,
-                    fontWeight: "800",
+                    fontWeight: "700",
                     lineHeight: 36,
                   }}
                 >
@@ -141,23 +145,23 @@ export function HomeScreen() {
                     0,
                   )}
                 </T>
-                <T style={{ color: C.white, fontSize: 11 }}>kamar tersedia</T>
+                <T style={{ color: C.white, fontSize: 13 }}>kamar tersedia</T>
               </View>
               <View
                 style={{ height: 38, width: 1, backgroundColor: "#515367" }}
               />
-              <View>
+              <View style={{ flex: 1 }}>
                 <T
                   style={{
                     color: C.white,
                     fontSize: 24,
-                    fontWeight: "800",
+                    fontWeight: "700",
                     lineHeight: 32,
                   }}
                 >
                   {q.data.d.properties.length}
                 </T>
-                <T style={{ color: C.white, fontSize: 11 }}>
+                <T style={{ color: C.white, fontSize: 13 }}>
                   properti dikelola
                 </T>
               </View>
@@ -231,10 +235,10 @@ export function HomeScreen() {
               <Card key={a.id}>
                 <T style={{ fontWeight: "700", fontSize: 13 }}>{a.title}</T>
                 <Row>
-                  <T muted style={{ fontSize: 11, flex: 1 }}>
+                  <T muted style={{ fontSize: 13, flex: 1 }}>
                     {a.body}
                   </T>
-                  <T muted style={{ fontSize: 10 }}>
+                  <T muted style={{ fontSize: 12 }}>
                     {date(a.created_at)}
                   </T>
                 </Row>
@@ -260,21 +264,23 @@ export function Metric({
   onPress?: () => void;
 }) {
   return (
-    <Pressable onPress={onPress} disabled={!onPress} style={{ flex: 1 }}>
+    <Pressable accessibilityRole={onPress ? "button" : undefined}
+      accessibilityLabel={onPress ? title : undefined}
+      onPress={onPress} disabled={!onPress} style={{ flex: 1, minWidth: 0 }}>
       <Card
         style={{ borderWidth: 1, borderColor: C.line, minHeight: 102, gap: 5 }}
       >
         <T>{icon}</T>
         <T
           style={{
-            color: C.orange,
+            color: colors.primary,
             fontSize: value.length > 8 ? 14 : 20,
-            fontWeight: "800",
+            fontWeight: "700",
           }}
         >
           {value}
         </T>
-        <T style={{ fontSize: 10 }}>{title}</T>
+        <T muted style={{ fontSize: 13 }}>{title}</T>
       </Card>
     </Pressable>
   );
@@ -284,7 +290,7 @@ export function PropertiesScreen() {
   const nav = useNav();
   const q = useLoad(useCallback(() => properties.list(), [properties]));
   return (
-    <Page title="Properti saya">
+    <Page title="Properti saya" aligned>
       <Button
         title="+ Tambahkan kos"
         onPress={() => nav.navigate("PropertyForm", {})}

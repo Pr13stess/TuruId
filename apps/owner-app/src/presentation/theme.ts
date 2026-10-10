@@ -1,5 +1,5 @@
-// Pilot tokens matched to user-app/src/presentation/theme.ts and ProfileUi.tsx.
-// Only the profile pilot consumes these until other screens are reviewed.
+// Tokens matched to user-app/src/presentation/theme.ts and ProfileUi.tsx.
+// Used by Profile and opt-in read screens; remaining forms keep their existing UI.
 export const colors = {
   primary: "#2A2D45",
   ink: "#202131",

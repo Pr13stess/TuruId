@@ -31,11 +31,15 @@ export function NotificationsScreen() {
     15000,
   );
   return (
-    <Page title="Notifikasi">
+    <Page title="Notifikasi" aligned>
       <Load {...q} />
       {q.data?.map((n) => (
         <Pressable
           key={n.id}
+          accessibilityRole="button"
+          accessibilityLabel={`${n.read_at ? "" : "Belum dibaca: "}${n.title}`}
+          accessibilityState={{ disabled: a.busy }}
+          disabled={a.busy}
           onPress={() =>
             void a.run(
               async () => {
@@ -60,12 +64,12 @@ export function NotificationsScreen() {
           }
         >
           <Card>
-            <Row>
-              <T style={{ fontWeight: "800", flex: 1 }}>{n.title}</T>
+            <Row style={{ alignItems: "flex-start" }}>
+              <T style={{ fontWeight: n.read_at ? "600" : "700", fontSize: 15, flex: 1 }}>{n.title}</T>
               {!n.read_at && <Badge>BARU</Badge>}
             </Row>
             <T muted>{n.body}</T>
-            <T muted style={{ fontSize: 10 }}>
+            <T muted style={{ fontSize: 12 }}>
               {date(n.created_at)}
             </T>
           </Card>

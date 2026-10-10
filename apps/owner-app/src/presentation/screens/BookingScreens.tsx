@@ -35,7 +35,7 @@ export function BookingsScreen() {
           : b.status === filter),
   );
   return (
-    <Page title="Pemesanan" tab="Bookings" back={false}>
+    <Page title="Pemesanan" tab="Bookings" back={false} aligned>
       <Title>Setiap kedatangan, terpantau.</Title>
       <Choices
         label="Status booking"
@@ -53,19 +53,21 @@ export function BookingsScreen() {
       {list?.map((b) => (
         <Pressable
           key={b.id}
+          accessibilityRole="button"
+          accessibilityLabel={`Lihat booking ${b.booking_code}`}
           onPress={() => nav.navigate("Booking", { id: b.id })}
         >
           <Card>
-            <Row>
-              <T style={{ fontWeight: "800" }}>{b.tenant}</T>
+            <Row style={{ flexWrap: "wrap", justifyContent: "flex-start" }}>
+              <T style={{ fontWeight: "700", fontSize: 15 }}>{b.tenant}</T>
               <Badge>{b.status}</Badge>
             </Row>
-            <T muted style={{ fontSize: 12 }}>
+            <T muted style={{ fontSize: 13 }}>
               {b.property_name_snapshot} · {b.room_type_name_snapshot}
             </T>
-            <Row>
-              <T style={{ fontSize: 11 }}>{b.booking_code}</T>
-              <T style={{ fontSize: 11 }}>Pembayaran: {b.payment_status}</T>
+            <Row style={{ flexWrap: "wrap" }}>
+              <T style={{ fontSize: 13 }}>{b.booking_code}</T>
+              <T muted style={{ fontSize: 13 }}>Pembayaran: {b.payment_status}</T>
             </Row>
           </Card>
         </Pressable>
