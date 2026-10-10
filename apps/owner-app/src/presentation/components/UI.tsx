@@ -11,6 +11,7 @@ import {
   TextInput,
   View,
   ViewStyle,
+  type StyleProp,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -438,12 +439,14 @@ export function Page({
   tab,
   back = true,
   action,
+  contentContainerStyle,
 }: {
   children: React.ReactNode;
   title: string;
   tab?: "Home" | "ChatList" | "Bookings" | "Profile";
   back?: boolean;
   action?: React.ReactNode;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 }) {
   const nav = useNav();
   return (
@@ -470,11 +473,11 @@ export function Page({
         </View>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
+          contentContainerStyle={[{
             padding: 22,
             gap: 18,
             paddingBottom: tab ? 120 : 36,
-          }}
+          }, contentContainerStyle]}
         >
           {children}
         </ScrollView>

@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Profile } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
+import { MenuRow, MenuSection, ProfileAvatar, ProfileButton } from "../components/ProfileUi";
+import { colors, radius, spacing, typography } from "../theme";
 import {
   Badge,
   Button,
@@ -18,7 +20,6 @@ import {
   Page,
   Photo,
   Row,
-  Section,
   T,
   Title,
   Toggle,
@@ -145,124 +146,109 @@ export function ProfileScreen() {
   const a = useAction();
   const q = useLoad(useCallback(() => profile.get(), [profile]));
   return (
-    <Page title="Profil" tab="Profile" back={false}>
+    <Page title="Profil" tab="Profile" back={false} contentContainerStyle={profileStyles.content}>
       <Load {...q} />
       {q.data && (
         <>
-          <Row style={{ justifyContent: "flex-start", gap: 16 }}>
-            <View
-              style={{
-                width: 65,
-                height: 65,
-                borderRadius: 40,
-                backgroundColor: C.navy,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <T style={{ fontSize: 25, fontWeight: "800", color: C.white }}>
-                {q.data.full_name.slice(0, 1)}
-              </T>
+          <View style={profileStyles.identity}>
+            <ProfileAvatar name={q.data.full_name} />
+            <View style={profileStyles.identityText}>
+              <Text style={profileStyles.name}>{q.data.full_name || "Nama belum diisi"}</Text>
+              <Text style={profileStyles.email}>{q.data.email}</Text>
+              <View style={profileStyles.badges}>
+                <Text style={profileStyles.badge}>Pemilik kos</Text>
+                <Text style={[profileStyles.badge, profileStyles.verification,
+                  q.data.verification_status === "APPROVED" && { color: colors.green }]}>
+                  {verificationLabel[q.data.verification_status] ?? q.data.verification_status}
+                </Text>
+              </View>
             </View>
-            <View style={{ flex: 1, gap: 4 }}>
-              <Title>{q.data.full_name}</Title>
-              <T muted style={{ fontSize: 11 }}>
-                {q.data.email}
-              </T>
-              <Row style={{ justifyContent: "flex-start" }}>
-                <Badge>OWNER</Badge>
-                <Badge
-                  tone={
-                    q.data.verification_status === "APPROVED" ? "green" : "navy"
-                  }
-                >
-                  {q.data.verification_status}
-                </Badge>
-              </Row>
-            </View>
-          </Row>
+          </View>
           {q.data.verification_status !== "APPROVED" && (
-            <Card>
-              <Title>Lengkapi data diri</Title>
-              <T muted>
+            <View style={profileStyles.card}>
+              <Text style={profileStyles.heading}>Lengkapi data diri</Text>
+              <Text style={profileStyles.body}>
                 {q.data.review_reason ||
                   "Verifikasi administratif membantu penyewa mengenali pengelola kos."}
-              </T>
-              <Button
+              </Text>
+              <ProfileButton
                 title="Daftar / ajukan ulang verifikasi"
                 onPress={() => nav.navigate("Onboarding")}
               />
-            </Card>
+            </View>
           )}
-          <Section title="Akun">
-            <Link title="Ubah profil" onPress={() => nav.navigate("EditProfile")} />
-            <Link
+          <MenuSection title="Akun">
+            <MenuRow title="Ubah profil" onPress={() => nav.navigate("EditProfile")} />
+            <MenuRow
               title="Ubah password"
               last
               onPress={() => nav.navigate("Password")}
             />
-          </Section>
-          <Section title="Pengelolaan">
-            <Link
+          </MenuSection>
+          <MenuSection title="Pengelolaan">
+            <MenuRow
               title="Ringkasan keuangan"
               onPress={() => nav.navigate("Finance")}
             />
-            <Link
+            <MenuRow
               title="Laporan & permintaan"
               last
               onPress={() => nav.navigate("Reports")}
             />
-          </Section>
-          <Section title="Notifikasi">
-            <Link
+          </MenuSection>
+          <MenuSection title="Notifikasi">
+            <MenuRow
               title="Notifikasi"
               onPress={() => nav.navigate("Notifications")}
             />
-            <Link
+            <MenuRow
               title="Pengaturan notifikasi"
               last
               onPress={() => nav.navigate("Settings")}
             />
-          </Section>
-          <Section title="Bantuan dan kebijakan">
-            <Link
+          </MenuSection>
+          <MenuSection title="Bantuan dan kebijakan">
+            <MenuRow
               title="Bantuan & tentang aplikasi"
               onPress={() => nav.navigate("Policy", { kind: "help" })}
             />
-            <Link
+            <MenuRow
               title="Privacy Policy"
               onPress={() => nav.navigate("Policy", { kind: "privacy" })}
             />
-            <Link
+            <MenuRow
               title="Terms"
               last
               onPress={() => nav.navigate("Policy", { kind: "terms" })}
             />
-          </Section>
-          <Section title="Pengaturan akun">
-            <Link
+          </MenuSection>
+          <MenuSection title="Pengaturan akun">
+            <MenuRow
               title="Hapus akun"
               danger
               last
               onPress={() => nav.navigate("DeleteAccount")}
             />
-          </Section>
-          <Button
-            title="Keluar"
-            secondary
-            disabled={a.busy}
-            onPress={() => void a.run(() => auth.signOut())}
-          />
+          </MenuSection>
+          <View style={profileStyles.logout}>
+            <ProfileButton
+              title="Keluar"
+              variant="danger"
+              busy={a.busy}
+              onPress={() => void a.run(() => auth.signOut())}
+            />
+          </View>
           {mode === "demo" && (
-            <Card>
-              <Badge>DEMO</Badge>
-              <T muted>
+            <View style={profileStyles.card}>
+              <Text style={[profileStyles.badge, { alignSelf: "flex-start" }]}>DEMO</Text>
+              <Text style={profileStyles.body}>
                 Uji alur owner baru. Aksi ini mengosongkan data demo lokal dan
                 tidak memengaruhi Supabase.
-              </T>
-              <Button
+              </Text>
+              <ProfileButton
                 title="Mulai demo owner baru"
-                secondary
+                variant="outline"
+                busy={a.busy}
                 onPress={() =>
                   void a.run(
                     () => profile.resetDemo!(),
@@ -270,7 +256,7 @@ export function ProfileScreen() {
                   )
                 }
               />
-            </Card>
+            </View>
           )}
         </>
       )}
@@ -278,6 +264,28 @@ export function ProfileScreen() {
     </Page>
   );
 }
+const verificationLabel: Record<string, string> = {
+  DRAFT: "Belum diajukan",
+  PENDING: "Menunggu verifikasi",
+  APPROVED: "Terverifikasi",
+  REJECTED: "Perlu perbaikan",
+};
+const profileStyles = StyleSheet.create({
+  content: { padding: spacing.page, paddingBottom: 130, gap: 0 },
+  identity: { flexDirection: "row", alignItems: "center", gap: spacing.page },
+  identityText: { flex: 1, minWidth: 0 },
+  name: { ...typography.name, color: colors.ink },
+  email: { ...typography.body, color: colors.muted, marginTop: 2, flexShrink: 1 },
+  badges: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: spacing.sm },
+  badge: { ...typography.badge, color: colors.ink, backgroundColor: colors.orangeSoft,
+    borderRadius: radius.badge, paddingHorizontal: 10, paddingVertical: spacing.xs, overflow: "hidden" },
+  verification: { backgroundColor: colors.soft },
+  card: { marginTop: spacing.section, padding: spacing.page, gap: spacing.md,
+    backgroundColor: colors.surface, borderRadius: radius.card, borderWidth: 1, borderColor: colors.line },
+  heading: { ...typography.heading, color: colors.ink },
+  body: { ...typography.body, color: colors.muted },
+  logout: { marginTop: 28 },
+});
 export function EditProfileScreen({ navigation }: Props<"EditProfile">) {
   const { profile } = useRepositories();
   const q = useLoad(useCallback(() => profile.get(), [profile]));
