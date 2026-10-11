@@ -6,7 +6,8 @@ import { Conversation, Message } from "../../domain/models";
 import { colors, radius } from "../theme";
 import { ChatImageViewer } from "./ChatImageViewer";
 import { galleryImages, type GalleryItem } from "../../domain/chatGallery";
-import { ChatImage } from "./ChatImage";
+import { ChatImageCollage } from "./ChatImageCollage";
+import { chatGroups } from "../../domain/chatCollage";
 import { Load, Photo } from "./UI";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "./ChatIcons";
 
@@ -44,7 +45,8 @@ function IconButton({ label, onPress, children, disabled = false }: {
 export function ChatConversation(p: Props) {
   const insets = useSafeAreaInsets();
   const [viewer, setViewer] = useState<{ items: GalleryItem[]; initialId: string } | null>(null);
-  const list = useRef<FlatList<Message>>(null);
+  const list = useRef<FlatList<Message[]>>(null);
+  const groups = chatGroups(p.messages);
   const [menu, setMenu] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
@@ -75,18 +77,19 @@ export function ChatConversation(p: Props) {
       </View>}
       {(p.loading || !!p.error) && <View style={styles.load}><Load loading={p.loading} error={p.error} retry={p.retry} /></View>}
       <FlatList ref={list} style={styles.flex} contentContainerStyle={styles.list}
-        data={p.messages} keyExtractor={m => m.id} keyboardShouldPersistTaps="handled"
+        data={groups} keyExtractor={group => group[0].id} keyboardShouldPersistTaps="handled"
         onContentSizeChange={scroll} onLayout={scroll}
         ListEmptyComponent={!p.loading && !p.error ? <Text style={styles.empty}>Belum ada pesan. Mulai percakapan dengan penyewa.</Text> : null}
-        renderItem={({ item: m, index }) => {
+        renderItem={({ item: group, index }) => {
+          const m = group[0];
           const mine = m.sender_id === p.userId;
           const day = new Date(m.created_at).toLocaleDateString("id-ID");
-          const previous = index ? new Date(p.messages[index - 1].created_at).toLocaleDateString("id-ID") : "";
+          const previous = index ? new Date(groups[index - 1][0].created_at).toLocaleDateString("id-ID") : "";
           return <View>
             {day !== previous && <View style={styles.dateWrap}><Text style={styles.dateChip}>{new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</Text></View>}
             <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
               <View style={[styles.bubble, mine && styles.bubbleMine, m.message_type === "IMAGE" && { width: 220 }]}>
-                {m.message_type === "IMAGE" ? <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={() => setViewer({ items: galleryImages(p.messages), initialId: m.id })}><ChatImage path={m.storage_path} /></Pressable> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
+                {m.message_type === "IMAGE" ? <ChatImageCollage items={galleryImages(group)} onOpen={id => setViewer({ items: galleryImages(group), initialId: id })} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
                 <Text style={[styles.bubbleTime, mine && { color: colors.selected }]}>{new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</Text>
               </View>
             </View>

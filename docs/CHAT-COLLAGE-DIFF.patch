@@ -1,0 +1,56 @@
+diff --git a/apps/owner-app/src/presentation/components/ChatConversation.tsx b/apps/owner-app/src/presentation/components/ChatConversation.tsx
+index 38ea6de..3314b42 100644
+--- a/apps/owner-app/src/presentation/components/ChatConversation.tsx
++++ b/apps/owner-app/src/presentation/components/ChatConversation.tsx
+@@ -9 +9,2 @@ import { galleryImages, type GalleryItem } from "../../domain/chatGallery";
+-import { ChatImage } from "./ChatImage";
++import { ChatImageCollage } from "./ChatImageCollage";
++import { chatGroups } from "../../domain/chatCollage";
+@@ -47 +48,2 @@ export function ChatConversation(p: Props) {
+-  const list = useRef<FlatList<Message>>(null);
++  const list = useRef<FlatList<Message[]>>(null);
++  const groups = chatGroups(p.messages);
+@@ -78 +80 @@ export function ChatConversation(p: Props) {
+-        data={p.messages} keyExtractor={m => m.id} keyboardShouldPersistTaps="handled"
++        data={groups} keyExtractor={group => group[0].id} keyboardShouldPersistTaps="handled"
+@@ -81 +83,2 @@ export function ChatConversation(p: Props) {
+-        renderItem={({ item: m, index }) => {
++        renderItem={({ item: group, index }) => {
++          const m = group[0];
+@@ -84 +87 @@ export function ChatConversation(p: Props) {
+-          const previous = index ? new Date(p.messages[index - 1].created_at).toLocaleDateString("id-ID") : "";
++          const previous = index ? new Date(groups[index - 1][0].created_at).toLocaleDateString("id-ID") : "";
+@@ -89 +92 @@ export function ChatConversation(p: Props) {
+-                {m.message_type === "IMAGE" ? <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={() => setViewer({ items: galleryImages(p.messages), initialId: m.id })}><ChatImage path={m.storage_path} /></Pressable> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
++                {m.message_type === "IMAGE" ? <ChatImageCollage items={galleryImages(group)} onOpen={id => setViewer({ items: galleryImages(group), initialId: id })} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
+diff --git a/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx b/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
+index 0026a23..61d6b66 100644
+--- a/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
++++ b/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
+@@ -28 +28,2 @@ import { AddImageIcon, CallIcon, VideoCallIcon } from "../../Icons/Icons";
+-import { ChatImage } from "../../components/ChatImage";
++import { ChatImageCollage } from "../../components/ChatImageCollage";
++import { chatGroups } from "../../../domain/chatCollage";
+@@ -36 +37 @@ type Row =
+-  | { kind: "message"; key: string; message: Message };
++  | { kind: "message"; key: string; message: Message; group: Message[] };
+@@ -83 +84,2 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-    for (const message of messages) {
++    for (const group of chatGroups(messages)) {
++      const message = group[0];
+@@ -93 +95 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-      out.push({ kind: "message", key: message.client_message_id, message });
++      out.push({ kind: "message", key: message.client_message_id, message, group });
+@@ -276,0 +279 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++                group={item.group}
+@@ -278 +281 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-                onImagePress={() => setViewer({ items: galleryImages(messages), initialId: item.message.id })}
++                onImagePress={(id) => setViewer({ items: galleryImages(item.group), initialId: id })}
+@@ -336 +339 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-function Bubble({ item, mine, onImagePress }: { item: Message; mine: boolean; onImagePress: () => void }) {
++function Bubble({ item, group, mine, onImagePress }: { item: Message; group: Message[]; mine: boolean; onImagePress: (id: string) => void }) {
+@@ -341,3 +344 @@ function Bubble({ item, mine, onImagePress }: { item: Message; mine: boolean; on
+-          <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={onImagePress}>
+-            <ChatImage path={item.storage_path} fallback={item.image_url} />
+-          </Pressable>
++          <ChatImageCollage items={galleryImages(group)} onOpen={onImagePress} />

@@ -25,7 +25,8 @@ import { colors, radius } from "../../theme";
 import { dayKey, dayLabel, timeLabel } from "../../format";
 import { clientMessageId } from "../../clientId";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "../../Icons/Icons";
-import { ChatImage } from "../../components/ChatImage";
+import { ChatImageCollage } from "../../components/ChatImageCollage";
+import { chatGroups } from "../../../domain/chatCollage";
 import type { Message } from "../../../domain/models";
 import { imageBatch, galleryImages, MAX_CHAT_PHOTOS, type GalleryItem } from "../../../domain/chatGallery";
 import { ChatImageViewer } from "../../components/ChatImageViewer";
@@ -33,7 +34,7 @@ import { ChatImageViewer } from "../../components/ChatImageViewer";
 
 type Row =
   | { kind: "date"; key: string; label: string }
-  | { kind: "message"; key: string; message: Message };
+  | { kind: "message"; key: string; message: Message; group: Message[] };
 
 export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   const { conversationId, propertyId, propertyName } = route.params;
@@ -80,7 +81,8 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   const rows = useMemo<Row[]>(() => {
     const out: Row[] = [];
     let lastDay = "";
-    for (const message of messages) {
+    for (const group of chatGroups(messages)) {
+      const message = group[0];
       const day = dayKey(message.created_at);
       if (day !== lastDay) {
         out.push({
@@ -90,7 +92,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
         });
         lastDay = day;
       }
-      out.push({ kind: "message", key: message.client_message_id, message });
+      out.push({ kind: "message", key: message.client_message_id, message, group });
     }
     return out;
   }, [messages]);
@@ -274,8 +276,9 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
             ) : (
               <Bubble
                 item={item.message}
+                group={item.group}
                 mine={item.message.sender_id === myId}
-                onImagePress={() => setViewer({ items: galleryImages(messages), initialId: item.message.id })}
+                onImagePress={(id) => setViewer({ items: galleryImages(item.group), initialId: id })}
               />
             )
           }
@@ -333,14 +336,12 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   );
 }
 
-function Bubble({ item, mine, onImagePress }: { item: Message; mine: boolean; onImagePress: () => void }) {
+function Bubble({ item, group, mine, onImagePress }: { item: Message; group: Message[]; mine: boolean; onImagePress: (id: string) => void }) {
   return (
     <View style={[styles.bubbleRow, mine && styles.bubbleRowMine]}>
       <View style={[styles.bubble, mine && styles.bubbleMine]}>
         {item.message_type === "IMAGE" ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={onImagePress}>
-            <ChatImage path={item.storage_path} fallback={item.image_url} />
-          </Pressable>
+          <ChatImageCollage items={galleryImages(group)} onOpen={onImagePress} />
         ) : (
           <Text style={[styles.bubbleText, mine && styles.bubbleTextMine]}>
             {item.text_content}
