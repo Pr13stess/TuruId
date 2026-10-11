@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Path } from "react-native-svg";
+import { Ionicons } from "@expo/vector-icons";
 import { Conversation, Message } from "../../domain/models";
 import { colors, radius } from "../theme";
 import { ChatImageViewer } from "./ChatImageViewer";
@@ -60,7 +60,7 @@ export function ChatConversation(p: Props) {
       {viewer && <ChatImageViewer items={viewer.items} initialId={viewer.initialId} onClose={() => setViewer(null)} />}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <IconButton label="Kembali" onPress={p.onBack}>
-          <Svg width={24} height={24} viewBox="0 0 24 24"><Path d="M20 12H4m7-7-7 7 7 7" stroke={colors.primary} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </IconButton>
         <View style={styles.avatar}><Text style={styles.avatarText}>{p.conversation.tenant.trim().slice(0, 1) || "?"}</Text></View>
         <View style={styles.headerText}>
