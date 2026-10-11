@@ -122,6 +122,7 @@ export class MockPropertyRepository implements PropertyRepository {
     };
   }
   async save(input: M.PropertyInput) {
+    if (input.photos.length > 10) throw new Error("Galeri kos maksimal 10 foto.");
     required(input.name);
     required(input.address);
     required(input.city);
@@ -464,6 +465,9 @@ export class MockCommunicationRepository implements CommunicationRepository {
   }
 }
 export class MockSupportRepository implements SupportRepository {
+  async uploadPropertyVideo(video: import("../../domain/propertyGallery").PropertyVideoInput) {
+    return video.uri; // Device-local demo only; no cross-app persistence.
+  }
   async uploadChatImage(image: import("../../domain/chatUpload").ChatImagePayload) {
     return `data:${image.mime};base64,${image.base64}`;
   }

@@ -5,6 +5,12 @@ import { array, parseProperty, parseSearchRow } from "../mappers/catalog";
 import { resolveOwnerMediaImages } from "./resolveOwnerMedia";
 export class SupabasePropertyRepository implements PropertyRepository {
   constructor(private readonly client: SupabaseClient) {}
+  async videoUrl(path: string) {
+    if (!path.startsWith("property-videos/")) throw new Error("Lokasi video tidak valid.");
+    const { data, error } = await this.client.storage.from("property-videos").createSignedUrl(path.slice(16), 1800);
+    if (error) throw error;
+    return data.signedUrl;
+  }
   async search(q: SearchQuery) {
     const { data, error } = await this.client.rpc("search_properties", {
       q: q.text,
@@ -36,6 +42,8 @@ export class SupabasePropertyRepository implements PropertyRepository {
     const [resolved] = await resolveOwnerMediaImages(this.client, [
       parseProperty(data),
     ]);
-    return resolved;
+    const { data: video, error: videoError } = await this.client.from("property_videos").select("storage_path").eq("property_id", id).maybeSingle();
+    if (videoError && videoError.code !== "PGRST205" && videoError.code !== "42P01") throw new Error("Video kos gagal dimuat. Coba lagi.");
+    return video ? { ...resolved, video_path: video.storage_path as string } : resolved;
   }
 }

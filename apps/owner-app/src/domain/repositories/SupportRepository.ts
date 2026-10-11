@@ -1,5 +1,6 @@
 import { MediaInput, Notice, Report } from "../models";
 export interface SupportRepository {
+  uploadPropertyVideo(video: import("../propertyGallery").PropertyVideoInput): Promise<string>;
   uploadChatImage(image: import("../chatUpload").ChatImagePayload, conversationId: string, clientId: string): Promise<string>;
   hasChatImage(conversationId: string, path: string, clientId: string): Promise<boolean>;
   chatImageUrl(path: string): Promise<import("../chatImage").ImageLease>;

@@ -24,6 +24,7 @@ export interface Property {
   publication_status:
     "DRAFT" | "ACTIVE" | "INACTIVE" | "SUSPENDED" | "ARCHIVED";
   photos: string[];
+  video_path?: string;
   facilities: string[];
   review_reason?: string;
 }

@@ -3,6 +3,7 @@ import type { SearchQuery } from "../../domain/models";
 import { searchCatalog } from "../../domain/search";
 import { mockProperties, mockRooms } from "./fixtures";
 export class MockPropertyRepository implements PropertyRepository {
+  async videoUrl(path: string) { return path; }
   async search(query: SearchQuery) {
     return searchCatalog(mockProperties, mockRooms, query);
   }

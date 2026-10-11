@@ -37,6 +37,7 @@ export interface Property {
   rules: string;
   owner_name: string;
   images: string[];
+  video_path?: string;
   facilities: string[];
   rating: number;
   review_count: number;

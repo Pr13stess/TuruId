@@ -29,6 +29,8 @@ test("Supabase adapters use real SDK request encoding and validate response cont
       ];
     else if (url.pathname.endsWith("/property_catalog"))
       value = [mockProperties[0]];
+    else if (url.pathname.endsWith("/property_videos"))
+      value = [{ storage_path: "property-videos/owner/tour.mp4" }];
     else if (url.pathname.endsWith("/room_catalog")) value = [mockRooms[0]];
     else if (url.pathname.endsWith("/plan_catalog")) value = mockRooms[0].plans;
     else throw new Error("Unexpected API request");
@@ -52,10 +54,9 @@ test("Supabase adapters use real SDK request encoding and validate response cont
   assert.deepEqual(params.room_facilities, ["AC"]);
   assert.equal(params.period_unit, "MONTH");
   assert.equal(params.sort_by, "price");
-  assert.equal(
-    (await properties.get(mockProperties[0].id)).name,
-    mockProperties[0].name,
-  );
+  const detail = await properties.get(mockProperties[0].id);
+  assert.equal(detail.name, mockProperties[0].name);
+  assert.equal(detail.video_path, "property-videos/owner/tour.mp4");
   assert.equal(
     calls[1].url.searchParams.get("id"),
     `eq.${mockProperties[0].id}`,
@@ -69,7 +70,7 @@ test("Supabase adapters use real SDK request encoding and validate response cont
     mockRooms[0].id,
   );
   assert.equal(
-    calls[2].url.searchParams.get("property_id"),
+    calls[3].url.searchParams.get("property_id"),
     `eq.${mockProperties[0].id}`,
   );
   assert.equal(
@@ -78,7 +79,7 @@ test("Supabase adapters use real SDK request encoding and validate response cont
     4,
   );
   assert.equal(
-    calls[3].url.searchParams.get("room_type_id"),
+    calls[4].url.searchParams.get("room_type_id"),
     `eq.${mockRooms[0].id}`,
   );
 });

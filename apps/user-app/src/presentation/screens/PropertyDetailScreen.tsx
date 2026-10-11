@@ -15,6 +15,7 @@ import { useResource } from "../hooks/useResource";
 import { colors } from "../theme";
 import { genderLabel } from "../format";
 import { PropertyImage } from "../components/PropertyImage";
+import { PropertyVideo } from "../components/PropertyVideo";
 import {
   Button,
   FeatureGrid,
@@ -30,6 +31,7 @@ export function PropertyDetailScreen({
 }: ScreenProps<"PropertyDetail">) {
   const { propertyId } = route.params;
   const { properties, rooms, chat } = useRepositories();
+  const videoUrl = useCallback((path: string) => properties.videoUrl(path), [properties]);
   const [openingChat, setOpeningChat] = useState(false);
   const loader = useCallback(
     async () => ({
@@ -91,7 +93,7 @@ export function PropertyDetailScreen({
           </View>
         </Pressable>
         {p.images.length > 1 && (
-          <View style={styles.gallery}>
+          <ScrollView horizontal contentContainerStyle={styles.gallery}>
             {p.images.map((uri, index) => (
               <Pressable
                 key={`${uri}-${index}`}
@@ -106,8 +108,9 @@ export function PropertyDetailScreen({
                 <PropertyImage uri={uri} style={{ height: 45, width: 68 }} />
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         )}
+        {!!p.video_path && <PropertyVideo path={p.video_path} resolve={videoUrl} />}
         <View style={styles.body}>
           <View style={styles.titleRow}>
             <Text style={styles.name}>{p.name}</Text>

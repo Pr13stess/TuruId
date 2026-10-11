@@ -1,6 +1,7 @@
 import { uploadChatImage, findImageMessage } from "./chatImageUpload";
 import type { ChatImagePayload } from "../../domain/chatUpload";
 import { signChatImage } from "../../domain/chatImage";
+import { uploadPropertyVideo, videoSchemaMissing } from "./propertyVideo";
 import { SupabaseClient } from "@supabase/supabase-js";
 import * as M from "../../domain/models";
 import { AuthRepository } from "../../domain/repositories/AuthRepository";
@@ -147,11 +148,21 @@ export class SupabasePropertyRepository
   dashboard() {
     return this.read<M.Dashboard>("dashboard");
   }
-  list() {
-    return this.read<M.Property[]>("properties");
+  async list() {
+    const properties = await this.read<M.Property[]>("properties");
+    if (!properties.length) return properties;
+    const { data, error } = await this.client.from("property_videos").select("property_id,storage_path").in("property_id", properties.map(p => p.id));
+    // Photo-only backends keep working until the additive video schema is approved.
+    if (videoSchemaMissing(error)) return properties;
+    if (error) throw error;
+    return properties.map(p => {
+      const video = data?.find(v => v.property_id === p.id);
+      return video ? { ...p, video_path: video.storage_path as string } : p;
+    });
   }
   save(input: M.PropertyInput) {
-    return this.rpc<string>("owner_save_property", { input });
+    if (input.photos.length > 10) throw new Error("Galeri kos maksimal 10 foto.");
+    return this.rpc<string>(input.video_path === undefined ? "owner_save_property" : "owner_save_property_gallery", { input });
   }
   async submitVerification(pid: string, evidence: string) {
     await this.rpc("owner_verify_property", { pid, evidence });
@@ -296,6 +307,9 @@ export class SupabaseSupportRepository
   extends Repository
   implements SupportRepository
 {
+  uploadPropertyVideo(video: import("../../domain/propertyGallery").PropertyVideoInput) {
+    return uploadPropertyVideo(this.client, video);
+  }
   async uploadChatImage(image: ChatImagePayload, conversationId: string, clientId: string) {
     const { data, error } = await this.client.auth.getUser();
     if (error || !data.user) throw new Error("Sesi tidak valid.");
@@ -346,6 +360,11 @@ export class SupabaseSupportRepository
   }
   async mediaUrl(path: string) {
     if (!path) return "";
+    if (path.startsWith("property-videos/")) {
+      const { data, error } = await this.client.storage.from("property-videos").createSignedUrl(path.slice(16), 1800);
+      if (error) throw error;
+      return data.signedUrl;
+    }
     if (!path.startsWith("owner-media/")) return path;
     const { data, error } = await this.client.storage
       .from("owner-media")

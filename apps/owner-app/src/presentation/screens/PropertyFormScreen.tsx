@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { PropertyInput } from "../../domain/models";
 import { Props } from "../navigation";
 import { useAction } from "../hooks";
 import { chooseImage } from "../media";
+import { choosePropertyMedia, preparePropertyPhoto, type PickedPropertyMedia } from "../propertyMedia";
+import { propertyUploadQueue } from "../../domain/propertyGallery";
+import { PropertyVideo } from "../components/PropertyVideo";
 import {
   Badge,
   Button,
@@ -46,11 +49,36 @@ export function PropertyFormScreen({
   const [lat, setLat] = useState(String(old?.latitude ?? ""));
   const [lon, setLon] = useState(String(old?.longitude ?? ""));
   const [evidence, setEvidence] = useState("");
+  const [pending, setPending] = useState<ReturnType<typeof propertyUploadQueue<PickedPropertyMedia>> | null>(null);
+  const [progress, setProgress] = useState("");
+  const videoUrl = useCallback((path: string) => support.mediaUrl(path), [support]);
+  const uploadGallery = () => action.run(async () => {
+    let queue = pending;
+    if (!queue) {
+      const assets = await choosePropertyMedia(value.photos.length, !!value.video_path);
+      if (!assets.length) return;
+      queue = propertyUploadQueue(assets);
+      setPending(queue);
+    }
+    await queue.run(async asset => {
+      setProgress("Mengunggah media. Jangan tutup halaman ini.");
+      if (asset.type === "video") {
+        const path = await support.uploadPropertyVideo({ uri: asset.uri, uploadId: asset.uploadId, file: asset.file });
+        setValue(v => ({ ...v, video_path: path }));
+      } else {
+        const path = await support.upload(await preparePropertyPhoto(asset));
+        setValue(v => ({ ...v, photos: [...v.photos, path] }));
+      }
+    });
+    setPending(null);
+    setProgress("");
+  }, undefined, "Media siap. Simpan kos untuk menerapkan perubahan.").finally(() => setProgress(""));
   const set = <K extends keyof PropertyInput>(key: K, v: PropertyInput[K]) =>
     setValue((s) => ({ ...s, [key]: v }));
   const upload = (purpose: "property" | "verification", camera = false) =>
     action.run(
       async () => {
+        if (purpose === "property" && value.photos.length >= 10) throw new Error("Galeri kos maksimal 10 foto.");
         const image = await chooseImage(camera);
         if (!image) return;
         const path = await support.upload({ ...image, purpose });
@@ -149,6 +177,8 @@ export function PropertyFormScreen({
       </Card>
       <Card>
         <Title>Galeri kos</Title>
+        <T muted>{value.photos.length}/10 foto · {value.video_path ? 1 : 0}/1 video</T>
+        <T muted>Foto dan video dapat dipilih sekaligus. Video MP4 maksimal 60 detik dan 50 MB. Sampul tetap foto.</T>
         {value.photos.map((p, i) => (
           <View key={p + i}>
             <Photo path={p} />
@@ -159,13 +189,13 @@ export function PropertyFormScreen({
               <Link
                 title="Jadikan sampul"
                 onPress={() =>
-                  set("photos", [p, ...value.photos.filter((_, n) => n !== i)])
+                  !action.busy && !pending && set("photos", [p, ...value.photos.filter((_, n) => n !== i)])
                 }
               />
               <Link
                 title="Hapus"
                 onPress={() =>
-                  set(
+                  !action.busy && !pending && set(
                     "photos",
                     value.photos.filter((_, n) => n !== i),
                   )
@@ -174,17 +204,26 @@ export function PropertyFormScreen({
             </Row>
           </View>
         ))}
+        {!!value.video_path && <View>
+          <PropertyVideo path={value.video_path} resolve={videoUrl} />
+          <Link title="Lepaskan video" onPress={() => { if (!action.busy && !pending) set("video_path", ""); }} />
+        </View>}
+        {!!progress && <T muted>{progress}</T>}
+        {!!pending && !action.busy && <Row>
+          <Button title="Coba unggah sisanya" onPress={() => void uploadGallery()} />
+          <Link title="Batalkan sisa unggahan" onPress={() => setPending(null)} />
+        </Row>}
         <Row style={{ flexWrap: "wrap" }}>
           <Button
-            title="Pilih foto"
+            title="Pilih foto & video"
             secondary
-            disabled={action.busy}
-            onPress={() => void upload("property")}
+            disabled={action.busy || !!pending || (value.photos.length >= 10 && !!value.video_path)}
+            onPress={() => void uploadGallery()}
           />
           <Button
             title="Kamera"
             secondary
-            disabled={action.busy}
+            disabled={action.busy || !!pending || value.photos.length >= 10}
             onPress={() => void upload("property", true)}
           />
         </Row>
@@ -208,7 +247,7 @@ export function PropertyFormScreen({
       <Feedback text={action.message} />
       <Button
         title={action.busy ? "Menyimpan…" : "Simpan kos"}
-        disabled={action.busy}
+        disabled={action.busy || !!pending}
         onPress={() =>
           void action.run(async () => {
             if (Boolean(lat) !== Boolean(lon))
