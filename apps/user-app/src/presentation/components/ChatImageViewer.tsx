@@ -18,7 +18,7 @@ export function ChatImageViewer({ items, initialId, onClose }: { items: GalleryI
         onPrevious={previous} onNext={next} onClose={onClose} />}
       <View style={[styles.top, { top: insets.top + 8 }]}>
         <Text accessibilityLiveRegion="polite" style={styles.text}>{items.length ? index + 1 : 0}/{items.length}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Tutup gambar" onPress={onClose} style={styles.button}><Text style={styles.text}>Tutup ✕</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Tutup gambar" onPress={onClose} style={styles.button}><Text style={styles.text}>✕</Text></Pressable>
       </View>
       <View style={[styles.bottom, { bottom: insets.bottom + 8 }]}>
         <Pressable accessibilityRole="button" accessibilityLabel="Gambar sebelumnya" disabled={index === 0} onPress={previous} style={[styles.button, index === 0 && styles.disabled]}><Text style={styles.text}>‹</Text></Pressable>
