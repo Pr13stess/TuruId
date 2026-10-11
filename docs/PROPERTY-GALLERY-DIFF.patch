@@ -1,0 +1,230 @@
+diff --git a/apps/owner-app/package.json b/apps/owner-app/package.json
+index f9a02bd..154d4f6 100644
+--- a/apps/owner-app/package.json
++++ b/apps/owner-app/package.json
+@@ -21,0 +22 @@
++    "expo-video": "~57.0.5",
+diff --git a/apps/owner-app/src/data/mock/Repositories.ts b/apps/owner-app/src/data/mock/Repositories.ts
+index 2d3ca7a..3fee7c0 100644
+--- a/apps/owner-app/src/data/mock/Repositories.ts
++++ b/apps/owner-app/src/data/mock/Repositories.ts
+@@ -124,0 +125 @@ export class MockPropertyRepository implements PropertyRepository {
++    if (input.photos.length > 10) throw new Error("Galeri kos maksimal 10 foto.");
+@@ -466,0 +468,3 @@ export class MockSupportRepository implements SupportRepository {
++  async uploadPropertyVideo(video: import("../../domain/propertyGallery").PropertyVideoInput) {
++    return video.uri; // Device-local demo only; no cross-app persistence.
++  }
+diff --git a/apps/owner-app/src/data/supabase/Repositories.ts b/apps/owner-app/src/data/supabase/Repositories.ts
+index 59cd045..f1d184a 100644
+--- a/apps/owner-app/src/data/supabase/Repositories.ts
++++ b/apps/owner-app/src/data/supabase/Repositories.ts
+@@ -3,0 +4 @@ import { signChatImage } from "../../domain/chatImage";
++import { uploadPropertyVideo, videoSchemaMissing } from "./propertyVideo";
+@@ -150,2 +151,11 @@ export class SupabasePropertyRepository
+-  list() {
+-    return this.read<M.Property[]>("properties");
++  async list() {
++    const properties = await this.read<M.Property[]>("properties");
++    if (!properties.length) return properties;
++    const { data, error } = await this.client.from("property_videos").select("property_id,storage_path").in("property_id", properties.map(p => p.id));
++    // Photo-only backends keep working until the additive video schema is approved.
++    if (videoSchemaMissing(error)) return properties;
++    if (error) throw error;
++    return properties.map(p => {
++      const video = data?.find(v => v.property_id === p.id);
++      return video ? { ...p, video_path: video.storage_path as string } : p;
++    });
+@@ -154 +164,2 @@ export class SupabasePropertyRepository
+-    return this.rpc<string>("owner_save_property", { input });
++    if (input.photos.length > 10) throw new Error("Galeri kos maksimal 10 foto.");
++    return this.rpc<string>(input.video_path === undefined ? "owner_save_property" : "owner_save_property_gallery", { input });
+@@ -298,0 +310,3 @@ export class SupabaseSupportRepository
++  uploadPropertyVideo(video: import("../../domain/propertyGallery").PropertyVideoInput) {
++    return uploadPropertyVideo(this.client, video);
++  }
+@@ -348,0 +363,5 @@ export class SupabaseSupportRepository
++    if (path.startsWith("property-videos/")) {
++      const { data, error } = await this.client.storage.from("property-videos").createSignedUrl(path.slice(16), 1800);
++      if (error) throw error;
++      return data.signedUrl;
++    }
+diff --git a/apps/owner-app/src/domain/models.ts b/apps/owner-app/src/domain/models.ts
+index 9bd4b43..22e35ca 100644
+--- a/apps/owner-app/src/domain/models.ts
++++ b/apps/owner-app/src/domain/models.ts
+@@ -26,0 +27 @@ export interface Property {
++  video_path?: string;
+diff --git a/apps/owner-app/src/domain/repositories/SupportRepository.ts b/apps/owner-app/src/domain/repositories/SupportRepository.ts
+index 5afdc89..0dc2f5b 100644
+--- a/apps/owner-app/src/domain/repositories/SupportRepository.ts
++++ b/apps/owner-app/src/domain/repositories/SupportRepository.ts
+@@ -2,0 +3 @@ export interface SupportRepository {
++  uploadPropertyVideo(video: import("../propertyGallery").PropertyVideoInput): Promise<string>;
+diff --git a/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx b/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx
+index 97f53bc..ae9e32d 100644
+--- a/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx
++++ b/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx
+@@ -1 +1 @@
+-import React, { useState } from "react";
++import React, { useCallback, useState } from "react";
+@@ -7,0 +8,3 @@ import { chooseImage } from "../media";
++import { choosePropertyMedia, preparePropertyPhoto, type PickedPropertyMedia } from "../propertyMedia";
++import { propertyUploadQueue } from "../../domain/propertyGallery";
++import { PropertyVideo } from "../components/PropertyVideo";
+@@ -48,0 +52,24 @@ export function PropertyFormScreen({
++  const [pending, setPending] = useState<ReturnType<typeof propertyUploadQueue<PickedPropertyMedia>> | null>(null);
++  const [progress, setProgress] = useState("");
++  const videoUrl = useCallback((path: string) => support.mediaUrl(path), [support]);
++  const uploadGallery = () => action.run(async () => {
++    let queue = pending;
++    if (!queue) {
++      const assets = await choosePropertyMedia(value.photos.length, !!value.video_path);
++      if (!assets.length) return;
++      queue = propertyUploadQueue(assets);
++      setPending(queue);
++    }
++    await queue.run(async asset => {
++      setProgress("Mengunggah media. Jangan tutup halaman ini.");
++      if (asset.type === "video") {
++        const path = await support.uploadPropertyVideo({ uri: asset.uri, uploadId: asset.uploadId, file: asset.file });
++        setValue(v => ({ ...v, video_path: path }));
++      } else {
++        const path = await support.upload(await preparePropertyPhoto(asset));
++        setValue(v => ({ ...v, photos: [...v.photos, path] }));
++      }
++    });
++    setPending(null);
++    setProgress("");
++  }, undefined, "Media siap. Simpan kos untuk menerapkan perubahan.").finally(() => setProgress(""));
+@@ -53,0 +81 @@ export function PropertyFormScreen({
++        if (purpose === "property" && value.photos.length >= 10) throw new Error("Galeri kos maksimal 10 foto.");
+@@ -151,0 +180,2 @@ export function PropertyFormScreen({
++        <T muted>{value.photos.length}/10 foto · {value.video_path ? 1 : 0}/1 video</T>
++        <T muted>Foto dan video dapat dipilih sekaligus. Video MP4 maksimal 60 detik dan 50 MB. Sampul tetap foto.</T>
+@@ -162 +192 @@ export function PropertyFormScreen({
+-                  set("photos", [p, ...value.photos.filter((_, n) => n !== i)])
++                  !action.busy && !pending && set("photos", [p, ...value.photos.filter((_, n) => n !== i)])
+@@ -168 +198 @@ export function PropertyFormScreen({
+-                  set(
++                  !action.busy && !pending && set(
+@@ -176,0 +207,9 @@ export function PropertyFormScreen({
++        {!!value.video_path && <View>
++          <PropertyVideo path={value.video_path} resolve={videoUrl} />
++          <Link title="Lepaskan video" onPress={() => { if (!action.busy && !pending) set("video_path", ""); }} />
++        </View>}
++        {!!progress && <T muted>{progress}</T>}
++        {!!pending && !action.busy && <Row>
++          <Button title="Coba unggah sisanya" onPress={() => void uploadGallery()} />
++          <Link title="Batalkan sisa unggahan" onPress={() => setPending(null)} />
++        </Row>}
+@@ -179 +218 @@ export function PropertyFormScreen({
+-            title="Pilih foto"
++            title="Pilih foto & video"
+@@ -181,2 +220,2 @@ export function PropertyFormScreen({
+-            disabled={action.busy}
+-            onPress={() => void upload("property")}
++            disabled={action.busy || !!pending || (value.photos.length >= 10 && !!value.video_path)}
++            onPress={() => void uploadGallery()}
+@@ -187 +226 @@ export function PropertyFormScreen({
+-            disabled={action.busy}
++            disabled={action.busy || !!pending || value.photos.length >= 10}
+@@ -211 +250 @@ export function PropertyFormScreen({
+-        disabled={action.busy}
++        disabled={action.busy || !!pending}
+diff --git a/apps/user-app/package.json b/apps/user-app/package.json
+index fa8b7d1..caa2a81 100644
+--- a/apps/user-app/package.json
++++ b/apps/user-app/package.json
+@@ -18,0 +19 @@
++    "expo-video": "~57.0.5",
+diff --git a/apps/user-app/src/data/mock/MockPropertyRepository.ts b/apps/user-app/src/data/mock/MockPropertyRepository.ts
+index 3af26a5..25235f7 100644
+--- a/apps/user-app/src/data/mock/MockPropertyRepository.ts
++++ b/apps/user-app/src/data/mock/MockPropertyRepository.ts
+@@ -5,0 +6 @@ export class MockPropertyRepository implements PropertyRepository {
++  async videoUrl(path: string) { return path; }
+diff --git a/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts b/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts
+index 81ab1c2..e2d07ad 100644
+--- a/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts
++++ b/apps/user-app/src/data/supabase/SupabasePropertyRepository.ts
+@@ -7,0 +8,6 @@ export class SupabasePropertyRepository implements PropertyRepository {
++  async videoUrl(path: string) {
++    if (!path.startsWith("property-videos/")) throw new Error("Lokasi video tidak valid.");
++    const { data, error } = await this.client.storage.from("property-videos").createSignedUrl(path.slice(16), 1800);
++    if (error) throw error;
++    return data.signedUrl;
++  }
+@@ -39 +45,3 @@ export class SupabasePropertyRepository implements PropertyRepository {
+-    return resolved;
++    const { data: video, error: videoError } = await this.client.from("property_videos").select("storage_path").eq("property_id", id).maybeSingle();
++    if (videoError && videoError.code !== "PGRST205" && videoError.code !== "42P01") throw new Error("Video kos gagal dimuat. Coba lagi.");
++    return video ? { ...resolved, video_path: video.storage_path as string } : resolved;
+diff --git a/apps/user-app/src/domain/models.ts b/apps/user-app/src/domain/models.ts
+index 86e19df..10fbae2 100644
+--- a/apps/user-app/src/domain/models.ts
++++ b/apps/user-app/src/domain/models.ts
+@@ -39,0 +40 @@ export interface Property {
++  video_path?: string;
+diff --git a/apps/user-app/src/domain/repositories/PropertyRepository.ts b/apps/user-app/src/domain/repositories/PropertyRepository.ts
+index be4cb33..fd0fdd1 100644
+--- a/apps/user-app/src/domain/repositories/PropertyRepository.ts
++++ b/apps/user-app/src/domain/repositories/PropertyRepository.ts
+@@ -2,0 +3 @@ export interface PropertyRepository {
++  videoUrl(path: string): Promise<string>;
+diff --git a/apps/user-app/src/presentation/screens/PropertyDetailScreen.tsx b/apps/user-app/src/presentation/screens/PropertyDetailScreen.tsx
+index 3339a2d..1d4e72d 100644
+--- a/apps/user-app/src/presentation/screens/PropertyDetailScreen.tsx
++++ b/apps/user-app/src/presentation/screens/PropertyDetailScreen.tsx
+@@ -17,0 +18 @@ import { PropertyImage } from "../components/PropertyImage";
++import { PropertyVideo } from "../components/PropertyVideo";
+@@ -32,0 +34 @@ export function PropertyDetailScreen({
++  const videoUrl = useCallback((path: string) => properties.videoUrl(path), [properties]);
+@@ -94 +96 @@ export function PropertyDetailScreen({
+-          <View style={styles.gallery}>
++          <ScrollView horizontal contentContainerStyle={styles.gallery}>
+@@ -109 +111 @@ export function PropertyDetailScreen({
+-          </View>
++          </ScrollView>
+@@ -110,0 +113 @@ export function PropertyDetailScreen({
++        {!!p.video_path && <PropertyVideo path={p.video_path} resolve={videoUrl} />}
+diff --git a/package-lock.json b/package-lock.json
+index ad61ccc..2a43316 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -51,0 +52 @@
++        "expo-video": "~57.0.5",
+@@ -111,0 +113 @@
++        "expo-video": "~57.0.5",
+@@ -6496,0 +6499,11 @@
++    "node_modules/expo-video": {
++      "version": "57.0.5",
++      "resolved": "https://registry.npmjs.org/expo-video/-/expo-video-57.0.5.tgz",
++      "integrity": "sha512-VK2o+d6rb+tVeL2DI6d0F58pRV8d8bctLpOrMJEHRYtMIK5iwvjjrRx2mciYN8/d04SgWC8TkI+wuZ8Sbp/yuA==",
++      "license": "MIT",
++      "peerDependencies": {
++        "expo": "*",
++        "react": "*",
++        "react-native": "*"
++      }
++    },
+diff --git a/tests/adapters.test.mjs b/tests/adapters.test.mjs
+index dce60a7..6daadce 100644
+--- a/tests/adapters.test.mjs
++++ b/tests/adapters.test.mjs
+@@ -31,0 +32,2 @@ test("Supabase adapters use real SDK request encoding and validate response cont
++    else if (url.pathname.endsWith("/property_videos"))
++      value = [{ storage_path: "property-videos/owner/tour.mp4" }];
+@@ -55,4 +57,3 @@ test("Supabase adapters use real SDK request encoding and validate response cont
+-  assert.equal(
+-    (await properties.get(mockProperties[0].id)).name,
+-    mockProperties[0].name,
+-  );
++  const detail = await properties.get(mockProperties[0].id);
++  assert.equal(detail.name, mockProperties[0].name);
++  assert.equal(detail.video_path, "property-videos/owner/tour.mp4");
+@@ -72 +73 @@ test("Supabase adapters use real SDK request encoding and validate response cont
+-    calls[2].url.searchParams.get("property_id"),
++    calls[3].url.searchParams.get("property_id"),
+@@ -81 +82 @@ test("Supabase adapters use real SDK request encoding and validate response cont
+-    calls[3].url.searchParams.get("room_type_id"),
++    calls[4].url.searchParams.get("room_type_id"),
