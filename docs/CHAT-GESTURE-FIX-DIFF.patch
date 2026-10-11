@@ -1,0 +1,142 @@
+diff --git a/apps/owner-app/src/presentation/components/ChatImageViewer.tsx b/apps/owner-app/src/presentation/components/ChatImageViewer.tsx
+index 8edd36d..5e4903d 100644
+--- a/apps/owner-app/src/presentation/components/ChatImageViewer.tsx
++++ b/apps/owner-app/src/presentation/components/ChatImageViewer.tsx
+@@ -4 +4,2 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
+-import { clamp, initialPhoto, swipeAction, type GalleryItem } from "../../domain/chatGallery";
++import { initialPhoto, type GalleryItem } from "../../domain/chatGallery";
++import { photoGesture } from "../../domain/chatGesture";
+@@ -35,2 +36,8 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
+-    let current = { scale: 1, x: 0, y: 0 };
+-    let start = { scale: 1, x: 0, y: 0, distance: 0, pinched: false, dx: 0, dy: 0 };
++    const gesture = photoGesture(width, height, frame => {
++      scale.setValue(frame.scale);
++      pan.setValue({ x: frame.x, y: frame.y });
++    }, action => {
++      if (action === "next") onNext();
++      else if (action === "previous") onPrevious();
++      else onClose();
++    });
+@@ -38,34 +45,12 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
+-    onMoveShouldSetPanResponder: (e, g) => e.nativeEvent.touches.length > 1 || Math.abs(g.dx) + Math.abs(g.dy) > 6,
+-    onPanResponderGrant: () => { start = { ...current, distance: 0, pinched: false, dx: 0, dy: 0 }; },
+-    onPanResponderMove: (e, g) => {
+-      const touches = e.nativeEvent.touches;
+-      if (touches.length >= 2) {
+-        const distance = Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+-        if (!start.distance) { start.distance = Math.max(1, distance); start.scale = current.scale; }
+-        start.pinched = true;
+-        const value = clamp(start.scale * distance / start.distance, 1, 4);
+-        current.scale = value;
+-        current.x = clamp(current.x, -width * (value - 1) / 2, width * (value - 1) / 2);
+-        current.y = clamp(current.y, -height * (value - 1) / 2, height * (value - 1) / 2);
+-        scale.setValue(value); pan.setValue({ x: current.x, y: current.y });
+-        // Rebase translation when a finger lifts: don't jump to the old drag origin.
+-        start.x = current.x; start.y = current.y; start.dx = g.dx; start.dy = g.dy;
+-      } else if (current.scale > 1.01) {
+-        start.distance = 0;
+-        current.x = clamp(start.x + g.dx - start.dx, -width * (current.scale - 1) / 2, width * (current.scale - 1) / 2);
+-        current.y = clamp(start.y + g.dy - start.dy, -height * (current.scale - 1) / 2, height * (current.scale - 1) / 2);
+-        pan.setValue({ x: current.x, y: current.y });
+-      } else if (!start.pinched) {
+-        pan.setValue({ x: g.dx * 0.25, y: Math.max(0, g.dy) });
+-      }
+-    },
+-    onPanResponderRelease: (_e, g) => {
+-      if (!start.pinched) {
+-        const action = swipeAction(g.dx, g.dy, current.scale);
+-        if (action === "close") onClose();
+-        else if (action === "next") onNext();
+-        else if (action === "previous") onPrevious();
+-      }
+-      if (current.scale <= 1.01) { current = { scale: 1, x: 0, y: 0 }; scale.setValue(1); pan.setValue({ x: 0, y: 0 }); }
+-    },
+-    onPanResponderTerminate: () => { pan.setValue({ x: current.x, y: current.y }); },
++      // Own the touch stream from the first finger, including touches over the image.
++      onStartShouldSetPanResponder: () => true,
++      onStartShouldSetPanResponderCapture: () => true,
++      onMoveShouldSetPanResponderCapture: () => true,
++      onPanResponderTerminationRequest: () => false,
++      onShouldBlockNativeResponder: () => true,
++      onPanResponderGrant: e => gesture.begin(e.nativeEvent.touches),
++      onPanResponderStart: e => gesture.move(e.nativeEvent.touches),
++      onPanResponderMove: e => gesture.move(e.nativeEvent.touches),
++      onPanResponderEnd: e => gesture.move(e.nativeEvent.touches),
++      onPanResponderRelease: () => gesture.end(),
++      onPanResponderTerminate: () => gesture.end(true),
+@@ -74,2 +59,2 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
+-  return <View style={{ width, height, overflow: "hidden" }} {...responder.panHandlers}>
+-    <Animated.View style={{ transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale }] }}>
++  return <View collapsable={false} style={{ width, height, overflow: "hidden", backgroundColor: "#080808" }} {...responder.panHandlers}>
++    <Animated.View pointerEvents="none" style={{ transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale }] }}>
+diff --git a/apps/user-app/src/presentation/components/ChatImageViewer.tsx b/apps/user-app/src/presentation/components/ChatImageViewer.tsx
+index 8edd36d..5e4903d 100644
+--- a/apps/user-app/src/presentation/components/ChatImageViewer.tsx
++++ b/apps/user-app/src/presentation/components/ChatImageViewer.tsx
+@@ -4 +4,2 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
+-import { clamp, initialPhoto, swipeAction, type GalleryItem } from "../../domain/chatGallery";
++import { initialPhoto, type GalleryItem } from "../../domain/chatGallery";
++import { photoGesture } from "../../domain/chatGesture";
+@@ -35,2 +36,8 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
+-    let current = { scale: 1, x: 0, y: 0 };
+-    let start = { scale: 1, x: 0, y: 0, distance: 0, pinched: false, dx: 0, dy: 0 };
++    const gesture = photoGesture(width, height, frame => {
++      scale.setValue(frame.scale);
++      pan.setValue({ x: frame.x, y: frame.y });
++    }, action => {
++      if (action === "next") onNext();
++      else if (action === "previous") onPrevious();
++      else onClose();
++    });
+@@ -38,34 +45,12 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
+-    onMoveShouldSetPanResponder: (e, g) => e.nativeEvent.touches.length > 1 || Math.abs(g.dx) + Math.abs(g.dy) > 6,
+-    onPanResponderGrant: () => { start = { ...current, distance: 0, pinched: false, dx: 0, dy: 0 }; },
+-    onPanResponderMove: (e, g) => {
+-      const touches = e.nativeEvent.touches;
+-      if (touches.length >= 2) {
+-        const distance = Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+-        if (!start.distance) { start.distance = Math.max(1, distance); start.scale = current.scale; }
+-        start.pinched = true;
+-        const value = clamp(start.scale * distance / start.distance, 1, 4);
+-        current.scale = value;
+-        current.x = clamp(current.x, -width * (value - 1) / 2, width * (value - 1) / 2);
+-        current.y = clamp(current.y, -height * (value - 1) / 2, height * (value - 1) / 2);
+-        scale.setValue(value); pan.setValue({ x: current.x, y: current.y });
+-        // Rebase translation when a finger lifts: don't jump to the old drag origin.
+-        start.x = current.x; start.y = current.y; start.dx = g.dx; start.dy = g.dy;
+-      } else if (current.scale > 1.01) {
+-        start.distance = 0;
+-        current.x = clamp(start.x + g.dx - start.dx, -width * (current.scale - 1) / 2, width * (current.scale - 1) / 2);
+-        current.y = clamp(start.y + g.dy - start.dy, -height * (current.scale - 1) / 2, height * (current.scale - 1) / 2);
+-        pan.setValue({ x: current.x, y: current.y });
+-      } else if (!start.pinched) {
+-        pan.setValue({ x: g.dx * 0.25, y: Math.max(0, g.dy) });
+-      }
+-    },
+-    onPanResponderRelease: (_e, g) => {
+-      if (!start.pinched) {
+-        const action = swipeAction(g.dx, g.dy, current.scale);
+-        if (action === "close") onClose();
+-        else if (action === "next") onNext();
+-        else if (action === "previous") onPrevious();
+-      }
+-      if (current.scale <= 1.01) { current = { scale: 1, x: 0, y: 0 }; scale.setValue(1); pan.setValue({ x: 0, y: 0 }); }
+-    },
+-    onPanResponderTerminate: () => { pan.setValue({ x: current.x, y: current.y }); },
++      // Own the touch stream from the first finger, including touches over the image.
++      onStartShouldSetPanResponder: () => true,
++      onStartShouldSetPanResponderCapture: () => true,
++      onMoveShouldSetPanResponderCapture: () => true,
++      onPanResponderTerminationRequest: () => false,
++      onShouldBlockNativeResponder: () => true,
++      onPanResponderGrant: e => gesture.begin(e.nativeEvent.touches),
++      onPanResponderStart: e => gesture.move(e.nativeEvent.touches),
++      onPanResponderMove: e => gesture.move(e.nativeEvent.touches),
++      onPanResponderEnd: e => gesture.move(e.nativeEvent.touches),
++      onPanResponderRelease: () => gesture.end(),
++      onPanResponderTerminate: () => gesture.end(true),
+@@ -74,2 +59,2 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
+-  return <View style={{ width, height, overflow: "hidden" }} {...responder.panHandlers}>
+-    <Animated.View style={{ transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale }] }}>
++  return <View collapsable={false} style={{ width, height, overflow: "hidden", backgroundColor: "#080808" }} {...responder.panHandlers}>
++    <Animated.View pointerEvents="none" style={{ transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale }] }}>
