@@ -1,0 +1,236 @@
+diff --git a/apps/owner-app/src/data/mock/Repositories.ts b/apps/owner-app/src/data/mock/Repositories.ts
+index 17ff1dd..2d3ca7a 100644
+--- a/apps/owner-app/src/data/mock/Repositories.ts
++++ b/apps/owner-app/src/data/mock/Repositories.ts
+@@ -466,0 +467,8 @@ export class MockSupportRepository implements SupportRepository {
++  async uploadChatImage(image: import("../../domain/chatUpload").ChatImagePayload) {
++    return `data:${image.mime};base64,${image.base64}`;
++  }
++  async hasChatImage() { return false; }
++  async chatImageUrl(path: string) {
++    return { url: path, expiresAt: Infinity };
++  }
++
+diff --git a/apps/owner-app/src/data/supabase/Repositories.ts b/apps/owner-app/src/data/supabase/Repositories.ts
+index 3d5e78c..59cd045 100644
+--- a/apps/owner-app/src/data/supabase/Repositories.ts
++++ b/apps/owner-app/src/data/supabase/Repositories.ts
+@@ -0,0 +1,3 @@
++import { uploadChatImage, findImageMessage } from "./chatImageUpload";
++import type { ChatImagePayload } from "../../domain/chatUpload";
++import { signChatImage } from "../../domain/chatImage";
+@@ -295,0 +299,14 @@ export class SupabaseSupportRepository
++  async uploadChatImage(image: ChatImagePayload, conversationId: string, clientId: string) {
++    const { data, error } = await this.client.auth.getUser();
++    if (error || !data.user) throw new Error("Sesi tidak valid.");
++    return uploadChatImage(this.client, data.user.id, conversationId, clientId, image);
++  }
++  async hasChatImage(conversationId: string, path: string, clientId: string) {
++    const { data, error } = await this.client.auth.getUser();
++    if (error || !data.user) throw new Error("Sesi tidak valid.");
++    return !!await findImageMessage(this.client, data.user.id, conversationId, path, clientId);
++  }
++  async chatImageUrl(path: string) {
++    return signChatImage(this.client, path);
++  }
++
+diff --git a/apps/owner-app/src/domain/repositories/SupportRepository.ts b/apps/owner-app/src/domain/repositories/SupportRepository.ts
+index 26e30a6..5afdc89 100644
+--- a/apps/owner-app/src/domain/repositories/SupportRepository.ts
++++ b/apps/owner-app/src/domain/repositories/SupportRepository.ts
+@@ -2,0 +3,3 @@ export interface SupportRepository {
++  uploadChatImage(image: import("../chatUpload").ChatImagePayload, conversationId: string, clientId: string): Promise<string>;
++  hasChatImage(conversationId: string, path: string, clientId: string): Promise<boolean>;
++  chatImageUrl(path: string): Promise<import("../chatImage").ImageLease>;
+diff --git a/apps/owner-app/src/presentation/components/ChatConversation.tsx b/apps/owner-app/src/presentation/components/ChatConversation.tsx
+index a782495..f0b03b3 100644
+--- a/apps/owner-app/src/presentation/components/ChatConversation.tsx
++++ b/apps/owner-app/src/presentation/components/ChatConversation.tsx
+@@ -6,0 +7 @@ import { colors, radius } from "../theme";
++import { ChatImage } from "./ChatImage";
+@@ -82 +83 @@ export function ChatConversation(p: Props) {
+-                {m.message_type === "IMAGE" ? <Photo path={m.storage_path} height={200} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
++                {m.message_type === "IMAGE" ? <ChatImage path={m.storage_path} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
+diff --git a/apps/owner-app/src/presentation/screens/ChatScreens.tsx b/apps/owner-app/src/presentation/screens/ChatScreens.tsx
+index 0f90d36..2eb9853 100644
+--- a/apps/owner-app/src/presentation/screens/ChatScreens.tsx
++++ b/apps/owner-app/src/presentation/screens/ChatScreens.tsx
+@@ -8,0 +9,3 @@ import { chooseImage } from "../media";
++import { chooseChatImage } from "../chatMedia";
++import { imageAttempt, legacyChatUpload, type ChatImagePayload } from "../../domain/chatUpload";
++import { sendChatImage } from "../../domain/sendChatImage";
+@@ -100,0 +104,2 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
++  const attachment = useRef<ReturnType<typeof imageAttempt<ChatImagePayload>> | null>(null);
++  const imageCaption = useRef<string | null>(null);
+@@ -109 +114,17 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-        await communication.send(c.id, text, image, clientId.current);
++        const attempt = attachment.current;
++        if (attempt) {
++          if (imageCaption.current === null) imageCaption.current = text;
++          await attempt.run(async (payload, id) => {
++            await sendChatImage(
++              () => legacyChatUpload
++                ? support.upload({ ...payload, purpose: "chat", context_id: c.id })
++                : support.uploadChatImage(payload, c.id, id),
++              path => communication.send(c.id, imageCaption.current || "", path, id),
++              path => support.hasChatImage(c.id, path, id),
++            );
++          });
++          attachment.current = null;
++          imageCaption.current = null;
++        } else {
++          await communication.send(c.id, text, image, clientId.current);
++        }
+@@ -120,9 +141,7 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-        const image = await chooseImage(camera);
+-        if (image)
+-          setImage(
+-            await support.upload({
+-              ...image,
+-              purpose: "chat",
+-              context_id: c.id,
+-            }),
+-          );
++        if (attachment.current) throw new Error("Kirim ulang atau batalkan lampiran sebelumnya terlebih dahulu.");
++        const selected = legacyChatUpload ? await chooseImage(camera) : await chooseChatImage(camera);
++        if (selected) {
++          attachment.current = imageAttempt(Crypto.randomUUID(), selected);
++          imageCaption.current = null;
++          setImage(`data:${selected.mime};base64,${selected.base64}`);
++        }
+@@ -136 +155,5 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-      text={text} image={image} onText={setText} onRemoveImage={() => setImage("")}
++      text={text} image={image} onText={setText} onRemoveImage={() => {
++        attachment.current = null;
++        imageCaption.current = null;
++        setImage("");
++      }}
+diff --git a/apps/user-app/src/data/mock/MockChatRepository.ts b/apps/user-app/src/data/mock/MockChatRepository.ts
+index e1b0090..e89a595 100644
+--- a/apps/user-app/src/data/mock/MockChatRepository.ts
++++ b/apps/user-app/src/data/mock/MockChatRepository.ts
+@@ -10,0 +11,4 @@ export class MockChatRepository implements ChatRepository {
++  async chatImageUrl(path: string) {
++    return { url: path, expiresAt: Infinity };
++  }
++
+diff --git a/apps/user-app/src/data/supabase/SupabaseChatRepository.ts b/apps/user-app/src/data/supabase/SupabaseChatRepository.ts
+index 6ef7cef..5bbc2f6 100644
+--- a/apps/user-app/src/data/supabase/SupabaseChatRepository.ts
++++ b/apps/user-app/src/data/supabase/SupabaseChatRepository.ts
+@@ -0,0 +1,4 @@
++import { legacyChatUpload } from "../../domain/chatUpload";
++import { readChatImage } from "./readChatImage";
++import { uploadChatImage, insertImageMessage } from "./chatImageUpload";
++import { signChatImage } from "../../domain/chatImage";
+@@ -34,0 +39,4 @@ export class SupabaseChatRepository implements ChatRepository {
++  async chatImageUrl(path: string) {
++    return signChatImage(this.client, path);
++  }
++
+@@ -45,7 +52,0 @@ export class SupabaseChatRepository implements ChatRepository {
+-    let imageUrl: string | null = null;
+-    if (row.message_type === "IMAGE" && row.storage_path) {
+-      const { data } = await this.client.storage
+-        .from(BUCKET)
+-        .createSignedUrl(row.storage_path, 3600);
+-      imageUrl = data?.signedUrl ?? null;
+-    }
+@@ -58 +59,2 @@ export class SupabaseChatRepository implements ChatRepository {
+-      image_url: imageUrl,
++      image_url: null,
++      storage_path: row.storage_path,
+@@ -149 +151,10 @@ export class SupabaseChatRepository implements ChatRepository {
+-  async sendImage(
++  async sendImage(conversationId: string, localUri: string, clientMessageId: string, mime?: string) {
++    if (legacyChatUpload) return this.sendImageLegacy(conversationId, localUri, clientMessageId);
++    const sender = await this.currentUserId();
++    const image = await readChatImage(localUri, mime);
++    const path = await uploadChatImage(this.client, sender, conversationId, clientMessageId, image);
++    return this.toMessage(await insertImageMessage(this.client, sender, conversationId, path, clientMessageId) as MessageRow);
++  }
++
++  // Explicit rollback only; never an automatic fallback after validation failure.
++  private async sendImageLegacy(
+diff --git a/apps/user-app/src/domain/models.ts b/apps/user-app/src/domain/models.ts
+index 3a52b98..86e19df 100644
+--- a/apps/user-app/src/domain/models.ts
++++ b/apps/user-app/src/domain/models.ts
+@@ -84,0 +85 @@ export interface Message {
++  storage_path?: string | null;
+diff --git a/apps/user-app/src/domain/repositories/ChatRepository.ts b/apps/user-app/src/domain/repositories/ChatRepository.ts
+index cb85b5a..fdc068c 100644
+--- a/apps/user-app/src/domain/repositories/ChatRepository.ts
++++ b/apps/user-app/src/domain/repositories/ChatRepository.ts
+@@ -2,0 +3 @@ export interface ChatRepository {
++  chatImageUrl(path: string): Promise<import("../chatImage").ImageLease>;
+@@ -18,0 +20 @@ export interface ChatRepository {
++    mime?: string,
+diff --git a/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx b/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
+index 1b61a9f..288970f 100644
+--- a/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
++++ b/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
+@@ -27,0 +28 @@ import { AddImageIcon, CallIcon, VideoCallIcon } from "../../Icons/Icons";
++import { ChatImage } from "../../components/ChatImage";
+@@ -28,0 +30 @@ import type { Message } from "../../../domain/models";
++import { imageAttempt } from "../../../domain/chatUpload";
+@@ -62,0 +65,2 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++  const imageBusy = useRef(false);
++  const [pendingImage, setPendingImage] = useState<ReturnType<typeof imageAttempt<{ uri: string; mime?: string }>> | null>(null);
+@@ -156,11 +160,2 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-    if (sending) return;
+-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+-    if (!permission.granted) {
+-      setSendError("Izin galeri diperlukan untuk mengirim gambar.");
+-      return;
+-    }
+-    const result = await ImagePicker.launchImageLibraryAsync({
+-      mediaTypes: ["images"],
+-      quality: 0.6,
+-    });
+-    if (result.canceled || !result.assets[0]) return;
++    if (sending || imageBusy.current) return;
++    imageBusy.current = true;
+@@ -170,6 +165,16 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-      const message = await chat.sendImage(
+-        conversationId,
+-        result.assets[0].uri,
+-        clientMessageId(),
+-      );
+-      addLive(message);
++      let attempt = pendingImage;
++      if (!attempt) {
++        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
++        if (!permission.granted) throw new Error("Izin galeri diperlukan untuk mengirim gambar.");
++        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6 });
++        if (result.canceled || !result.assets[0]) return;
++        const asset = result.assets[0];
++        if (asset.mimeType && !["image/jpeg", "image/png"].includes(asset.mimeType)) throw new Error("Pilih gambar JPEG atau PNG.");
++        attempt = imageAttempt(clientMessageId(), { uri: asset.uri, mime: asset.mimeType });
++        setPendingImage(attempt);
++      }
++      await attempt.run(async (payload, id) => {
++        const message = await chat.sendImage(conversationId, payload.uri, id, payload.mime);
++        addLive(message);
++      });
++      setPendingImage(null);
+@@ -178,0 +184 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++      imageBusy.current = false;
+@@ -271,0 +278,4 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++      {pendingImage && !sending && <View style={{ flexDirection: "row", paddingHorizontal: 16, gap: 24 }}>
++        <Pressable accessibilityRole="button" onPress={sendImage} style={{ paddingVertical: 12 }}><Text>Coba kirim gambar lagi</Text></Pressable>
++        <Pressable accessibilityRole="button" onPress={() => { setPendingImage(null); setSendError(null); }} style={{ paddingVertical: 12 }}><Text>Batal lampiran</Text></Pressable>
++      </View>}
+@@ -321,6 +331,2 @@ function Bubble({ item, mine }: { item: Message; mine: boolean }) {
+-        {item.message_type === "IMAGE" && item.image_url ? (
+-          <Image
+-            source={{ uri: item.image_url }}
+-            style={styles.bubbleImage}
+-            resizeMode="cover"
+-          />
++        {item.message_type === "IMAGE" ? (
++          <ChatImage path={item.storage_path} fallback={item.image_url} />
+@@ -456 +462 @@ const styles = StyleSheet.create({
+-});
+\ No newline at end of file
++});

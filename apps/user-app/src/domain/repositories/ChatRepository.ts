@@ -17,6 +17,7 @@ export interface ChatRepository {
     conversationId: string,
     localUri: string,
     clientMessageId: string,
+    mime?: string,
   ): Promise<Message>;
   /** Berlangganan pesan baru; kembalikan fungsi untuk berhenti. */
   subscribeMessages(

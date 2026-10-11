@@ -1,3 +1,6 @@
+import { legacyChatUpload } from "../../domain/chatUpload";
+import { readChatImage } from "./readChatImage";
+import { uploadChatImage, insertImageMessage } from "./chatImageUpload";
 import { signChatImage } from "../../domain/chatImage";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { File } from "expo-file-system";
@@ -145,7 +148,16 @@ export class SupabaseChatRepository implements ChatRepository {
     return this.toMessage(data as MessageRow);
   }
 
-  async sendImage(
+  async sendImage(conversationId: string, localUri: string, clientMessageId: string, mime?: string) {
+    if (legacyChatUpload) return this.sendImageLegacy(conversationId, localUri, clientMessageId);
+    const sender = await this.currentUserId();
+    const image = await readChatImage(localUri, mime);
+    const path = await uploadChatImage(this.client, sender, conversationId, clientMessageId, image);
+    return this.toMessage(await insertImageMessage(this.client, sender, conversationId, path, clientMessageId) as MessageRow);
+  }
+
+  // Explicit rollback only; never an automatic fallback after validation failure.
+  private async sendImageLegacy(
     conversationId: string,
     localUri: string,
     clientMessageId: string,

@@ -464,6 +464,10 @@ export class MockCommunicationRepository implements CommunicationRepository {
   }
 }
 export class MockSupportRepository implements SupportRepository {
+  async uploadChatImage(image: import("../../domain/chatUpload").ChatImagePayload) {
+    return `data:${image.mime};base64,${image.base64}`;
+  }
+  async hasChatImage() { return false; }
   async chatImageUrl(path: string) {
     return { url: path, expiresAt: Infinity };
   }

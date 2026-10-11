@@ -6,6 +6,9 @@ import { Restriction } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
+import { chooseChatImage } from "../chatMedia";
+import { imageAttempt, legacyChatUpload, type ChatImagePayload } from "../../domain/chatUpload";
+import { sendChatImage } from "../../domain/sendChatImage";
 import { colors } from "../theme";
 import { ChatConversation } from "../components/ChatConversation";
 import {
@@ -98,6 +101,8 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
   const a = useAction();
   const [text, setText] = useState("");
   const [image, setImage] = useState("");
+  const attachment = useRef<ReturnType<typeof imageAttempt<ChatImagePayload>> | null>(null);
+  const imageCaption = useRef<string | null>(null);
   const clientId = useRef(Crypto.randomUUID());
   const q = useLoad(
     useCallback(() => communication.messages(c.id), [communication, c.id]),
@@ -106,7 +111,23 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
   const send = () =>
     void a.run(
       async () => {
-        await communication.send(c.id, text, image, clientId.current);
+        const attempt = attachment.current;
+        if (attempt) {
+          if (imageCaption.current === null) imageCaption.current = text;
+          await attempt.run(async (payload, id) => {
+            await sendChatImage(
+              () => legacyChatUpload
+                ? support.upload({ ...payload, purpose: "chat", context_id: c.id })
+                : support.uploadChatImage(payload, c.id, id),
+              path => communication.send(c.id, imageCaption.current || "", path, id),
+              path => support.hasChatImage(c.id, path, id),
+            );
+          });
+          attachment.current = null;
+          imageCaption.current = null;
+        } else {
+          await communication.send(c.id, text, image, clientId.current);
+        }
         clientId.current = Crypto.randomUUID();
         setText("");
         setImage("");
@@ -117,15 +138,13 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
   const pick = (camera: boolean) =>
     void a.run(
       async () => {
-        const image = await chooseImage(camera);
-        if (image)
-          setImage(
-            await support.upload({
-              ...image,
-              purpose: "chat",
-              context_id: c.id,
-            }),
-          );
+        if (attachment.current) throw new Error("Kirim ulang atau batalkan lampiran sebelumnya terlebih dahulu.");
+        const selected = legacyChatUpload ? await chooseImage(camera) : await chooseChatImage(camera);
+        if (selected) {
+          attachment.current = imageAttempt(Crypto.randomUUID(), selected);
+          imageCaption.current = null;
+          setImage(`data:${selected.mime};base64,${selected.base64}`);
+        }
       },
       undefined,
       "Foto siap dikirim.",
@@ -133,7 +152,11 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
   return (
     <ChatConversation conversation={c} userId={session?.id} messages={q.data ?? []}
       loading={q.loading} error={q.error} retry={q.retry} busy={a.busy} sendError={a.error}
-      text={text} image={image} onText={setText} onRemoveImage={() => setImage("")}
+      text={text} image={image} onText={setText} onRemoveImage={() => {
+        attachment.current = null;
+        imageCaption.current = null;
+        setImage("");
+      }}
       onSend={send} onPick={pick} onBack={() => navigation.goBack()}
       onCall={(type) => void a.run(async () => {
         const call = await communication.startCall(c.id, type);

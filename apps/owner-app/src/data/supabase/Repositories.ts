@@ -1,3 +1,5 @@
+import { uploadChatImage, findImageMessage } from "./chatImageUpload";
+import type { ChatImagePayload } from "../../domain/chatUpload";
 import { signChatImage } from "../../domain/chatImage";
 import { SupabaseClient } from "@supabase/supabase-js";
 import * as M from "../../domain/models";
@@ -294,6 +296,16 @@ export class SupabaseSupportRepository
   extends Repository
   implements SupportRepository
 {
+  async uploadChatImage(image: ChatImagePayload, conversationId: string, clientId: string) {
+    const { data, error } = await this.client.auth.getUser();
+    if (error || !data.user) throw new Error("Sesi tidak valid.");
+    return uploadChatImage(this.client, data.user.id, conversationId, clientId, image);
+  }
+  async hasChatImage(conversationId: string, path: string, clientId: string) {
+    const { data, error } = await this.client.auth.getUser();
+    if (error || !data.user) throw new Error("Sesi tidak valid.");
+    return !!await findImageMessage(this.client, data.user.id, conversationId, path, clientId);
+  }
   async chatImageUrl(path: string) {
     return signChatImage(this.client, path);
   }

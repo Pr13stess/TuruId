@@ -27,6 +27,7 @@ import { clientMessageId } from "../../clientId";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "../../Icons/Icons";
 import { ChatImage } from "../../components/ChatImage";
 import type { Message } from "../../../domain/models";
+import { imageAttempt } from "../../../domain/chatUpload";
 
 
 type Row =
@@ -61,6 +62,8 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
   const listRef = useRef<FlatList<Row>>(null);
+  const imageBusy = useRef(false);
+  const [pendingImage, setPendingImage] = useState<ReturnType<typeof imageAttempt<{ uri: string; mime?: string }>> | null>(null);
 
   const baseIds = useMemo(
     () => new Set((state.data ?? []).map((m) => m.client_message_id)),
@@ -154,29 +157,31 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   };
 
   const sendImage = async () => {
-    if (sending) return;
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      setSendError("Izin galeri diperlukan untuk mengirim gambar.");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 0.6,
-    });
-    if (result.canceled || !result.assets[0]) return;
+    if (sending || imageBusy.current) return;
+    imageBusy.current = true;
     setSending(true);
     setSendError(null);
     try {
-      const message = await chat.sendImage(
-        conversationId,
-        result.assets[0].uri,
-        clientMessageId(),
-      );
-      addLive(message);
+      let attempt = pendingImage;
+      if (!attempt) {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) throw new Error("Izin galeri diperlukan untuk mengirim gambar.");
+        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6 });
+        if (result.canceled || !result.assets[0]) return;
+        const asset = result.assets[0];
+        if (asset.mimeType && !["image/jpeg", "image/png"].includes(asset.mimeType)) throw new Error("Pilih gambar JPEG atau PNG.");
+        attempt = imageAttempt(clientMessageId(), { uri: asset.uri, mime: asset.mimeType });
+        setPendingImage(attempt);
+      }
+      await attempt.run(async (payload, id) => {
+        const message = await chat.sendImage(conversationId, payload.uri, id, payload.mime);
+        addLive(message);
+      });
+      setPendingImage(null);
     } catch (e) {
       setSendError(e instanceof Error ? e.message : "Gambar gagal dikirim.");
     } finally {
+      imageBusy.current = false;
       setSending(false);
     }
   };
@@ -270,6 +275,10 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
       )}
 
       {sendError && <Text style={styles.error}>{sendError}</Text>}
+      {pendingImage && !sending && <View style={{ flexDirection: "row", paddingHorizontal: 16, gap: 24 }}>
+        <Pressable accessibilityRole="button" onPress={sendImage} style={{ paddingVertical: 12 }}><Text>Coba kirim gambar lagi</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => { setPendingImage(null); setSendError(null); }} style={{ paddingVertical: 12 }}><Text>Batal lampiran</Text></Pressable>
+      </View>}
 
       <View
         style={[
