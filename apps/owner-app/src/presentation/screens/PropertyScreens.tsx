@@ -308,17 +308,17 @@ export function PropertyScreen({ route }: Props<"Property">) {
   const p = q.data?.properties.find((p) => p.id === route.params.id);
   const rooms = q.data?.rooms.filter((r) => r.property_id === p?.id) ?? [];
   return (
-    <Page title="Kelola properti">
+    <Page title="Kelola properti" aligned>
       <Load {...q} />
       {p && (
         <>
           <Photo path={p.photos[0]} height={220} />
           <View style={{ gap: 8 }}>
             <Title>{p.name}</Title>
-            <T muted style={{ fontSize: 12 }}>
+            <T muted style={{ fontSize: 13 }}>
               {p.address}, {p.city}
             </T>
-            <Row style={{ justifyContent: "flex-start" }}>
+            <Row style={{ justifyContent: "flex-start", flexWrap: "wrap" }}>
               <Badge
                 tone={p.verification_status === "APPROVED" ? "green" : "orange"}
               >
@@ -355,7 +355,7 @@ export function PropertyScreen({ route }: Props<"Property">) {
                 />
               </Row>
               <Card>
-                <T style={{ fontWeight: "800" }}>Tentang kos</T>
+                <T style={{ fontWeight: "700" }}>Tentang kos</T>
                 <T muted>{p.description}</T>
                 <T style={{ fontWeight: "700", fontSize: 12 }}>
                   Fasilitas umum
@@ -383,16 +383,16 @@ export function PropertyScreen({ route }: Props<"Property">) {
               />
               {rooms.map((r) => (
                 <Card key={r.id}>
-                  <Row>
+                  <View style={{ gap: 8, alignItems: "flex-start" }}>
                     <Title>{r.name}</Title>
                     <Badge>{available(r.inventory)} tersedia</Badge>
-                  </Row>
+                  </View>
                   <T muted>
                     {r.floor_label} · {r.room_size_m2} m² · KM{" "}
                     {r.bathroom_type === "PRIVATE" ? "dalam" : "bersama"}
                   </T>
-                  <T style={{ fontSize: 12 }}>{r.facilities.join(" · ")}</T>
-                  <Row>
+                  <T muted style={{ fontSize: 13 }}>{r.facilities.join(" · ") || "Fasilitas belum ditambahkan"}</T>
+                  <View style={{ borderTopWidth: 1, borderTopColor: colors.line }}>
                     <Link
                       title="Edit tipe"
                       onPress={() =>
@@ -405,11 +405,15 @@ export function PropertyScreen({ route }: Props<"Property">) {
                     />
                     <Link
                       title="Paket sewa →"
+                      last
                       onPress={() => nav.navigate("Plans", { room: r })}
                     />
-                  </Row>
+                  </View>
                 </Card>
               ))}
+              {rooms.length === 0 && (
+                <Empty title="Belum ada tipe kamar" body="Tambahkan tipe kamar untuk mengatur kapasitas dan paket sewanya." />
+              )}
             </>
           )}
           {tab === "bookings" && (
@@ -422,7 +426,7 @@ export function PropertyScreen({ route }: Props<"Property">) {
                     onPress={() => nav.navigate("Booking", { id: b.id })}
                   >
                     <Card>
-                      <Row>
+                      <Row style={{ flexWrap: "wrap" }}>
                         <T style={{ fontWeight: "700" }}>{b.tenant}</T>
                         <Badge>{b.status}</Badge>
                       </Row>
