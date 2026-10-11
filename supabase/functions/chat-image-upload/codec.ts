@@ -1,9 +1,9 @@
 // Small adapter so validation/white compositing can be tested without a Deno server.
-type Bitmap = { width: number; height: number; data: Uint8Array };
+type Bitmap = { width: number; height: number; data: { readonly length: number; [index: number]: number } };
 export type DecodedImage = {
   bitmap: Bitmap;
   scaleToFit(options: { w: number; h: number }): unknown;
-  getBuffer(mime: "image/jpeg", options: { quality: number }): Promise<Uint8Array>;
+  getBuffer(mime: "image/jpeg", options: { quality: number }): Promise<ArrayLike<number>>;
 };
 export function jpegCodec(read: (bytes: Uint8Array) => Promise<DecodedImage>) {
   return async (bytes: Uint8Array) => {
@@ -18,6 +18,6 @@ export function jpegCodec(read: (bytes: Uint8Array) => Promise<DecodedImage>) {
     }
     if (width > 1600 || height > 1600) image.scaleToFit({ w: 1600, h: 1600 });
     // JPEG encoder emits fresh pixels, not original EXIF/location metadata.
-    return image.getBuffer("image/jpeg", { quality: 80 });
+    return Uint8Array.from(await image.getBuffer("image/jpeg", { quality: 80 }));
   };
 }
