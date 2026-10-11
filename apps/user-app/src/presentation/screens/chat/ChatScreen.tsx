@@ -25,6 +25,7 @@ import { colors, radius } from "../../theme";
 import { dayKey, dayLabel, timeLabel } from "../../format";
 import { clientMessageId } from "../../clientId";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "../../Icons/Icons";
+import { ChatImage } from "../../components/ChatImage";
 import type { Message } from "../../../domain/models";
 
 
@@ -318,12 +319,8 @@ function Bubble({ item, mine }: { item: Message; mine: boolean }) {
   return (
     <View style={[styles.bubbleRow, mine && styles.bubbleRowMine]}>
       <View style={[styles.bubble, mine && styles.bubbleMine]}>
-        {item.message_type === "IMAGE" && item.image_url ? (
-          <Image
-            source={{ uri: item.image_url }}
-            style={styles.bubbleImage}
-            resizeMode="cover"
-          />
+        {item.message_type === "IMAGE" ? (
+          <ChatImage path={item.storage_path} fallback={item.image_url} />
         ) : (
           <Text style={[styles.bubbleText, mine && styles.bubbleTextMine]}>
             {item.text_content}

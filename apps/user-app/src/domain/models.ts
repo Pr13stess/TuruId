@@ -82,6 +82,7 @@ export interface Message {
   message_type: MessageType;
   text_content: string | null;
   image_url: string | null;
+  storage_path?: string | null;
   client_message_id: string;
   created_at: string;
 }

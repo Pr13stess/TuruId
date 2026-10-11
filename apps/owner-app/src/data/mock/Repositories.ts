@@ -464,6 +464,10 @@ export class MockCommunicationRepository implements CommunicationRepository {
   }
 }
 export class MockSupportRepository implements SupportRepository {
+  async chatImageUrl(path: string) {
+    return { url: path, expiresAt: Infinity };
+  }
+
   constructor(private s: MockStore) {}
   async notifications() {
     return (await this.s.read()).notices;

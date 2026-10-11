@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { Conversation, Message } from "../../domain/models";
 import { colors, radius } from "../theme";
+import { ChatImage } from "./ChatImage";
 import { Load, Photo } from "./UI";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "./ChatIcons";
 
@@ -79,7 +80,7 @@ export function ChatConversation(p: Props) {
             {day !== previous && <View style={styles.dateWrap}><Text style={styles.dateChip}>{new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</Text></View>}
             <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
               <View style={[styles.bubble, mine && styles.bubbleMine, m.message_type === "IMAGE" && { width: 220 }]}>
-                {m.message_type === "IMAGE" ? <Photo path={m.storage_path} height={200} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
+                {m.message_type === "IMAGE" ? <ChatImage path={m.storage_path} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
                 <Text style={[styles.bubbleTime, mine && { color: colors.selected }]}>{new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</Text>
               </View>
             </View>

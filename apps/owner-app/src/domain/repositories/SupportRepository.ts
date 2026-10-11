@@ -1,5 +1,6 @@
 import { MediaInput, Notice, Report } from "../models";
 export interface SupportRepository {
+  chatImageUrl(path: string): Promise<import("../chatImage").ImageLease>;
   notifications(): Promise<Notice[]>;
   markRead(id: string): Promise<void>;
   reports(): Promise<Report[]>;

@@ -1,3 +1,4 @@
+import { signChatImage } from "../../domain/chatImage";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { File } from "expo-file-system";
 import type { ChatRepository } from "../../domain/repositories/ChatRepository";
@@ -32,6 +33,10 @@ function propertyName(row: ConversationRow): string {
 }
 
 export class SupabaseChatRepository implements ChatRepository {
+  async chatImageUrl(path: string) {
+    return signChatImage(this.client, path);
+  }
+
   constructor(private readonly client: SupabaseClient) {}
 
   private async currentUserId(): Promise<string> {
@@ -42,20 +47,14 @@ export class SupabaseChatRepository implements ChatRepository {
   }
 
   private async toMessage(row: MessageRow): Promise<Message> {
-    let imageUrl: string | null = null;
-    if (row.message_type === "IMAGE" && row.storage_path) {
-      const { data } = await this.client.storage
-        .from(BUCKET)
-        .createSignedUrl(row.storage_path, 3600);
-      imageUrl = data?.signedUrl ?? null;
-    }
     return {
       id: row.id,
       conversation_id: row.conversation_id,
       sender_id: row.sender_id,
       message_type: row.message_type,
       text_content: row.text_content,
-      image_url: imageUrl,
+      image_url: null,
+      storage_path: row.storage_path,
       client_message_id: row.client_message_id,
       created_at: row.created_at,
     };

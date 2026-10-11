@@ -1,3 +1,4 @@
+import { signChatImage } from "../../domain/chatImage";
 import { SupabaseClient } from "@supabase/supabase-js";
 import * as M from "../../domain/models";
 import { AuthRepository } from "../../domain/repositories/AuthRepository";
@@ -293,6 +294,10 @@ export class SupabaseSupportRepository
   extends Repository
   implements SupportRepository
 {
+  async chatImageUrl(path: string) {
+    return signChatImage(this.client, path);
+  }
+
   notifications() {
     return this.read<M.Notice[]>("notices");
   }
