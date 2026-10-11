@@ -27,7 +27,8 @@ import { clientMessageId } from "../../clientId";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "../../Icons/Icons";
 import { ChatImage } from "../../components/ChatImage";
 import type { Message } from "../../../domain/models";
-import { imageAttempt } from "../../../domain/chatUpload";
+import { imageBatch, galleryImages, MAX_CHAT_PHOTOS, type GalleryItem } from "../../../domain/chatGallery";
+import { ChatImageViewer } from "../../components/ChatImageViewer";
 
 
 type Row =
@@ -63,7 +64,9 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   const [avatarFailed, setAvatarFailed] = useState(false);
   const listRef = useRef<FlatList<Row>>(null);
   const imageBusy = useRef(false);
-  const [pendingImage, setPendingImage] = useState<ReturnType<typeof imageAttempt<{ uri: string; mime?: string }>> | null>(null);
+  const [viewer, setViewer] = useState<{ items: GalleryItem[]; initialId: string } | null>(null);
+  const [imageProgress, setImageProgress] = useState("");
+  const [pendingImage, setPendingImage] = useState<ReturnType<typeof imageBatch<{ uri: string; mime?: string }>> | null>(null);
 
   const baseIds = useMemo(
     () => new Set((state.data ?? []).map((m) => m.client_message_id)),
@@ -166,18 +169,21 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
       if (!attempt) {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permission.granted) throw new Error("Izin galeri diperlukan untuk mengirim gambar.");
-        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6 });
+        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6, allowsMultipleSelection: true, selectionLimit: MAX_CHAT_PHOTOS, orderedSelection: true });
         if (result.canceled || !result.assets[0]) return;
-        const asset = result.assets[0];
-        if (asset.mimeType && !["image/jpeg", "image/png"].includes(asset.mimeType)) throw new Error("Pilih gambar JPEG atau PNG.");
-        attempt = imageAttempt(clientMessageId(), { uri: asset.uri, mime: asset.mimeType });
+        const photos = result.assets.map(asset => {
+          if (asset.mimeType && !["image/jpeg", "image/png"].includes(asset.mimeType)) throw new Error("Pilih gambar JPEG atau PNG.");
+          return { uri: asset.uri, mime: asset.mimeType };
+        });
+        attempt = imageBatch(photos, clientMessageId);
         setPendingImage(attempt);
       }
       await attempt.run(async (payload, id) => {
         const message = await chat.sendImage(conversationId, payload.uri, id, payload.mime);
         addLive(message);
-      });
+      }, (sent, total) => setImageProgress(`${sent}/${total} foto terkirim`));
       setPendingImage(null);
+      setImageProgress("");
     } catch (e) {
       setSendError(e instanceof Error ? e.message : "Gambar gagal dikirim.");
     } finally {
@@ -188,6 +194,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior="padding">
+      {viewer && <ChatImageViewer items={viewer.items} initialId={viewer.initialId} onClose={() => setViewer(null)} />}
       {/* Header: kiri = kembali, foto, nama; kanan = call dan video call */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable
@@ -268,6 +275,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
               <Bubble
                 item={item.message}
                 mine={item.message.sender_id === myId}
+                onImagePress={() => setViewer({ items: galleryImages(messages), initialId: item.message.id })}
               />
             )
           }
@@ -275,9 +283,10 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
       )}
 
       {sendError && <Text style={styles.error}>{sendError}</Text>}
+      {!!imageProgress && <Text accessibilityLiveRegion="polite" style={styles.error}>{imageProgress}</Text>}
       {pendingImage && !sending && <View style={{ flexDirection: "row", paddingHorizontal: 16, gap: 24 }}>
         <Pressable accessibilityRole="button" onPress={sendImage} style={{ paddingVertical: 12 }}><Text>Coba kirim gambar lagi</Text></Pressable>
-        <Pressable accessibilityRole="button" onPress={() => { setPendingImage(null); setSendError(null); }} style={{ paddingVertical: 12 }}><Text>Batal lampiran</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => { setPendingImage(null); setSendError(null); setImageProgress(""); }} style={{ paddingVertical: 12 }}><Text>Batal lampiran</Text></Pressable>
       </View>}
 
       <View
@@ -324,12 +333,14 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   );
 }
 
-function Bubble({ item, mine }: { item: Message; mine: boolean }) {
+function Bubble({ item, mine, onImagePress }: { item: Message; mine: boolean; onImagePress: () => void }) {
   return (
     <View style={[styles.bubbleRow, mine && styles.bubbleRowMine]}>
       <View style={[styles.bubble, mine && styles.bubbleMine]}>
         {item.message_type === "IMAGE" ? (
-          <ChatImage path={item.storage_path} fallback={item.image_url} />
+          <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={onImagePress}>
+            <ChatImage path={item.storage_path} fallback={item.image_url} />
+          </Pressable>
         ) : (
           <Text style={[styles.bubbleText, mine && styles.bubbleTextMine]}>
             {item.text_content}

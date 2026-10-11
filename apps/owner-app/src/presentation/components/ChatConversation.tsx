@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { Conversation, Message } from "../../domain/models";
 import { colors, radius } from "../theme";
+import { ChatImageViewer } from "./ChatImageViewer";
+import { galleryImages, type GalleryItem } from "../../domain/chatGallery";
 import { ChatImage } from "./ChatImage";
 import { Load, Photo } from "./UI";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "./ChatIcons";
@@ -19,6 +21,8 @@ type Props = {
   sendError: string;
   text: string;
   image: string;
+  images?: string[];
+  imageProgress?: string;
   onText: (value: string) => void;
   onRemoveImage: () => void;
   onSend: () => void;
@@ -39,6 +43,7 @@ function IconButton({ label, onPress, children, disabled = false }: {
 
 export function ChatConversation(p: Props) {
   const insets = useSafeAreaInsets();
+  const [viewer, setViewer] = useState<{ items: GalleryItem[]; initialId: string } | null>(null);
   const list = useRef<FlatList<Message>>(null);
   const [menu, setMenu] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
@@ -50,6 +55,7 @@ export function ChatConversation(p: Props) {
   const scroll = () => list.current?.scrollToEnd({ animated: false });
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      {viewer && <ChatImageViewer items={viewer.items} initialId={viewer.initialId} onClose={() => setViewer(null)} />}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <IconButton label="Kembali" onPress={p.onBack}>
           <Svg width={24} height={24} viewBox="0 0 24 24"><Path d="M20 12H4m7-7-7 7 7 7" stroke={colors.primary} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
@@ -80,15 +86,18 @@ export function ChatConversation(p: Props) {
             {day !== previous && <View style={styles.dateWrap}><Text style={styles.dateChip}>{new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</Text></View>}
             <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
               <View style={[styles.bubble, mine && styles.bubbleMine, m.message_type === "IMAGE" && { width: 220 }]}>
-                {m.message_type === "IMAGE" ? <ChatImage path={m.storage_path} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
+                {m.message_type === "IMAGE" ? <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={() => setViewer({ items: galleryImages(p.messages), initialId: m.id })}><ChatImage path={m.storage_path} /></Pressable> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
                 <Text style={[styles.bubbleTime, mine && { color: colors.selected }]}>{new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</Text>
               </View>
             </View>
           </View>;
         }} />
       {!!p.sendError && <Text accessibilityRole="alert" style={styles.error}>{p.sendError}</Text>}
+      {!!p.imageProgress && <Text accessibilityLiveRegion="polite" style={styles.error}>{p.imageProgress}</Text>}
       {!!p.image && <View style={styles.preview}>
-        <View style={{ width: 100 }}><Photo path={p.image} height={80} /></View>
+        <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ gap: 8 }}>
+          {(p.images?.length ? p.images : [p.image]).map((uri, index) => <View key={index} style={{ width: 80 }}><Photo path={uri} height={80} /></View>)}
+        </ScrollView>
         <Pressable accessibilityRole="button" accessibilityLabel="Batal lampiran" disabled={p.busy} onPress={p.onRemoveImage} style={styles.menuItem}><Text style={styles.menuText}>Batal lampiran</Text></Pressable>
       </View>}
       <View style={[styles.composer, { paddingBottom: 12 + (keyboardOpen ? 0 : insets.bottom) }]}>

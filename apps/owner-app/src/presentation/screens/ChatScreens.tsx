@@ -6,8 +6,9 @@ import { Restriction } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
-import { chooseChatImage } from "../chatMedia";
-import { imageAttempt, legacyChatUpload, type ChatImagePayload } from "../../domain/chatUpload";
+import { chooseChatImages } from "../chatMedia";
+import { legacyChatUpload, type ChatImagePayload } from "../../domain/chatUpload";
+import { imageBatch } from "../../domain/chatGallery";
 import { sendChatImage } from "../../domain/sendChatImage";
 import { colors } from "../theme";
 import { ChatConversation } from "../components/ChatConversation";
@@ -101,7 +102,9 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
   const a = useAction();
   const [text, setText] = useState("");
   const [image, setImage] = useState("");
-  const attachment = useRef<ReturnType<typeof imageAttempt<ChatImagePayload>> | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [imageProgress, setImageProgress] = useState("");
+  const attachment = useRef<ReturnType<typeof imageBatch<ChatImagePayload>> | null>(null);
   const imageCaption = useRef<string | null>(null);
   const clientId = useRef(Crypto.randomUUID());
   const q = useLoad(
@@ -114,15 +117,15 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
         const attempt = attachment.current;
         if (attempt) {
           if (imageCaption.current === null) imageCaption.current = text;
-          await attempt.run(async (payload, id) => {
+          await attempt.run(async (payload, id, index) => {
             await sendChatImage(
               () => legacyChatUpload
                 ? support.upload({ ...payload, purpose: "chat", context_id: c.id })
                 : support.uploadChatImage(payload, c.id, id),
-              path => communication.send(c.id, imageCaption.current || "", path, id),
+              path => communication.send(c.id, index === 0 ? imageCaption.current || "" : "", path, id),
               path => support.hasChatImage(c.id, path, id),
             );
-          });
+          }, (sent, total) => setImageProgress(`${sent}/${total} foto terkirim`));
           attachment.current = null;
           imageCaption.current = null;
         } else {
@@ -131,6 +134,8 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
         clientId.current = Crypto.randomUUID();
         setText("");
         setImage("");
+        setPreviews([]);
+        setImageProgress("");
       },
       undefined,
       "",
@@ -139,11 +144,15 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
     void a.run(
       async () => {
         if (attachment.current) throw new Error("Kirim ulang atau batalkan lampiran sebelumnya terlebih dahulu.");
-        const selected = legacyChatUpload ? await chooseImage(camera) : await chooseChatImage(camera);
-        if (selected) {
-          attachment.current = imageAttempt(Crypto.randomUUID(), selected);
+        const oldPhoto = legacyChatUpload ? await chooseImage(camera) : null;
+        const selected = legacyChatUpload ? (oldPhoto ? [oldPhoto] : null) : await chooseChatImages(camera);
+        if (selected?.length) {
+          attachment.current = imageBatch(selected, () => Crypto.randomUUID());
           imageCaption.current = null;
-          setImage(`data:${selected.mime};base64,${selected.base64}`);
+          const uris = selected.map(photo => `data:${photo.mime};base64,${photo.base64}`);
+          setPreviews(uris);
+          setImage(uris[0]);
+          setImageProgress("");
         }
       },
       undefined,
@@ -152,10 +161,12 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
   return (
     <ChatConversation conversation={c} userId={session?.id} messages={q.data ?? []}
       loading={q.loading} error={q.error} retry={q.retry} busy={a.busy} sendError={a.error}
-      text={text} image={image} onText={setText} onRemoveImage={() => {
+      text={text} image={image} images={previews} imageProgress={imageProgress} onText={setText} onRemoveImage={() => {
         attachment.current = null;
         imageCaption.current = null;
         setImage("");
+        setPreviews([]);
+        setImageProgress("");
       }}
       onSend={send} onPick={pick} onBack={() => navigation.goBack()}
       onCall={(type) => void a.run(async () => {

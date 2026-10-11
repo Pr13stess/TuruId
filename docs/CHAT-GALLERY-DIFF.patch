@@ -1,0 +1,186 @@
+diff --git a/apps/owner-app/src/presentation/chatMedia.ts b/apps/owner-app/src/presentation/chatMedia.ts
+index 815b732..3401d92 100644
+--- a/apps/owner-app/src/presentation/chatMedia.ts
++++ b/apps/owner-app/src/presentation/chatMedia.ts
+@@ -3,0 +4 @@ import { imagePayload } from "../domain/chatUpload";
++import { MAX_CHAT_PHOTOS } from "../domain/chatGallery";
+@@ -7 +8 @@ import { imagePayload } from "../domain/chatUpload";
+-export async function chooseChatImage(camera = false) {
++export async function chooseChatImages(camera = false) {
+@@ -10 +11 @@ export async function chooseChatImage(camera = false) {
+-  const options = { mediaTypes: ["images"] as ("images")[], quality: 0.8 };
++  const options = { mediaTypes: ["images"] as ("images")[], quality: 0.8, allowsMultipleSelection: !camera, selectionLimit: MAX_CHAT_PHOTOS, orderedSelection: true };
+@@ -13,9 +14,13 @@ export async function chooseChatImage(camera = false) {
+-  const asset = result.assets[0];
+-  const name = asset.fileName || asset.uri;
+-  const mime = asset.mimeType || (/\.png$/i.test(name) ? "image/png" : /\.jpe?g$/i.test(name) ? "image/jpeg" : "");
+-  if (mime !== "image/png" && mime !== "image/jpeg") throw new Error("Pilih gambar JPEG atau PNG.");
+-  const photo = await Manipulator.manipulateAsync(asset.uri,
+-    [{ resize: { width: Math.min(asset.width || 1200, 1600) } }],
+-    { compress: 0.75, format: mime === "image/png" ? Manipulator.SaveFormat.PNG : Manipulator.SaveFormat.JPEG, base64: true });
+-  if (!photo.base64) throw new Error("Gambar gagal diproses.");
+-  return imagePayload(photo.base64, mime);
++  if (result.assets.length > MAX_CHAT_PHOTOS) throw new Error("Maksimal 10 foto per pengiriman.");
++  const photos = [];
++  for (const asset of result.assets) {
++    const name = asset.fileName || asset.uri;
++    const mime = asset.mimeType || (/\.png$/i.test(name) ? "image/png" : /\.jpe?g$/i.test(name) ? "image/jpeg" : "");
++    if (mime !== "image/png" && mime !== "image/jpeg") throw new Error("Pilih gambar JPEG atau PNG.");
++    const photo = await Manipulator.manipulateAsync(asset.uri,
++      [{ resize: { width: Math.min(asset.width || 1200, 1600) } }],
++      { compress: 0.75, format: mime === "image/png" ? Manipulator.SaveFormat.PNG : Manipulator.SaveFormat.JPEG, base64: true });
++    if (!photo.base64) throw new Error("Gambar gagal diproses.");
++    photos.push(imagePayload(photo.base64, mime));
++  }
++  return photos;
+diff --git a/apps/owner-app/src/presentation/components/ChatConversation.tsx b/apps/owner-app/src/presentation/components/ChatConversation.tsx
+index f0b03b3..38ea6de 100644
+--- a/apps/owner-app/src/presentation/components/ChatConversation.tsx
++++ b/apps/owner-app/src/presentation/components/ChatConversation.tsx
+@@ -2 +2 @@ import React, { useEffect, useRef, useState } from "react";
+-import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
++import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+@@ -6,0 +7,2 @@ import { colors, radius } from "../theme";
++import { ChatImageViewer } from "./ChatImageViewer";
++import { galleryImages, type GalleryItem } from "../../domain/chatGallery";
+@@ -21,0 +24,2 @@ type Props = {
++  images?: string[];
++  imageProgress?: string;
+@@ -41,0 +46 @@ export function ChatConversation(p: Props) {
++  const [viewer, setViewer] = useState<{ items: GalleryItem[]; initialId: string } | null>(null);
+@@ -52,0 +58 @@ export function ChatConversation(p: Props) {
++      {viewer && <ChatImageViewer items={viewer.items} initialId={viewer.initialId} onClose={() => setViewer(null)} />}
+@@ -83 +89 @@ export function ChatConversation(p: Props) {
+-                {m.message_type === "IMAGE" ? <ChatImage path={m.storage_path} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
++                {m.message_type === "IMAGE" ? <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={() => setViewer({ items: galleryImages(p.messages), initialId: m.id })}><ChatImage path={m.storage_path} /></Pressable> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
+@@ -89,0 +96 @@ export function ChatConversation(p: Props) {
++      {!!p.imageProgress && <Text accessibilityLiveRegion="polite" style={styles.error}>{p.imageProgress}</Text>}
+@@ -91 +98,3 @@ export function ChatConversation(p: Props) {
+-        <View style={{ width: 100 }}><Photo path={p.image} height={80} /></View>
++        <ScrollView horizontal style={{ flex: 1 }} contentContainerStyle={{ gap: 8 }}>
++          {(p.images?.length ? p.images : [p.image]).map((uri, index) => <View key={index} style={{ width: 80 }}><Photo path={uri} height={80} /></View>)}
++        </ScrollView>
+diff --git a/apps/owner-app/src/presentation/components/ChatImage.tsx b/apps/owner-app/src/presentation/components/ChatImage.tsx
+index ba51346..05d4c5d 100644
+--- a/apps/owner-app/src/presentation/components/ChatImage.tsx
++++ b/apps/owner-app/src/presentation/components/ChatImage.tsx
+@@ -6 +6 @@ import { imageRenewal } from "../../domain/chatImage";
+-export function ChatImage({ path, fallback = "", height = 200 }: { path?: string | null; fallback?: string | null; height?: number }) {
++export function ChatImage({ path, fallback = "", height = 200, width = height, resizeMode = "cover" }: { path?: string | null; fallback?: string | null; height?: number; width?: number; resizeMode?: "cover" | "contain" }) {
+@@ -21,2 +21,2 @@ export function ChatImage({ path, fallback = "", height = 200 }: { path?: string
+-  return <View style={{ width: height, height, borderRadius: 8, overflow: "hidden" }}>
+-    {visible.url ? <Image source={{ uri: visible.url }} style={{ width: "100%", height: "100%" }} resizeMode="cover" onError={() => controller.current?.failed()} /> :
++  return <View style={{ width, height, borderRadius: 8, overflow: "hidden" }}>
++    {visible.url ? <Image source={{ uri: visible.url }} style={{ width: "100%", height: "100%" }} resizeMode={resizeMode} onError={() => controller.current?.failed()} /> :
+@@ -24 +24 @@ export function ChatImage({ path, fallback = "", height = 200 }: { path?: string
+-        <Text>{visible.failed ? "Gambar belum tersedia. Coba lagi." : "Memuat gambar…"}</Text>
++        <Text style={resizeMode === "contain" ? { color: "#fff" } : undefined}>{visible.failed ? "Gambar belum tersedia. Coba lagi." : "Memuat gambar…"}</Text>
+diff --git a/apps/owner-app/src/presentation/screens/ChatScreens.tsx b/apps/owner-app/src/presentation/screens/ChatScreens.tsx
+index 2eb9853..1467d43 100644
+--- a/apps/owner-app/src/presentation/screens/ChatScreens.tsx
++++ b/apps/owner-app/src/presentation/screens/ChatScreens.tsx
+@@ -9,2 +9,3 @@ import { chooseImage } from "../media";
+-import { chooseChatImage } from "../chatMedia";
+-import { imageAttempt, legacyChatUpload, type ChatImagePayload } from "../../domain/chatUpload";
++import { chooseChatImages } from "../chatMedia";
++import { legacyChatUpload, type ChatImagePayload } from "../../domain/chatUpload";
++import { imageBatch } from "../../domain/chatGallery";
+@@ -104 +105,3 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-  const attachment = useRef<ReturnType<typeof imageAttempt<ChatImagePayload>> | null>(null);
++  const [previews, setPreviews] = useState<string[]>([]);
++  const [imageProgress, setImageProgress] = useState("");
++  const attachment = useRef<ReturnType<typeof imageBatch<ChatImagePayload>> | null>(null);
+@@ -117 +120 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-          await attempt.run(async (payload, id) => {
++          await attempt.run(async (payload, id, index) => {
+@@ -122 +125 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-              path => communication.send(c.id, imageCaption.current || "", path, id),
++              path => communication.send(c.id, index === 0 ? imageCaption.current || "" : "", path, id),
+@@ -125 +128 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-          });
++          }, (sent, total) => setImageProgress(`${sent}/${total} foto terkirim`));
+@@ -133,0 +137,2 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
++        setPreviews([]);
++        setImageProgress("");
+@@ -142,3 +147,4 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-        const selected = legacyChatUpload ? await chooseImage(camera) : await chooseChatImage(camera);
+-        if (selected) {
+-          attachment.current = imageAttempt(Crypto.randomUUID(), selected);
++        const oldPhoto = legacyChatUpload ? await chooseImage(camera) : null;
++        const selected = legacyChatUpload ? (oldPhoto ? [oldPhoto] : null) : await chooseChatImages(camera);
++        if (selected?.length) {
++          attachment.current = imageBatch(selected, () => Crypto.randomUUID());
+@@ -146 +152,4 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-          setImage(`data:${selected.mime};base64,${selected.base64}`);
++          const uris = selected.map(photo => `data:${photo.mime};base64,${photo.base64}`);
++          setPreviews(uris);
++          setImage(uris[0]);
++          setImageProgress("");
+@@ -155 +164 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
+-      text={text} image={image} onText={setText} onRemoveImage={() => {
++      text={text} image={image} images={previews} imageProgress={imageProgress} onText={setText} onRemoveImage={() => {
+@@ -158,0 +168,2 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
++        setPreviews([]);
++        setImageProgress("");
+diff --git a/apps/user-app/src/presentation/components/ChatImage.tsx b/apps/user-app/src/presentation/components/ChatImage.tsx
+index 95ffd0c..5e91dde 100644
+--- a/apps/user-app/src/presentation/components/ChatImage.tsx
++++ b/apps/user-app/src/presentation/components/ChatImage.tsx
+@@ -6 +6 @@ import { imageRenewal } from "../../domain/chatImage";
+-export function ChatImage({ path, fallback = "", height = 200 }: { path?: string | null; fallback?: string | null; height?: number }) {
++export function ChatImage({ path, fallback = "", height = 200, width = height, resizeMode = "cover" }: { path?: string | null; fallback?: string | null; height?: number; width?: number; resizeMode?: "cover" | "contain" }) {
+@@ -21,2 +21,2 @@ export function ChatImage({ path, fallback = "", height = 200 }: { path?: string
+-  return <View style={{ width: height, height, borderRadius: 8, overflow: "hidden" }}>
+-    {visible.url ? <Image source={{ uri: visible.url }} style={{ width: "100%", height: "100%" }} resizeMode="cover" onError={() => controller.current?.failed()} /> :
++  return <View style={{ width, height, borderRadius: 8, overflow: "hidden" }}>
++    {visible.url ? <Image source={{ uri: visible.url }} style={{ width: "100%", height: "100%" }} resizeMode={resizeMode} onError={() => controller.current?.failed()} /> :
+@@ -24 +24 @@ export function ChatImage({ path, fallback = "", height = 200 }: { path?: string
+-        <Text>{visible.failed ? "Gambar belum tersedia. Coba lagi." : "Memuat gambar…"}</Text>
++        <Text style={resizeMode === "contain" ? { color: "#fff" } : undefined}>{visible.failed ? "Gambar belum tersedia. Coba lagi." : "Memuat gambar…"}</Text>
+diff --git a/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx b/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
+index 288970f..0026a23 100644
+--- a/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
++++ b/apps/user-app/src/presentation/screens/chat/ChatScreen.tsx
+@@ -30 +30,2 @@ import type { Message } from "../../../domain/models";
+-import { imageAttempt } from "../../../domain/chatUpload";
++import { imageBatch, galleryImages, MAX_CHAT_PHOTOS, type GalleryItem } from "../../../domain/chatGallery";
++import { ChatImageViewer } from "../../components/ChatImageViewer";
+@@ -66 +67,3 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-  const [pendingImage, setPendingImage] = useState<ReturnType<typeof imageAttempt<{ uri: string; mime?: string }>> | null>(null);
++  const [viewer, setViewer] = useState<{ items: GalleryItem[]; initialId: string } | null>(null);
++  const [imageProgress, setImageProgress] = useState("");
++  const [pendingImage, setPendingImage] = useState<ReturnType<typeof imageBatch<{ uri: string; mime?: string }>> | null>(null);
+@@ -169 +172 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6 });
++        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.6, allowsMultipleSelection: true, selectionLimit: MAX_CHAT_PHOTOS, orderedSelection: true });
+@@ -171,3 +174,5 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-        const asset = result.assets[0];
+-        if (asset.mimeType && !["image/jpeg", "image/png"].includes(asset.mimeType)) throw new Error("Pilih gambar JPEG atau PNG.");
+-        attempt = imageAttempt(clientMessageId(), { uri: asset.uri, mime: asset.mimeType });
++        const photos = result.assets.map(asset => {
++          if (asset.mimeType && !["image/jpeg", "image/png"].includes(asset.mimeType)) throw new Error("Pilih gambar JPEG atau PNG.");
++          return { uri: asset.uri, mime: asset.mimeType };
++        });
++        attempt = imageBatch(photos, clientMessageId);
+@@ -179 +184 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-      });
++      }, (sent, total) => setImageProgress(`${sent}/${total} foto terkirim`));
+@@ -180,0 +186 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++      setImageProgress("");
+@@ -190,0 +197 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++      {viewer && <ChatImageViewer items={viewer.items} initialId={viewer.initialId} onClose={() => setViewer(null)} />}
+@@ -270,0 +278 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++                onImagePress={() => setViewer({ items: galleryImages(messages), initialId: item.message.id })}
+@@ -277,0 +286 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
++      {!!imageProgress && <Text accessibilityLiveRegion="polite" style={styles.error}>{imageProgress}</Text>}
+@@ -280 +289 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-        <Pressable accessibilityRole="button" onPress={() => { setPendingImage(null); setSendError(null); }} style={{ paddingVertical: 12 }}><Text>Batal lampiran</Text></Pressable>
++        <Pressable accessibilityRole="button" onPress={() => { setPendingImage(null); setSendError(null); setImageProgress(""); }} style={{ paddingVertical: 12 }}><Text>Batal lampiran</Text></Pressable>
+@@ -327 +336 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
+-function Bubble({ item, mine }: { item: Message; mine: boolean }) {
++function Bubble({ item, mine, onImagePress }: { item: Message; mine: boolean; onImagePress: () => void }) {
+@@ -332 +341,3 @@ function Bubble({ item, mine }: { item: Message; mine: boolean }) {
+-          <ChatImage path={item.storage_path} fallback={item.image_url} />
++          <Pressable accessibilityRole="button" accessibilityLabel="Buka gambar fullscreen" onPress={onImagePress}>
++            <ChatImage path={item.storage_path} fallback={item.image_url} />
++          </Pressable>
