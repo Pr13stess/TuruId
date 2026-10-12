@@ -1,3 +1,5 @@
+> Pembaruan 12 Oktober 2026: SQL verifikasi telah disetujui, diuji lokal, dan diterapkan ke DEV fhapolumdqqewwhxnjcb. [Hasil dan batas pengujian](ADMIN-VERIFICATION-DEV.md). Keterangan belum diterapkan di bawah adalah catatan tahap awal.
+
 # Admin verifikasi — hasil lokal, 12 Oktober 2026
 
 Aplikasi baru di `apps/admin-web`, khusus verifikasi owner dan kos yang terpisah. Folder mengikuti SPEC; npm workspace `@turuid/admin-web`. Menggunakan React + Expo web dan dependensi yang sudah terpasang. Root workspaces `apps/*` tetap, tidak mengubah scripts default atau kode User/Owner.

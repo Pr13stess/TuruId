@@ -1,3 +1,5 @@
+> Pembaruan 12 Oktober 2026: SQL verifikasi telah disetujui, diuji lokal, dan diterapkan ke DEV fhapolumdqqewwhxnjcb. [Hasil dan batas pengujian](../../docs/ADMIN-VERIFICATION-DEV.md). Keterangan belum diterapkan di bawah adalah catatan tahap awal.
+
 # TuruId Admin — verifikasi owner & kos
 
 Web app khusus dua modul: **Verifikasi owner** dan **Verifikasi kos**. Tidak ada modul pembayaran, booking, laporan, atau pengelolaan akun. Dibangun dengan React dan Expo web memakai library/versi yang sudah ada di monorepo; tidak ada paket baru yang diunduh untuk fitur ini.

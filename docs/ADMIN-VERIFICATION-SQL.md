@@ -1,3 +1,5 @@
+> Pembaruan 12 Oktober 2026: SQL verifikasi telah disetujui, diuji lokal, dan diterapkan ke DEV fhapolumdqqewwhxnjcb. [Hasil dan batas pengujian](ADMIN-VERIFICATION-DEV.md). Keterangan belum diterapkan di bawah adalah catatan tahap awal.
+
 # Proposal SQL Admin Verifikasi — belum disetujui / belum dijalankan
 
 Target setelah disetujui: **file baru** `supabase/migrations/202610120001_admin_verification.sql`. Root dipakai sesuai Catatan keputusan SPEC. Dokumen ini bukan migrasi aktif. Tidak mengubah migrasi lama, RLS/Storage policy, role akun, atau Function upload.
