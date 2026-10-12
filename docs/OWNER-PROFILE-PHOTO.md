@@ -1,6 +1,6 @@
 # Foto profil Owner
 
-Profil → Ubah foto profil → pilih dari galeri → pratinjau → Simpan foto/Batal. Picker yang sudah ada menormalisasi dan mengompresi foto menjadi JPEG. Adapter memeriksa signature JPEG dan ukuran maksimal 5 MB sebelum upload.
+Profil → Ubah profil → Ubah foto profil → pilih dari galeri → pratinjau → Simpan foto/Batal. Picker yang sudah ada menormalisasi dan mengompresi foto menjadi JPEG. Adapter memeriksa signature JPEG dan ukuran maksimal 5 MB sebelum upload. Form identitas tetap terpasang selama profil dimuat ulang setelah menyimpan foto, sehingga isian yang belum disimpan tetap terjaga.
 
 Menggunakan bucket `avatars` dan `profiles.avatar_path`, sama dengan adapter User yang sudah ada. Setiap upload memakai `{user_id}/{uuid}.jpg` dan `upsert:false`. Tidak menghapus, mengganti nama, atau menimpa objek lama. Tidak mengubah owner-upload, policy, migrasi, dependensi, auth, atau status verifikasi. Foto ditampilkan melalui public URL mengikuti konvensi avatar User; jika foto gagal dimuat tampil inisial.
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -165,7 +165,6 @@ export function ProfileScreen() {
               </View>
             </View>
           </View>
-          <ProfilePhotoEditor />
           {q.data.verification_status !== "APPROVED" && (
             <View style={profileStyles.card}>
               <Text style={profileStyles.heading}>Lengkapi data diri</Text>
@@ -291,11 +290,22 @@ const profileStyles = StyleSheet.create({
 export function EditProfileScreen({ navigation }: Props<"EditProfile">) {
   const { profile } = useRepositories();
   const q = useLoad(useCallback(() => profile.get(), [profile]));
+  const [loadedProfile, setLoadedProfile] = useState<Profile | null>(null);
+  useEffect(() => { if (q.data) setLoadedProfile(q.data); }, [q.data]);
+  const value = q.data ?? loadedProfile;
   return (
     <Page title="Ubah profil">
       <Load {...q} />
-      {q.data && (
-        <ProfileEditor value={q.data} done={() => navigation.goBack()} />
+      {value && (
+        <>
+          <Card>
+            <View style={{ alignItems: "center" }}>
+              <ProfileAvatar name={value.full_name} uri={value.avatar_url} />
+            </View>
+            <ProfilePhotoEditor />
+          </Card>
+          <ProfileEditor value={value} done={() => navigation.goBack()} />
+        </>
       )}
     </Page>
   );
