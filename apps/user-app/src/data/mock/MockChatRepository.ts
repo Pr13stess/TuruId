@@ -8,7 +8,11 @@ import type { AuthRepository } from "../../domain/repositories/AuthRepository";
  * agar alur chat dapat diperagakan tanpa backend nyata.
  */
 export class MockChatRepository implements ChatRepository {
-  async syncReadReceipt() { return null; }
+  async syncReadReceipt(conversationId: string) {
+    this.readTimes.set(conversationId, new Date().toISOString());
+    return null;
+  }
+  private readonly readTimes = new Map<string, string>();
   async chatImageUrl(path: string) {
     return { url: path, expiresAt: Infinity };
   }
@@ -54,6 +58,7 @@ export class MockChatRepository implements ChatRepository {
     const userId = await this.currentUserId();
     return [...this.conversations.values()]
       .filter((c) => c.user_id === userId)
+      .map(c => ({ ...c, unread: (this.messages.get(c.id) ?? []).filter(m => m.sender_id !== userId && m.created_at > (this.readTimes.get(c.id) ?? "")).length }))
       .sort((a, b) => b.updated_at.localeCompare(a.updated_at));
   }
 

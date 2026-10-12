@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRepositories } from "../application/RepositoriesProvider";
 export function useLoad<T>(loader: () => Promise<T>, poll = 0) {
   const { revision } = useRepositories();
@@ -37,11 +37,12 @@ export function useLoad<T>(loader: () => Promise<T>, poll = 0) {
     result?.loader === loader &&
     result.revision === revision &&
     result.retry === retry;
+  const reload = useCallback(() => setRetry((v) => v + 1), []);
   return {
     data: current ? result?.data : undefined,
     error: current ? (result?.error ?? "") : "",
     loading: !current,
-    retry: () => setRetry((v) => v + 1),
+    retry: reload,
   };
 }
 export function useAction() {

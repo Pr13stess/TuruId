@@ -91,6 +91,11 @@ export class SupabaseChatRepository implements ChatRepository {
   }
 
   async listConversations() {
+    const userId = await this.currentUserId();
+    const { data: participants, error: participantError } = await this.client
+      .from("conversation_participants").select("conversation_id,last_read_at").eq("user_id", userId);
+    if (participantError) throw new Error(participantError.message);
+    const readAt = new Map((participants ?? []).map(p => [p.conversation_id, p.last_read_at]));
     const { data, error } = await this.client
       .from("conversations")
       .select("id, property_id, user_id, owner_id, updated_at, properties(name)")
@@ -99,20 +104,26 @@ export class SupabaseChatRepository implements ChatRepository {
     const rows = (data ?? []) as unknown as ConversationRow[];
     return Promise.all(
       rows.map(async (row): Promise<Conversation> => {
-        const { data: last } = await this.client
+        const { data: last, error: lastError } = await this.client
           .from("messages")
           .select("*")
           .eq("conversation_id", row.id)
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
+        if (lastError) throw new Error(lastError.message);
+        const { count, error: unreadError } = await this.client.from("messages")
+          .select("id", { count: "exact", head: true }).eq("conversation_id", row.id)
+          .neq("sender_id", userId).gt("created_at", readAt.get(row.id) ?? "1970-01-01T00:00:00Z");
+        if (unreadError) throw new Error(unreadError.message);
         return {
           id: row.id,
           property_id: row.property_id,
           property_name: propertyName(row),
           user_id: row.user_id,
           owner_id: row.owner_id,
-          updated_at: row.updated_at,
+          updated_at: last?.created_at ?? row.updated_at,
+          unread: count ?? 0,
           last_message: last
             ? await this.toMessage(last as MessageRow)
             : null,

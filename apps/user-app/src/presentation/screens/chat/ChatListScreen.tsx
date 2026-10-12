@@ -1,4 +1,6 @@
 import { useCallback } from "react";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { orderChats } from "../../../domain/chatOrder";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { TabScreenProps } from "../../../navigation/types";
@@ -11,11 +13,14 @@ import type { Conversation } from "../../../domain/models";
 export function ChatListScreen({ navigation }: TabScreenProps<"ChatTab">) {
   const { chat } = useRepositories();
   const loader = useCallback(() => chat.listConversations(), [chat]);
-  const state = useResource(loader);
+  const focused = useIsFocused();
+  const state = useResource(loader, focused ? 5000 : 0);
+  const reload = state.retry;
+  useFocusEffect(useCallback(() => { reload(); }, [reload]));
   return (
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <FlatList
-        data={state.data ?? []}
+        data={orderChats(state.data ?? [])}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
@@ -75,7 +80,10 @@ function ConversationRow({
           {preview}
         </Text>
       </View>
-      <Text style={styles.time}>{timeLabel(item.updated_at)}</Text>
+      <View style={{ alignItems: "flex-end", gap: 6 }}>
+        <Text style={styles.time}>{timeLabel(item.updated_at)}</Text>
+        {!!item.unread && <Text accessibilityLabel={`${item.unread} pesan belum dibaca`} style={styles.unread}>{item.unread > 99 ? "99+" : item.unread}</Text>}
+      </View>
     </Pressable>
   );
 }
@@ -103,4 +111,5 @@ const styles = StyleSheet.create({
   name: { fontWeight: "700", color: colors.ink, fontSize: 15 },
   preview: { color: colors.muted, fontSize: 13 },
   time: { color: colors.muted, fontSize: 11 },
+  unread: { backgroundColor: colors.primary, color: "white", borderRadius: 12, minWidth: 24, textAlign: "center", paddingHorizontal: 6, paddingVertical: 3, fontSize: 11 },
 });

@@ -95,6 +95,7 @@ export interface Conversation {
   owner_id: string | null;
   updated_at: string;
   last_message: Message | null;
+  unread?: number;
 }
 export const NOTE_MAX_LENGTH = 10000;
 export interface Note {

@@ -113,6 +113,7 @@ export interface Conversation {
   tenant: string;
   last_message: string;
   unread: number;
+  updated_at?: string;
 }
 export interface Message {
   id: string;

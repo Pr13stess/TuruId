@@ -1,4 +1,6 @@
 import React, { useCallback, useRef, useState } from "react";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { orderChats } from "../../domain/chatOrder";
 import { Pressable, Text, View } from "react-native";
 import * as Crypto from "expo-crypto";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -29,6 +31,7 @@ import {
   Toggle,
 } from "../components/UI";
 export function ChatListScreen() {
+  const focused = useIsFocused();
   const { communication } = useRepositories();
   const nav = useNav();
   const q = useLoad(
@@ -39,12 +42,14 @@ export function ChatListScreen() {
       }),
       [communication],
     ),
-    10000,
+    focused ? 5000 : 0,
   );
+  const reload = q.retry;
+  useFocusEffect(useCallback(() => { reload(); }, [reload]));
   return (
-    <Page title="Percakapan" tab="ChatList" back={false} aligned contentContainerStyle={{ gap: 4 }}>
+    <Page title="Percakapan" tab="ChatList" back={false} aligned contentContainerStyle={{ gap: 4 }} refreshing={q.loading} onRefresh={q.retry}>
       <Load {...q} />
-      {q.data?.chats.map((c) => (
+      {orderChats(q.data?.chats ?? []).map((c) => (
         <Pressable
           key={c.id}
           accessibilityRole="button"

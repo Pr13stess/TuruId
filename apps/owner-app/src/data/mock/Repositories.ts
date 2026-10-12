@@ -312,7 +312,9 @@ export class MockCommunicationRepository implements CommunicationRepository {
     });
   }
   async conversations() {
-    return (await this.s.read()).conversations;
+    const state = await this.s.read();
+    return state.conversations.map(c => ({ ...c, updated_at: state.messages
+      .filter(m => m.conversation_id === c.id).map(m => m.created_at).sort().at(-1) }));
   }
   async messages(id: string) {
     if (
