@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -289,9 +289,12 @@ const profileStyles = StyleSheet.create({
 });
 export function EditProfileScreen({ navigation }: Props<"EditProfile">) {
   const { profile } = useRepositories();
-  const q = useLoad(useCallback(() => profile.get(), [profile]));
   const [loadedProfile, setLoadedProfile] = useState<Profile | null>(null);
-  useEffect(() => { if (q.data) setLoadedProfile(q.data); }, [q.data]);
+  const q = useLoad(useCallback(async () => {
+    const result = await profile.get();
+    setLoadedProfile(result);
+    return result;
+  }, [profile]));
   const value = q.data ?? loadedProfile;
   return (
     <Page title="Ubah profil">
