@@ -1,36 +1,32 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
   ViewStyle,
-  type StyleProp,
+  StyleProp,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { useNav } from "../navigation";
-import { OwnerNavBar, type OwnerTab } from "./OwnerNavBar";
-import { colors, radius, spacing, typography } from "../theme";
-
-// Opt in per page while the remaining forms and transactional screens are reviewed.
-// The scope covers content only, leaving navigation and other screens unchanged.
-const AlignedContent = createContext(false);
+import { Icon, IconName } from "./Icon";
 export const C = {
-  navy: "#2A2D45",
-  orange: "#F58A00",
-  cream: "#FAF7F1",
+  navy: "#20212B",
+  orange: "#F58A07",
+  cream: "#FFFFFF",
   white: "#FFFFFF",
-  muted: "#8C8D9C",
-  line: "#E7E3DD",
-  soft: "#F4EFED",
+  peach: "#FFEBD2",
+  orangeDark: "#A85100",
+  muted: "#77798B",
+  line: "#E1E2E8",
+  soft: "#F6F6F8",
   green: "#34705B",
   red: "#B54838",
 };
@@ -57,22 +53,15 @@ export function T({
   style?: object;
   muted?: boolean;
 }) {
-  const aligned = useContext(AlignedContent);
   return (
-    <Text style={[
-      styles.text,
-      aligned && { color: colors.ink, flexShrink: 1 },
-      muted && { color: aligned ? colors.muted : C.muted },
-      style,
-    ]}>
+    <Text style={[styles.text, muted && { color: C.muted }, style]}>
       {children}
     </Text>
   );
 }
 export function Title({ children }: { children: React.ReactNode }) {
-  const aligned = useContext(AlignedContent);
   return (
-    <T style={aligned ? typography.heading : { fontSize: 21, fontWeight: "800", letterSpacing: -0.6 }}>
+    <T style={{ fontSize: 21, fontWeight: "800", letterSpacing: -0.6 }}>
       {children}
     </T>
   );
@@ -93,8 +82,7 @@ export function Card({
   children: React.ReactNode;
   style?: ViewStyle;
 }) {
-  const aligned = useContext(AlignedContent);
-  return <View style={[styles.card, aligned && alignedStyles.card, style]}>{children}</View>;
+  return <View style={[styles.card, style]}>{children}</View>;
 }
 export function Badge({
   children,
@@ -103,10 +91,9 @@ export function Badge({
   children: React.ReactNode;
   tone?: "orange" | "green" | "navy";
 }) {
-  const aligned = useContext(AlignedContent);
   return (
     <View
-      style={[{
+      style={{
         alignSelf: "flex-start",
         borderRadius: 999,
         paddingHorizontal: 14,
@@ -117,13 +104,9 @@ export function Badge({
             : tone === "green"
               ? "#E8F4EE"
               : "#ECECF2",
-      }, aligned && {
-        maxWidth: "100%",
-        paddingHorizontal: 10,
-        backgroundColor: tone === "orange" ? colors.orangeSoft : colors.soft,
-      }]}
+      }}
     >
-      <T style={{ fontSize: 12, fontWeight: "600", color: aligned && tone === "green" ? colors.green : C.navy }}>
+      <T style={{ fontSize: 12, fontWeight: "600", color: C.navy }}>
         {children}
       </T>
     </View>
@@ -142,33 +125,30 @@ export function Button({
   disabled?: boolean;
   danger?: boolean;
 }) {
-  const aligned = useContext(AlignedContent);
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={title}
-      accessibilityState={{ disabled }}
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
         styles.button,
-        aligned && { borderRadius: radius.button, minHeight: 48 },
         {
           backgroundColor: secondary
             ? "transparent"
             : danger
-              ? (aligned ? colors.danger : C.red)
-              : (aligned ? colors.primary : C.orange),
+              ? C.red
+              : C.orange,
           borderWidth: secondary ? 1 : 0,
-          borderColor: aligned ? colors.primary : C.line,
+          borderColor: C.line,
           opacity: disabled ? 0.45 : pressed ? 0.7 : 1,
         },
       ]}
     >
       <T
         style={{
-          fontWeight: aligned ? "700" : "800",
-          fontSize: aligned ? 15 : 13,
+          fontWeight: "800",
+          fontSize: 13,
           color: secondary ? C.navy : C.white,
           textAlign: "center",
         }}
@@ -199,25 +179,32 @@ export function Link({
   onPress,
   danger = false,
   last = false,
+  icon,
 }: {
   title: string;
   onPress: () => void;
   danger?: boolean;
   last?: boolean;
+  icon?: IconName;
 }) {
-  const aligned = useContext(AlignedContent);
   // Older call sites bake a trailing arrow into the label string; strip
   // it so the row can draw its own chevron consistently.
   const label = title.replace(/\s*(→|->)\s*$/, "");
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
       onPress={onPress}
-      style={[styles.linkRow, last ? null : styles.linkRowDivider, aligned && alignedStyles.inlineLink]}
+      style={[styles.linkRow, last ? null : styles.linkRowDivider]}
     >
-      <T style={{ color: danger ? C.red : C.navy, fontSize: 15 }}>{label}</T>
-      <T style={{ color: C.muted, fontSize: 22 }}>›</T>
+      <Row style={{ flex: 1, justifyContent: "flex-start", gap: 12 }}>
+        {icon && (
+          <Icon name={icon} size={20} color={danger ? C.red : C.orangeDark} />
+        )}
+        <T style={{ flex: 1, color: danger ? C.red : C.navy, fontSize: 14 }}>
+          {label}
+        </T>
+      </Row>
+      <Icon name="chevron" color={C.muted} size={17} />
     </Pressable>
   );
 }
@@ -228,7 +215,7 @@ export function Field({
   multiline = false,
   numeric = false,
   secure = false,
-  placeholder,
+  placeholder
 }: {
   label: string;
   value: string;
@@ -238,17 +225,13 @@ export function Field({
   secure?: boolean;
   placeholder?: string;
 }) {
-  const aligned = useContext(AlignedContent);
-  const [focused, setFocused] = useState(false);
   return (
     <View style={{ gap: 7, marginBottom: 15 }}>
-      <T style={{ fontSize: aligned ? 14 : 12, fontWeight: "600" }}>{label}</T>
+      <T style={{ fontSize: 12, fontWeight: "600" }}>{label}</T>
       <TextInput
         accessibilityLabel={label}
         value={value}
         onChangeText={onChange}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
         multiline={multiline}
         secureTextEntry={secure}
         keyboardType={numeric ? "numeric" : "default"}
@@ -259,14 +242,6 @@ export function Field({
         }
         style={[
           styles.input,
-          aligned && {
-            backgroundColor: colors.surface,
-            color: colors.ink,
-            borderColor: focused ? colors.primary : colors.line,
-            borderRadius: radius.button,
-            fontSize: 15,
-            minHeight: 48,
-          },
           multiline && { minHeight: 90, textAlignVertical: "top" },
         ]}
       />
@@ -284,7 +259,6 @@ export function Choices<TValue extends string>({
   options: readonly { value: TValue; label: string }[];
   onChange: (v: TValue) => void;
 }) {
-  const aligned = useContext(AlignedContent);
   return (
     <View style={{ gap: 8, marginBottom: 16 }}>
       <T style={{ fontSize: 12, fontWeight: "600" }}>{label}</T>
@@ -293,16 +267,13 @@ export function Choices<TValue extends string>({
           <Pressable
             key={o.value}
             accessibilityRole="radio"
-            accessibilityLabel={o.label}
-            accessibilityState={aligned ? { checked: value === o.value } : { selected: value === o.value }}
-            aria-checked={aligned ? value === o.value : undefined}
+            accessibilityState={{ selected: value === o.value }}
             onPress={() => onChange(o.value)}
             style={[
               styles.chip,
-              aligned && alignedStyles.chip,
               value === o.value && {
-                backgroundColor: C.navy,
-                borderColor: C.navy,
+                backgroundColor: C.orange,
+                borderColor: C.orange,
               },
             ]}
           >
@@ -329,13 +300,10 @@ export function Toggle({
   value: boolean;
   onChange: (v: boolean) => void;
 }) {
-  const aligned = useContext(AlignedContent);
   return (
     <Pressable
       accessibilityRole="switch"
-      accessibilityLabel={label}
       accessibilityState={{ checked: value }}
-      aria-checked={aligned ? value : undefined}
       onPress={() => onChange(!value)}
       style={[styles.row, { paddingVertical: 13 }]}
     >
@@ -346,8 +314,7 @@ export function Toggle({
           height: 25,
           borderRadius: 14,
           padding: 3,
-          backgroundColor: value ? (aligned ? colors.primary : C.orange) : C.line,
-          flexShrink: 0,
+          backgroundColor: value ? C.orange : C.line,
           alignItems: value ? "flex-end" : "flex-start",
         }}
       >
@@ -370,7 +337,6 @@ export function Feedback({
   text?: string;
   error?: boolean;
 }) {
-  const aligned = useContext(AlignedContent);
   if (!text) return null;
   return (
     <View
@@ -378,11 +344,11 @@ export function Feedback({
       style={{
         padding: 12,
         borderRadius: 12,
-        backgroundColor: error ? (aligned ? colors.dangerSoft : "#FCECE8") : (aligned ? colors.orangeSoft : "#FFF0DA"),
+        backgroundColor: error ? "#FCECE8" : "#FFF0DA",
         marginVertical: 8,
       }}
     >
-      <T style={{ fontSize: aligned ? 14 : 12, color: error ? (aligned ? colors.danger : C.red) : C.navy }}>{text}</T>
+      <T style={{ fontSize: 12, color: error ? C.red : C.navy }}>{text}</T>
     </View>
   );
 }
@@ -395,10 +361,9 @@ export function Empty({
   body: string;
   action?: React.ReactNode;
 }) {
-  const aligned = useContext(AlignedContent);
   return (
     <Card style={{ alignItems: "center", paddingVertical: 35, gap: 13 }}>
-      {!aligned && <T style={{ fontSize: 30, color: C.orange }}>⌂</T>}
+      <T style={{ fontSize: 30, color: C.orange }}>⌂</T>
       <Title>{title}</Title>
       <T muted style={{ textAlign: "center", lineHeight: 21 }}>
         {body}
@@ -416,18 +381,10 @@ export function Load({
   error: string;
   retry: () => void;
 }) {
-  const aligned = useContext(AlignedContent);
-  if (aligned && loading) return (
-    <Card style={{ alignItems: "center", paddingVertical: 32 }}>
-      <ActivityIndicator color={colors.primary} accessibilityLabel="Memuat data" />
-      <T muted>Memuat data…</T>
-    </Card>
-  );
   return loading ? (
     <ActivityIndicator color={C.orange} style={{ margin: 40 }} />
   ) : error ? (
     <Card>
-      {aligned && <Title>Belum bisa memuat data</Title>}
       <Feedback text={error} error />
       <Button title="Coba lagi" onPress={retry} />
     </Card>
@@ -436,28 +393,30 @@ export function Load({
 export function Photo({
   path,
   height = 160,
+  radius = 14,
 }: {
   path?: string;
   height?: number;
+  radius?: number;
 }) {
-  const aligned = useContext(AlignedContent);
   const { support } = useRepositories();
-  const [url, setUrl] = useState("");
+  const [resolved, setResolved] = useState({ path: "", url: "" });
   useEffect(() => {
     let active = true;
     if (path && !path.startsWith("demo://"))
       void support
         .mediaUrl(path)
-        .then((v) => {
-          if (active) setUrl(v);
+        .then((url) => {
+          if (active) setResolved({ path, url });
         })
         .catch(() => {
-          if (active) setUrl("");
+          if (active) setResolved({ path, url: "" });
         });
     return () => {
       active = false;
     };
   }, [path, support]);
+  const url = resolved.path === path ? resolved.url : "";
   const local =
     path === "demo://kos-2"
       ? require("../../../assets/kos-2.png")
@@ -470,7 +429,7 @@ export function Photo({
         height,
         backgroundColor: C.soft,
         overflow: "hidden",
-        borderRadius: aligned ? radius.card : 14,
+        borderRadius: radius,
       }}
     >
       {path && (path.startsWith("demo://") || url) ? (
@@ -481,12 +440,302 @@ export function Photo({
         />
       ) : (
         <View
-          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
         >
-          <T muted>⌂ Foto kos</T>
+          <Icon name="photo" size={28} color={C.muted} />
+          <T muted style={{ fontSize: 12 }}>
+            Foto kos belum tersedia
+          </T>
         </View>
       )}
     </View>
+  );
+}
+export function TextLink({
+  title,
+  onPress,
+}: {
+  title: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        minHeight: 44,
+        justifyContent: "center",
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
+      <Row style={{ gap: 5 }}>
+        <T style={{ fontSize: 11, fontWeight: "700", color: C.orangeDark }}>
+          {title}
+        </T>
+        <Icon name="arrow" size={13} color={C.orangeDark} />
+      </Row>
+    </Pressable>
+  );
+}
+export function Segments<TValue extends string>({
+  value,
+  options,
+  onChange,
+  scrollable = false,
+}: {
+  value: TValue;
+  options: readonly { value: TValue; label: string }[];
+  onChange: (value: TValue) => void;
+  scrollable?: boolean;
+}) {
+  const items = options.map((option) => (
+    <Pressable
+      key={option.value}
+      accessibilityRole="tab"
+      accessibilityLabel={option.label}
+      accessibilityState={{ selected: option.value === value }}
+      onPress={() => onChange(option.value)}
+      style={{
+        flex: scrollable ? undefined : 1,
+        paddingHorizontal: scrollable ? 17 : 0,
+        minHeight: 42,
+        borderRadius: 24,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: option.value === value ? C.orange : "transparent",
+      }}
+    >
+      <T
+        style={{
+          fontSize: 12,
+          fontWeight: option.value === value ? "700" : "500",
+          color: option.value === value ? C.white : C.navy,
+        }}
+      >
+        {option.label}
+      </T>
+    </Pressable>
+  ));
+  return (
+    <View
+      accessibilityRole="tablist"
+      style={{
+        backgroundColor: C.peach,
+        borderRadius: 28,
+        padding: 4,
+        overflow: "hidden",
+        flexDirection: "row",
+      }}
+    >
+      {scrollable ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ alignItems: "center" }}
+        >
+          {items}
+        </ScrollView>
+      ) : (
+        items
+      )}
+    </View>
+  );
+}
+export function IconButton({
+  name,
+  label,
+  onPress,
+  color = C.navy,
+  disabled = false,
+  selected = false,
+}: {
+  name: IconName;
+  label: string;
+  onPress: () => void;
+  color?: string;
+  disabled?: boolean;
+  selected?: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled, selected }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        width: 44,
+        height: 44,
+        justifyContent: "center",
+        alignItems: "center",
+        opacity: disabled ? 0.4 : pressed ? 0.6 : 1,
+      })}
+    >
+      <Icon name={name} size={21} color={color} />
+    </Pressable>
+  );
+}
+export function Avatar({ name, size = 44 }: { name: string; size?: number }) {
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase() || "?";
+  return (
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: "#E3E3E6",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}
+    >
+      <T
+        style={{
+          color: "#737581",
+          fontWeight: "700",
+          fontSize: size / 3,
+          lineHeight: size / 2,
+        }}
+      >
+        {initials}
+      </T>
+    </View>
+  );
+}
+export function ChatLayout({
+  children,
+  title,
+  heading,
+  footer,
+  tab,
+  scrollRef,
+  onContentSizeChange,
+}: {
+  children: React.ReactNode;
+  title: string;
+  heading?: React.ReactNode;
+  footer?: React.ReactNode;
+  tab?: "ChatList";
+  scrollRef?: React.RefObject<ScrollView | null>;
+  onContentSizeChange?: () => void;
+}) {
+  const nav = useNav();
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: C.orange }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <Row
+          style={{
+            height: 62,
+            paddingHorizontal: 10,
+            justifyContent: "flex-start",
+          }}
+        >
+          <IconButton
+            name="back"
+            label="Kembali"
+            color={C.white}
+            onPress={() =>
+              nav.canGoBack() ? nav.goBack() : nav.navigate("Home")
+            }
+          />
+          <T style={{ color: C.white, fontSize: 18, fontWeight: "700" }}>
+            {title}
+          </T>
+        </Row>
+        <View
+          style={{
+            flex: 1,
+            borderTopLeftRadius: 35,
+            borderTopRightRadius: 35,
+            backgroundColor: C.white,
+            paddingTop: 16,
+            overflow: "hidden",
+          }}
+        >
+          {heading && <View style={{ paddingHorizontal: 20 }}>{heading}</View>}
+          <ScrollView
+            ref={scrollRef}
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            onContentSizeChange={onContentSizeChange}
+            contentContainerStyle={{
+              padding: 18,
+              gap: 16,
+              paddingBottom: tab ? 115 : 18,
+            }}
+          >
+            {children}
+          </ScrollView>
+          {footer && (
+            <View
+              style={{
+                paddingHorizontal: 20,
+                paddingTop: 8,
+                paddingBottom: 16,
+                backgroundColor: C.white,
+              }}
+            >
+              {footer}
+            </View>
+          )}
+          {tab && <Dock active={tab} role="owner" />}
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+export function Brand() {
+  return (
+    <Row style={{ justifyContent: "flex-start", gap: 10 }}>
+      <View
+        style={{
+          width: 35,
+          height: 42,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Icon name="pin" size={37} color={C.orange} />
+        <View
+          style={{
+            position: "absolute",
+            top: 11,
+            width: 15,
+            height: 15,
+            backgroundColor: C.orange,
+          }}
+        >
+          <Icon name="home" size={15} color={C.white} />
+        </View>
+      </View>
+      <T
+        style={{
+          fontWeight: "900",
+          fontSize: 23,
+          lineHeight: 30,
+          letterSpacing: -0.7,
+        }}
+      >
+        Turu.Id
+      </T>
+    </Row>
   );
 }
 export function Page({
@@ -495,68 +744,149 @@ export function Page({
   tab,
   back = true,
   action,
-  header,
-  contentContainerStyle,
-  aligned = false,
-  refreshing = false,
-  onRefresh,
+  brand = false,
+  header = true,
+  fullBleed = false,
+  contentStyle,
+  navigationRole = "owner",
 }: {
   children: React.ReactNode;
   title: string;
-  tab?: OwnerTab;
+  tab?: "Home" | "ChatList" | "Bookings" | "Profile";
   back?: boolean;
   action?: React.ReactNode;
-  header?: React.ReactNode;
-  contentContainerStyle?: StyleProp<ViewStyle>;
-  aligned?: boolean;
-  refreshing?: boolean;
-  onRefresh?: () => void;
+  brand?: boolean;
+  header?: boolean;
+  fullBleed?: boolean;
+  contentStyle?: StyleProp<ViewStyle>;
+  navigationRole?: "owner" | "customer";
 }) {
   const nav = useNav();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: C.cream }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: C.white }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {header ?? <View style={styles.header}>
-          {back ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Kembali"
-              onPress={() => nav.canGoBack() && nav.goBack()}
-              style={{ width: 32 }}
-            >
-              <T style={{ fontSize: 22 }}>‹</T>
-            </Pressable>
-          ) : (
-            <View style={{ width: 32 }} />
-          )}
-          <T style={{ fontWeight: "800", fontSize: 16 }}>{title}</T>
-          <View style={{ minWidth: 32 }}>{action}</View>
-        </View>}
+        {header && (
+          <View style={styles.header}>
+            {brand ? (
+              <Brand />
+            ) : (
+              <>
+                {back ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Kembali"
+                    onPress={() =>
+                      nav.canGoBack() ? nav.goBack() : nav.navigate("Home")
+                    }
+                    style={{ width: 44, height: 44, justifyContent: "center" }}
+                  >
+                    <Icon name="back" color={C.navy} />
+                  </Pressable>
+                ) : (
+                  <View style={{ width: 44 }} />
+                )}
+                <T
+                  style={{
+                    flex: 1,
+                    textAlign: "center",
+                    fontWeight: "800",
+                    fontSize: 20,
+                    lineHeight: 26,
+                  }}
+                >
+                  {title}
+                </T>
+              </>
+            )}
+            <View style={{ minWidth: 44, alignItems: "flex-end" }}>
+              {action}
+            </View>
+          </View>
+        )}
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          alwaysBounceVertical={!!onRefresh}
-          refreshControl={onRefresh ? (
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => { if (!refreshing) onRefresh(); }}
-              colors={[C.navy]}
-              tintColor={C.navy}
-            />
-          ) : undefined}
-          contentContainerStyle={[{
-            padding: 22,
-            gap: 18,
-            paddingBottom: tab ? 120 : 36,
-          }, aligned && { padding: spacing.page, gap: spacing.page, paddingBottom: tab ? 130 : 36 }, contentContainerStyle, onRefresh && { flexGrow: 1 }]}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            {
+              padding: fullBleed ? 0 : 22,
+              gap: fullBleed ? 0 : 18,
+              paddingBottom: tab ? 118 : 36,
+            },
+            contentStyle,
+          ]}
         >
-          <AlignedContent.Provider value={aligned}>{children}</AlignedContent.Provider>
+          {children}
         </ScrollView>
-        {tab && <OwnerNavBar active={tab} />}
+        {tab && <Dock active={tab} role={navigationRole} />}
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+function Dock({
+  active,
+  role,
+}: {
+  active: "Home" | "ChatList" | "Bookings" | "Profile";
+  role: "owner" | "customer";
+}) {
+  const nav = useNav();
+  const items = [
+    ["Home", "home", "Beranda"],
+    ["ChatList", "chat", "Chat"],
+    ["add", "plus", "Tambahkan properti"],
+    ["Bookings", "bookings", "Pemesanan"],
+    ["Profile", "user", "Profil"],
+  ] as const;
+  return (
+    <View style={styles.dock}>
+      {items
+        .filter(([route]) => route !== "add" || role === "owner")
+        .map(([route, icon, label]) => (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityState={{ selected: route === active }}
+            key={route}
+            onPress={() =>
+              route === "add"
+                ? nav.navigate("PropertyForm", {})
+                : nav.navigate(route)
+            }
+            style={({ pressed }) => ({
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 48,
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <View
+              style={{
+                width: route === "add" ? 62 : 44,
+                height: route === "add" ? 62 : 44,
+                borderRadius: 32,
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: route === "add" ? -26 : 0,
+                backgroundColor:
+                  route === "add" || active === route ? C.white : "transparent",
+                ...(route === "add"
+                  ? { boxShadow: "0 3px 12px #57330030" }
+                  : {}),
+              }}
+            >
+              <Icon
+                name={icon}
+                size={route === "add" ? 32 : 23}
+                color={route === "add" || active === route ? C.orange : C.white}
+              />
+            </View>
+          </Pressable>
+        ))}
+    </View>
   );
 }
 export const styles = StyleSheet.create({
@@ -567,7 +897,14 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 10,
   },
-  card: { backgroundColor: C.white, borderRadius: 18, padding: 17, gap: 12 },
+  card: {
+    backgroundColor: C.white,
+    borderRadius: 16,
+    padding: 17,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: C.line,
+  },
   sectionCard: {
     backgroundColor: C.white,
     borderRadius: 14,
@@ -591,14 +928,14 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   input: {
-    backgroundColor: C.soft,
+    backgroundColor: C.white,
     color: C.navy,
     borderRadius: 11,
     padding: 13,
     fontSize: 14,
     minHeight: 46,
     borderWidth: 1,
-    borderColor: "transparent",
+    borderColor: "#CACBD4",
   },
   chip: {
     paddingHorizontal: 13,
@@ -608,39 +945,25 @@ export const styles = StyleSheet.create({
     borderColor: C.line,
   },
   header: {
-    height: 68,
+    minHeight: 76,
     backgroundColor: C.white,
-    borderBottomLeftRadius: 22,
-    borderBottomRightRadius: 22,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 22,
   },
-});
-
-const alignedStyles = StyleSheet.create({
-  card: {
-    borderRadius: radius.card,
-    padding: spacing.page,
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  inlineLink: {
-    paddingHorizontal: 0,
-    paddingVertical: 8,
-    minHeight: 44,
-    borderBottomWidth: 0,
-    gap: spacing.sm,
-    flexShrink: 1,
-  },
-  chip: {
-    borderRadius: 8,
-    minHeight: 44,
-    paddingVertical: 10,
-    justifyContent: "center",
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
+  dock: {
+    position: "absolute",
+    bottom: 12,
+    left: 14,
+    right: 14,
+    paddingVertical: 5,
+    paddingHorizontal: 7,
+    borderRadius: 40,
+    backgroundColor: C.orange,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    boxShadow: "0 3px 8px #0000001A",
   },
 });

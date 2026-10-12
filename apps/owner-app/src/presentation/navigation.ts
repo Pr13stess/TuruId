@@ -7,6 +7,7 @@ import { Property, Room, Plan, Conversation } from "../domain/models";
 export type Routes = {
   Home: undefined;
   Properties: undefined;
+  Activities: undefined;
   Property: { id: string };
   PropertyForm: { property?: Property };
   RoomForm: { propertyId: string; room?: Room };

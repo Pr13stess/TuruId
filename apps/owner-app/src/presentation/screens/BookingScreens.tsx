@@ -35,7 +35,7 @@ export function BookingsScreen() {
           : b.status === filter),
   );
   return (
-    <Page title="Pemesanan" tab="Bookings" back={false} aligned>
+    <Page title="Pemesanan" tab="Bookings" back={false}>
       <Title>Setiap kedatangan, terpantau.</Title>
       <Choices
         label="Status booking"
@@ -89,7 +89,7 @@ export function BookingScreen({ route }: Props<"Booking">) {
   const q = useLoad(useCallback(() => bookings.list(), [bookings]));
   const b = q.data?.find((b) => b.id === route.params.id);
   return (
-    <Page title="Detail booking" aligned>
+    <Page title="Detail booking">
       <Load {...q} />
       {b && (
         <>
