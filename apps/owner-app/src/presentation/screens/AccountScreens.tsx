@@ -8,6 +8,7 @@ import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
 import { MenuRow, MenuSection, ProfileAvatar, ProfileButton } from "../components/ProfileUi";
 import { colors, radius, spacing, typography } from "../theme";
+import { ProfilePhotoEditor } from "../components/ProfilePhotoEditor";
 import {
   Badge,
   Button,
@@ -151,7 +152,7 @@ export function ProfileScreen() {
       {q.data && (
         <>
           <View style={profileStyles.identity}>
-            <ProfileAvatar name={q.data.full_name} />
+            <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} />
             <View style={profileStyles.identityText}>
               <Text style={profileStyles.name}>{q.data.full_name || "Nama belum diisi"}</Text>
               <Text style={profileStyles.email}>{q.data.email}</Text>
@@ -164,6 +165,7 @@ export function ProfileScreen() {
               </View>
             </View>
           </View>
+          <ProfilePhotoEditor />
           {q.data.verification_status !== "APPROVED" && (
             <View style={profileStyles.card}>
               <Text style={profileStyles.heading}>Lengkapi data diri</Text>

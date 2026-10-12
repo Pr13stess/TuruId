@@ -1,5 +1,6 @@
 import { uploadChatImage, findImageMessage } from "./chatImageUpload";
 import { syncChatReceipt } from "../../domain/chatReceipt";
+import { uploadProfileAvatar } from "./profileAvatar";
 import type { ChatImagePayload } from "../../domain/chatUpload";
 import { signChatImage } from "../../domain/chatImage";
 import { uploadPropertyVideo, videoSchemaMissing } from "./propertyVideo";
@@ -127,7 +128,14 @@ export class SupabaseProfileRepository
 {
   async get() {
     await this.rpc("owner_bootstrap");
-    return this.read<M.Profile>("profile");
+    const profile = await this.read<M.Profile>("profile");
+    const { data, error } = await this.client.from("profiles").select("avatar_path").eq("id", profile.id).single();
+    if (error) throw new Error(error.message);
+    return { ...profile, avatar_url: data.avatar_path ? this.client.storage.from("avatars").getPublicUrl(data.avatar_path).data.publicUrl : null };
+  }
+  async uploadAvatar(input: { base64: string; mime: string }) {
+    const { randomUUID } = await import("expo-crypto");
+    await uploadProfileAvatar(this.client, input, randomUUID());
   }
   async save(input: Pick<M.Profile, "full_name" | "phone" | "address">) {
     await this.rpc("owner_profile", { action: "save", input });

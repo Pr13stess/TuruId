@@ -1,5 +1,6 @@
 export type Verification = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
 export interface Profile {
+  avatar_url?: string | null;
   id: string;
   full_name: string;
   phone: string;

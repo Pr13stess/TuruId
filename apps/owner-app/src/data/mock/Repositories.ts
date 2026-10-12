@@ -53,6 +53,9 @@ export class MockAuthRepository implements AuthRepository {
   }
 }
 export class MockProfileRepository implements ProfileRepository {
+  async uploadAvatar(input: { base64: string; mime: string }) {
+    await this.s.write(s => { s.profile.avatar_url = `data:${input.mime};base64,${input.base64}`; });
+  }
   constructor(private s: MockStore) {}
   async get() {
     return (await this.s.read()).profile;

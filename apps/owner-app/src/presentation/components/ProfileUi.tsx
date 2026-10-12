@@ -1,9 +1,11 @@
-import type { PropsWithChildren } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { useState, type PropsWithChildren } from "react";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing, typography } from "../theme";
 
 // Presentational components: navigation, repository calls and state stay in the screen.
-export function ProfileAvatar({ name }: { name: string }) {
+export function ProfileAvatar({ name, uri }: { name: string; uri?: string | null }) {
+  const [failed, setFailed] = useState<string | null>(null);
+  if (uri && uri !== failed) return <Image source={{ uri }} style={s.avatar} accessibilityLabel={`Foto profil ${name}`} onError={() => setFailed(uri)} />;
   const initials = name.trim().split(/\s+/).slice(0, 2)
     .map((word) => word[0]?.toUpperCase() ?? "").join("") || "?";
   return (
