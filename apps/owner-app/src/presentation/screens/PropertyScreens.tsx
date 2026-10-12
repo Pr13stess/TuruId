@@ -1,17 +1,16 @@
 import React, { useCallback, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { available, Property } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useLoad } from "../hooks";
-import { colors, radius, spacing } from "../theme";
-import { HomeHeader } from "../components/HomeHeader";
+import { Icon, IconName } from "../components/Icon";
+import { PropertyEditor } from "../components/PropertyEditor";
 import {
   Badge,
   Button,
   C,
   Card,
-  Choices,
   date,
   Empty,
   Link,
@@ -21,8 +20,24 @@ import {
   Photo,
   Row,
   T,
+  TextLink,
   Title,
 } from "../components/UI";
+
+const publicationLabel = {
+  DRAFT: "Draft",
+  ACTIVE: "Aktif",
+  INACTIVE: "Nonaktif",
+  SUSPENDED: "Ditangguhkan",
+  ARCHIVED: "Diarsipkan",
+};
+const verificationLabel = {
+  DRAFT: "Belum diajukan",
+  PENDING: "Menunggu verifikasi",
+  APPROVED: "Terverifikasi",
+  REJECTED: "Perlu revisi",
+};
+
 export function PropertyCard({
   property,
   capacity,
@@ -31,221 +46,261 @@ export function PropertyCard({
   capacity?: string;
 }) {
   const nav = useNav();
+  const [menu, setMenu] = useState(false);
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Kelola ${property.name}`}
-      onPress={() => nav.navigate("Property", { id: property.id })}
-    >
-      <Card>
-        <Row style={{ alignItems: "flex-start" }}>
-          <View style={{ width: 86 }}>
-            <Photo path={property.photos[0]} height={88} />
+    <Card style={{ padding: 12, gap: 0, borderRadius: 13 }}>
+      <Row style={{ alignItems: "center", gap: 12 }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Kelola ${property.name}`}
+          onPress={() => nav.navigate("Property", { id: property.id })}
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
+          <View style={{ width: 74 }}>
+            <Photo path={property.photos[0]} height={78} radius={8} />
           </View>
           <View style={{ flex: 1, gap: 4 }}>
-            <T style={{ fontWeight: "700", fontSize: 15 }}>{property.name}</T>
-            <T muted style={{ fontSize: 13 }}>
-              {property.city} · {capacity ?? property.publication_status}
-            </T>
-            <Badge
-              tone={
-                property.verification_status === "APPROVED" ? "green" : "orange"
-              }
-            >
-              {property.verification_status === "APPROVED"
-                ? "Terverifikasi"
-                : property.verification_status}
-            </Badge>
-            <T style={{ fontSize: 13, color: colors.primary, fontWeight: "700" }}>
-              Kelola properti →
-            </T>
-          </View>
-        </Row>
-      </Card>
-    </Pressable>
-  );
-}
-export function HomeScreen() {
-  const { properties, profile, mode } = useRepositories();
-  const nav = useNav();
-  const q = useLoad(
-    useCallback(async () => {
-      const p = await profile.get();
-      const d = await properties.dashboard();
-      return { p, d };
-    }, [properties, profile]),
-  );
-  return (
-    <Page
-      aligned
-      title="TuruId"
-      refreshing={q.loading}
-      onRefresh={q.retry}
-      tab="Home"
-      back={false}
-      header={<HomeHeader onNotifications={() => nav.navigate("Notifications")} />}
-    >
-      <Row>
-        <View style={{ flex: 1 }}>
-          <T muted style={{ fontSize: 12, letterSpacing: 1 }}>
-            RUANG UNTUK BERTUMBUH
-          </T>
-          <Title>
-            Halo, {q.data?.p.full_name.split(" ")[0] ?? "Pemilik"}{" "}
-            <T style={{ color: C.orange }}>☀</T>
-          </Title>
-        </View>
-        <Badge tone="navy">Pemilik kos</Badge>
-      </Row>
-      <Load {...q} />
-      {q.data && (
-        <>
-          <View
-            style={{
-              backgroundColor: C.navy,
-              borderRadius: radius.card,
-              padding: spacing.page,
-              gap: 8,
-            }}
-          >
-            <T style={{ color: "#DDDDE6", fontSize: 13 }}>
-              Ringkasan properti Anda
+            <T style={{ fontWeight: "800", fontSize: 14 }}>{property.name}</T>
+            <T muted style={{ fontSize: 11, lineHeight: 16 }}>
+              {capacity ??
+                `${property.city} · ${publicationLabel[property.publication_status]}`}
             </T>
             <T
               style={{
-                color: C.white,
-                fontSize: 24,
-                fontWeight: "700",
-                lineHeight: 32,
+                fontSize: 11,
+                color: C.orangeDark,
+                fontWeight: "600",
+                marginTop: 4,
               }}
             >
-              Kelola kos, lebih mudah.
+              Kelola properti →
             </T>
-            <T style={{ color: "#C9CAD6", fontSize: 14 }}>
-              Semua aktivitas kos dalam satu tempat.
-            </T>
-            <Row style={{ marginTop: 13 }}>
-              <View style={{ flex: 1 }}>
-                <T
-                  style={{
-                    color: C.orange,
-                    fontSize: 30,
-                    fontWeight: "700",
-                    lineHeight: 36,
-                  }}
-                >
-                  {q.data.d.rooms.reduce(
-                    (s, r) => s + available(r.inventory),
-                    0,
-                  )}
-                </T>
-                <T style={{ color: C.white, fontSize: 13 }}>kamar tersedia</T>
-              </View>
-              <View
-                style={{ height: 38, width: 1, backgroundColor: "#515367" }}
+          </View>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Opsi ${property.name}`}
+          accessibilityState={{ expanded: menu }}
+          onPress={() => setMenu(!menu)}
+          style={{
+            width: 34,
+            height: 44,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon name="more" size={20} color={C.navy} />
+        </Pressable>
+      </Row>
+      {menu && (
+        <View style={{ borderTopWidth: 1, borderColor: C.line, marginTop: 12 }}>
+          <Link
+            title="Lihat detail properti"
+            onPress={() => nav.navigate("Property", { id: property.id })}
+          />
+          <Link
+            title="Edit informasi"
+            last
+            onPress={() => nav.navigate("PropertyForm", { property })}
+          />
+        </View>
+      )}
+    </Card>
+  );
+}
+
+function SectionHeading({
+  title,
+  action,
+}: {
+  title: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <Row style={{ marginTop: 10, minHeight: 44 }}>
+      <T style={{ fontSize: 17, fontWeight: "800" }}>{title}</T>
+      {action}
+    </Row>
+  );
+}
+
+export function HomeScreen() {
+  const { properties, profile, support, mode } = useRepositories();
+  const nav = useNav();
+  const q = useLoad(
+    useCallback(async () => {
+      const [p, d] = await Promise.all([profile.get(), properties.dashboard()]);
+      return { p, d };
+    }, [properties, profile]),
+  );
+  const notices = useLoad(
+    useCallback(() => support.notifications(), [support]),
+  );
+  const d = q.data?.d;
+  return (
+    <Page
+      title="Turu.Id"
+      brand
+      tab="Home"
+      back={false}
+      action={
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Notifikasi"
+          onPress={() => nav.navigate("Notifications")}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            backgroundColor: C.orange,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Icon name="bell" color={C.white} size={22} />
+          {notices.data?.some((n) => !n.read_at) && (
+            <View
+              style={{
+                position: "absolute",
+                top: 7,
+                right: 8,
+                width: 7,
+                height: 7,
+                borderRadius: 5,
+                backgroundColor: C.white,
+              }}
+            />
+          )}
+        </Pressable>
+      }
+    >
+      <View style={{ gap: 3 }}>
+        <T style={{ fontSize: 15 }}>Selamat datang,</T>
+        <T
+          style={{
+            fontSize: 24,
+            lineHeight: 30,
+            letterSpacing: -0.6,
+            fontWeight: "800",
+          }}
+        >
+          {q.data?.p.full_name ?? "Pemilik kos"}
+        </T>
+      </View>
+      <Load {...q} />
+      {d && q.data && (
+        <>
+          <View style={{ gap: 8 }}>
+            <Row style={{ gap: 8, alignItems: "stretch" }}>
+              <Metric
+                title="Total properti"
+                value={String(d.properties.length)}
+                icon="home"
+                onPress={() => nav.navigate("Properties")}
               />
-              <View style={{ flex: 1 }}>
-                <T
-                  style={{
-                    color: C.white,
-                    fontSize: 24,
-                    fontWeight: "700",
-                    lineHeight: 32,
-                  }}
-                >
-                  {q.data.d.properties.length}
-                </T>
-                <T style={{ color: C.white, fontSize: 13 }}>
-                  properti dikelola
-                </T>
-              </View>
+              <Metric
+                title="Kamar tersedia"
+                value={String(
+                  d.rooms
+                    .filter((r) => r.is_active)
+                    .reduce((n, r) => n + available(r.inventory), 0),
+                )}
+                icon="key"
+                onPress={() => nav.navigate("Properties")}
+              />
+            </Row>
+            <Row style={{ gap: 8, alignItems: "stretch" }}>
+              <Metric
+                title="Pemesanan baru"
+                value={String(
+                  d.bookings.filter((b) => b.status === "CONFIRMED").length,
+                )}
+                icon="bookings"
+                onPress={() => nav.navigate("Bookings")}
+              />
+              <Metric
+                title={mode === "demo" ? "Pendapatan demo" : "Pendapatan sewa"}
+                value={money(d.finance.rent_received)}
+                icon="wallet"
+                onPress={() => nav.navigate("Finance")}
+              />
             </Row>
           </View>
-          <Row>
-            <Metric
-              title="Booking baru"
-              value={String(
-                q.data.d.bookings.filter((b) => b.status === "CONFIRMED")
-                  .length,
-              )}
-              icon="▦"
-              onPress={() => nav.navigate("Bookings")}
-            />
-            <Metric
-              title="Penerimaan sewa demo"
-              value={money(q.data.d.finance.rent_received)}
-              icon="↗"
-              onPress={() => nav.navigate("Finance")}
-            />
-          </Row>
           {q.data.p.verification_status !== "APPROVED" && (
-            <Card>
-              <Badge>{q.data.p.verification_status}</Badge>
-              <T>
-                Selesaikan verifikasi owner agar kos dapat ditayangkan setelah
-                disetujui.
-              </T>
+            <Card style={{ backgroundColor: C.peach }}>
+              <Badge>{verificationLabel[q.data.p.verification_status]}</Badge>
+              <T>Selesaikan verifikasi owner untuk mulai menayangkan kos.</T>
               <Button
                 title="Lengkapi data owner"
                 onPress={() => nav.navigate("Onboarding")}
               />
             </Card>
           )}
-          <Row>
-            <Title>Properti saya</Title>
-            <Link
-              title="Lihat semua →"
-              onPress={() => nav.navigate("Properties")}
-            />
-          </Row>
-          {q.data.d.properties.length ? (
-            q.data.d.properties
-              .slice(0, 3)
-              .map((p) => (
-                <PropertyCard
-                  key={p.id}
-                  property={p}
-                  capacity={`${q.data!.d.rooms.filter((r) => r.property_id === p.id).reduce((s, r) => s + available(r.inventory), 0)} kamar tersedia`}
-                />
-              ))
-          ) : (
-            <Empty
-              title="Kos pertama Anda"
-              body="Tambahkan informasi kos, tipe kamar, dan paket sewa untuk mulai mengelola properti."
+          <View style={{ gap: 12 }}>
+            <SectionHeading
+              title="Properti Saya"
               action={
-                <Button
-                  title="Tambahkan kos"
-                  onPress={() => nav.navigate("PropertyForm", {})}
+                <TextLink
+                  title="Lihat semua"
+                  onPress={() => nav.navigate("Properties")}
                 />
               }
             />
-          )}
-          <Row>
-            <Title>Aktivitas terbaru</Title>
-            <Badge>{mode === "demo" ? "DATA DEMO" : "TERKINI"}</Badge>
-          </Row>
-          {q.data.d.activities.length ? (
-            q.data.d.activities.slice(0, 4).map((a) => (
-              <Card key={a.id}>
-                <T style={{ fontWeight: "700", fontSize: 13 }}>{a.title}</T>
-                <Row>
-                  <T muted style={{ fontSize: 13, flex: 1 }}>
-                    {a.body}
-                  </T>
-                  <T muted style={{ fontSize: 12 }}>
-                    {date(a.created_at)}
-                  </T>
-                </Row>
+            {d.properties.length ? (
+              d.properties.slice(0, 2).map((p) => {
+                const rooms = d.rooms.filter((r) => r.property_id === p.id);
+                return (
+                  <PropertyCard
+                    key={p.id}
+                    property={p}
+                    capacity={`${rooms.filter((r) => r.is_active).reduce((n, r) => n + available(r.inventory), 0)} dari ${rooms.reduce((n, r) => n + r.inventory.total, 0)} kamar tersedia`}
+                  />
+                );
+              })
+            ) : (
+              <Empty
+                title="Belum ada properti"
+                body="Tambahkan kos pertama Anda dan mulai kelola kamar dalam satu tempat."
+                action={
+                  <Button
+                    title="Tambahkan kos"
+                    onPress={() => nav.navigate("PropertyForm", {})}
+                  />
+                }
+              />
+            )}
+          </View>
+          <View style={{ gap: 10, marginTop: 8 }}>
+            <SectionHeading
+              title="Aktivitas Terbaru"
+              action={
+                <TextLink
+                  title="Lihat semua"
+                  onPress={() => nav.navigate("Activities")}
+                />
+              }
+            />
+            {d.activities.length ? (
+              d.activities
+                .slice(0, 2)
+                .map((a) => <ActivityCard key={a.id} activity={a} />)
+            ) : (
+              <Card>
+                <T muted>Aktivitas akan muncul setelah ada pembaruan.</T>
               </Card>
-            ))
-          ) : (
-            <T muted>Aktivitas akan muncul setelah ada pembaruan.</T>
-          )}
+            )}
+          </View>
         </>
       )}
     </Page>
   );
 }
+
 export function Metric({
   title,
   value,
@@ -254,235 +309,282 @@ export function Metric({
 }: {
   title: string;
   value: string;
-  icon: string;
+  icon: IconName;
   onPress?: () => void;
 }) {
   return (
-    <Pressable accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={onPress ? title : undefined}
-      onPress={onPress} disabled={!onPress} style={{ flex: 1, minWidth: 0 }}>
-      <Card
-        style={{ borderWidth: 1, borderColor: C.line, minHeight: 102, gap: 5 }}
-      >
-        <T>{icon}</T>
-        <T
-          style={{
-            color: colors.primary,
-            fontSize: value.length > 8 ? 14 : 20,
-            fontWeight: "700",
-          }}
-        >
-          {value}
-        </T>
-        <T muted style={{ fontSize: 13 }}>{title}</T>
-      </Card>
+    <Pressable
+      accessibilityRole={onPress ? "button" : undefined}
+      accessibilityLabel={`${title}: ${value}`}
+      onPress={onPress}
+      disabled={!onPress}
+      style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.75 : 1 })}
+    >
+      <View style={s.metric}>
+        <View style={s.metricIcon}>
+          <Icon name={icon} size={22} color={C.white} />
+        </View>
+        <View style={{ flex: 1, gap: 3 }}>
+          <T style={{ fontSize: 10, lineHeight: 14 }}>{title}</T>
+          <T
+            style={{
+              color: C.orangeDark,
+              fontSize: value.length > 9 ? 12 : 17,
+              lineHeight: 21,
+              fontWeight: "800",
+            }}
+          >
+            {value}
+          </T>
+        </View>
+      </View>
     </Pressable>
   );
 }
-export function PropertiesScreen() {
-  const { properties } = useRepositories();
-  const nav = useNav();
-  const q = useLoad(useCallback(() => properties.list(), [properties]));
+
+function ActivityCard({
+  activity,
+}: {
+  activity: { title: string; body: string; created_at: string };
+}) {
   return (
-    <Page title="Properti saya" aligned refreshing={q.loading} onRefresh={q.retry}>
-      <Button
-        title="+ Tambahkan kos"
-        onPress={() => nav.navigate("PropertyForm", {})}
-      />
+    <Card style={{ padding: 16, gap: 7, borderRadius: 13 }}>
+      <T style={{ fontWeight: "700", fontSize: 13 }}>{activity.title}</T>
+      <Row style={{ gap: 12 }}>
+        <T muted style={{ fontSize: 11, flex: 1 }}>
+          {activity.body}
+        </T>
+        <T muted style={{ fontSize: 10 }}>
+          {date(activity.created_at)}
+        </T>
+      </Row>
+    </Card>
+  );
+}
+
+export function ActivitiesScreen() {
+  const { properties } = useRepositories();
+  const q = useLoad(useCallback(() => properties.dashboard(), [properties]));
+  return (
+    <Page title="Aktivitas terbaru">
       <Load {...q} />
-      {q.data?.map((p) => (
-        <PropertyCard key={p.id} property={p} />
+      {q.data?.activities.map((a) => (
+        <ActivityCard key={a.id} activity={a} />
       ))}
-      {q.data?.length === 0 && (
+      {q.data?.activities.length === 0 && (
         <Empty
-          title="Belum ada properti"
-          body="Mulai dengan menambahkan kos pertama Anda."
+          title="Belum ada aktivitas"
+          body="Pembaruan kos dan pemesanan akan ditampilkan di sini."
         />
       )}
     </Page>
   );
 }
+
+export function PropertiesScreen() {
+  const { properties } = useRepositories();
+  const nav = useNav();
+  const [search, setSearch] = useState("");
+  const q = useLoad(useCallback(() => properties.dashboard(), [properties]));
+  const list = q.data?.properties.filter((p) =>
+    `${p.name} ${p.city}`.toLowerCase().includes(search.trim().toLowerCase()),
+  );
+  return (
+    <Page title="Properti saya">
+      <Row
+        style={{
+          backgroundColor: C.soft,
+          borderRadius: 13,
+          paddingHorizontal: 14,
+        }}
+      >
+        <Icon name="home" size={19} color={C.muted} />
+        <TextInput
+          accessibilityLabel="Cari properti"
+          placeholder="Cari nama kos atau kota"
+          placeholderTextColor={C.muted}
+          value={search}
+          onChangeText={setSearch}
+          style={{ flex: 1, paddingVertical: 15, fontSize: 13, color: C.navy }}
+        />
+      </Row>
+      <Button
+        title="+ Tambahkan properti"
+        onPress={() => nav.navigate("PropertyForm", {})}
+      />
+      <Load {...q} />
+      {list?.map((p) => {
+        const rooms = q.data!.rooms.filter((r) => r.property_id === p.id);
+        return (
+          <PropertyCard
+            key={p.id}
+            property={p}
+            capacity={`${rooms.filter((r) => r.is_active).reduce((n, r) => n + available(r.inventory), 0)} dari ${rooms.reduce((n, r) => n + r.inventory.total, 0)} kamar tersedia`}
+          />
+        );
+      })}
+      {list?.length === 0 && (
+        <Empty
+          title={search ? "Properti tidak ditemukan" : "Belum ada properti"}
+          body={
+            search
+              ? "Coba kata kunci nama kos atau kota yang lain."
+              : "Mulai dengan menambahkan kos pertama Anda."
+          }
+        />
+      )}
+    </Page>
+  );
+}
+
 export function PropertyScreen({ route }: Props<"Property">) {
   const { properties } = useRepositories();
   const nav = useNav();
-  const [tab, setTab] = useState("summary");
-  const q = useLoad(useCallback(() => properties.dashboard(), [properties]));
-  const p = q.data?.properties.find((p) => p.id === route.params.id);
-  const rooms = q.data?.rooms.filter((r) => r.property_id === p?.id) ?? [];
+  const [showBookings, setShowBookings] = useState(false);
+  const q = useLoad(
+    useCallback(() => properties.dashboard(), [properties]),
+    0,
+    true,
+  );
+  const p = q.data?.properties.find(
+    (property) => property.id === route.params.id,
+  );
+  const rooms =
+    q.data?.rooms.filter((room) => room.property_id === p?.id) ?? [];
+  const bookings =
+    q.data?.bookings.filter((booking) => booking.property_id === p?.id) ?? [];
+  const reviews =
+    q.data?.reviews.filter((review) => review.property_id === p?.id) ?? [];
   return (
-    <Page title="Kelola properti" aligned refreshing={q.loading} onRefresh={q.retry}>
-      <Load {...q} />
-      {p && (
-        <>
-          <Photo path={p.photos[0]} height={220} />
-          <View style={{ gap: 8 }}>
-            <Title>{p.name}</Title>
-            <T muted style={{ fontSize: 13 }}>
-              {p.address}, {p.city}
-            </T>
-            <Row style={{ justifyContent: "flex-start", flexWrap: "wrap" }}>
-              <Badge
-                tone={p.verification_status === "APPROVED" ? "green" : "orange"}
-              >
-                {p.verification_status}
-              </Badge>
-              <Badge tone="navy">{p.publication_status}</Badge>
-            </Row>
-          </View>
-          <Choices
-            label="Properti"
-            value={tab}
-            onChange={setTab}
-            options={[
-              { value: "summary", label: "Ringkasan" },
-              { value: "rooms", label: "Kamar" },
-              { value: "bookings", label: "Booking" },
-              { value: "reviews", label: "Ulasan" },
-            ]}
-          />
-          {tab === "summary" && (
-            <>
-              <Row>
-                <Metric
-                  title="Kamar tersedia"
-                  value={String(
-                    rooms.reduce((n, r) => n + available(r.inventory), 0),
-                  )}
-                  icon="▦"
-                />
-                <Metric
-                  title="Tipe kamar"
-                  value={String(rooms.length)}
-                  icon="⌂"
-                />
+    <Page title="Kelola properti" header={false} fullBleed>
+      <View style={{ height: p ? 240 : 70 }}>
+        {p && <Photo path={p.photos[0]} height={240} radius={0} />}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Kembali"
+          onPress={() =>
+            nav.canGoBack() ? nav.goBack() : nav.navigate("Home")
+          }
+          style={{
+            position: "absolute",
+            top: 18,
+            left: 20,
+            width: 44,
+            height: 44,
+            backgroundColor: C.white,
+            borderRadius: 12,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon name="back" color={C.navy} size={20} />
+        </Pressable>
+      </View>
+      <View
+        style={{
+          backgroundColor: C.white,
+          borderTopLeftRadius: 25,
+          borderTopRightRadius: 25,
+          marginTop: p ? -24 : 0,
+          padding: 20,
+          gap: 20,
+        }}
+      >
+        <Load {...q} loading={q.loading && !q.data} />
+        {p && (
+          <>
+            <View style={{ gap: 7 }}>
+              <Title>{p.name}</Title>
+              <T muted style={{ fontSize: 12, lineHeight: 18 }}>
+                {p.address}, {p.city}, {p.province}
+              </T>
+              <Row style={{ justifyContent: "flex-start", flexWrap: "wrap" }}>
+                <Badge
+                  tone={
+                    p.verification_status === "APPROVED" ? "green" : "orange"
+                  }
+                >
+                  {verificationLabel[p.verification_status]}
+                </Badge>
+                <Badge>{publicationLabel[p.publication_status]}</Badge>
               </Row>
-              <Card>
-                <T style={{ fontWeight: "700" }}>Tentang kos</T>
-                <T muted>{p.description}</T>
-                <T style={{ fontWeight: "700", fontSize: 12 }}>
-                  Fasilitas umum
-                </T>
-                <T>{p.facilities.join(" · ") || "Belum ditambahkan"}</T>
-                <T style={{ fontWeight: "700", fontSize: 12 }}>Peraturan</T>
-                <T muted>{p.rules}</T>
-              </Card>
-              <Button
-                title="Edit informasi properti"
-                onPress={() => nav.navigate("PropertyForm", { property: p })}
-              />
-              <Button
-                title="Kelola tipe kamar"
-                secondary
-                onPress={() => setTab("rooms")}
-              />
-            </>
-          )}
-          {tab === "rooms" && (
-            <>
-              <Button
-                title="+ Tambahkan tipe kamar"
-                onPress={() => nav.navigate("RoomForm", { propertyId: p.id })}
-              />
-              {rooms.map((r) => (
-                <Card key={r.id}>
-                  <View style={{ gap: 8, alignItems: "flex-start" }}>
-                    <Title>{r.name}</Title>
-                    <Badge>{available(r.inventory)} tersedia</Badge>
-                  </View>
-                  <T muted>
-                    {r.floor_label} · {r.room_size_m2} m² · KM{" "}
-                    {r.bathroom_type === "PRIVATE" ? "dalam" : "bersama"}
-                  </T>
-                  <T muted style={{ fontSize: 13 }}>{r.facilities.join(" · ") || "Fasilitas belum ditambahkan"}</T>
-                  <View style={{ borderTopWidth: 1, borderTopColor: colors.line }}>
-                    <Link
-                      title="Edit tipe"
-                      onPress={() =>
-                        nav.navigate("RoomForm", { propertyId: p.id, room: r })
-                      }
-                    />
-                    <Link
-                      title="Inventory"
-                      onPress={() => nav.navigate("Inventory", { room: r })}
-                    />
-                    <Link
-                      title="Paket sewa →"
-                      last
-                      onPress={() => nav.navigate("Plans", { room: r })}
-                    />
-                  </View>
-                </Card>
-              ))}
-              {rooms.length === 0 && (
-                <Empty title="Belum ada tipe kamar" body="Tambahkan tipe kamar untuk mengatur kapasitas dan paket sewanya." />
-              )}
-            </>
-          )}
-          {tab === "bookings" && (
-            <>
-              {q.data?.bookings
-                .filter((b) => b.property_id === p.id)
-                .map((b) => (
+            </View>
+            <PropertyEditor
+              key={p.id}
+              property={p}
+              rooms={rooms}
+              reviews={reviews}
+            />
+            <Button
+              title={showBookings ? "Tutup pemesanan kos" : "Pemesanan kos"}
+              secondary
+              onPress={() => setShowBookings(!showBookings)}
+            />
+            {showBookings && (
+              <View style={{ gap: 15 }}>
+                {bookings.map((booking) => (
                   <Pressable
-                    key={b.id}
-                    onPress={() => nav.navigate("Booking", { id: b.id })}
+                    key={booking.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Pemesanan ${booking.tenant}`}
+                    onPress={() => nav.navigate("Booking", { id: booking.id })}
                   >
                     <Card>
-                      <Row style={{ flexWrap: "wrap" }}>
-                        <T style={{ fontWeight: "700" }}>{b.tenant}</T>
-                        <Badge>{b.status}</Badge>
+                      <Row>
+                        <T style={{ fontWeight: "700", flex: 1 }}>
+                          {booking.tenant}
+                        </T>
+                        <Badge>{booking.status}</Badge>
                       </Row>
-                      <T muted>
-                        {b.booking_code} · {b.room_type_name_snapshot}
+                      <T muted style={{ fontSize: 12 }}>
+                        {booking.booking_code} ·{" "}
+                        {booking.room_type_name_snapshot}
                       </T>
                     </Card>
                   </Pressable>
                 ))}
-              <Link
-                title="Buka semua booking →"
-                onPress={() => nav.navigate("Bookings")}
-              />
-            </>
-          )}
-          {tab === "reviews" && (
-            <>
-              {q.data?.reviews
-                .filter((r) => r.property_id === p.id)
-                .map((r) => (
-                  <Card key={r.id}>
-                    <Row>
-                      <T style={{ fontWeight: "700" }}>{r.tenant}</T>
-                      <T style={{ color: C.orange }}>★ {r.rating}/5</T>
-                    </Row>
-                    <Badge tone="green">Penyewa terverifikasi</Badge>
-                    <T>{r.review_text}</T>
-                    <Link
-                      title="Laporkan ulasan"
-                      onPress={() =>
-                        nav.navigate("Report", {
-                          targetType: "REVIEW",
-                          targetId: r.id,
-                        })
-                      }
-                    />
-                  </Card>
-                ))}
-              {!q.data?.reviews.some((r) => r.property_id === p.id) && (
-                <Empty
-                  title="Belum ada ulasan"
-                  body="Ulasan penyewa yang telah selesai dan disetujui akan tampil di sini."
+                {!bookings.length && (
+                  <Empty
+                    title="Belum ada pemesanan"
+                    body="Pemesanan untuk kos ini akan ditampilkan di sini."
+                  />
+                )}
+                <TextLink
+                  title="Buka semua pemesanan"
+                  onPress={() => nav.navigate("Bookings")}
                 />
-              )}
-            </>
-          )}
-        </>
-      )}
-      {q.data && !p && (
-        <Empty
-          title="Kos tidak ditemukan"
-          body="Properti mungkin sudah tidak dapat diakses."
-        />
-      )}
+              </View>
+            )}
+          </>
+        )}
+        {q.data && !p && (
+          <Empty
+            title="Kos tidak ditemukan"
+            body="Properti mungkin sudah tidak dapat diakses."
+          />
+        )}
+      </View>
     </Page>
   );
 }
+
+const s = StyleSheet.create({
+  metric: {
+    flex: 1,
+    minHeight: 76,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    padding: 12,
+    backgroundColor: C.peach,
+    borderRadius: 13,
+  },
+  metricIcon: {
+    width: 32,
+    height: 34,
+    borderRadius: 9,
+    backgroundColor: C.orange,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

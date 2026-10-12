@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRepositories } from "../application/RepositoriesProvider";
-export function useLoad<T>(loader: () => Promise<T>, poll = 0) {
+export function useLoad<T>(
+  loader: () => Promise<T>,
+  poll = 0,
+  keepPreviousData = false,
+) {
   const { revision } = useRepositories();
   const [retry, setRetry] = useState(0);
   const [result, setResult] = useState<{
@@ -19,12 +23,16 @@ export function useLoad<T>(loader: () => Promise<T>, poll = 0) {
         })
         .catch((e) => {
           if (active)
-            setResult({
+            setResult((previous) => ({
+              data:
+                keepPreviousData && previous?.loader === loader
+                  ? previous.data
+                  : undefined,
               error: e instanceof Error ? e.message : String(e),
               loader,
               revision,
               retry,
-            });
+            }));
         });
     load();
     const timer = poll ? setInterval(load, poll) : undefined;
@@ -32,14 +40,17 @@ export function useLoad<T>(loader: () => Promise<T>, poll = 0) {
       active = false;
       if (timer) clearInterval(timer);
     };
-  }, [loader, poll, revision, retry]);
+  }, [loader, poll, revision, retry, keepPreviousData]);
   const current =
     result?.loader === loader &&
     result.revision === revision &&
     result.retry === retry;
   const reload = useCallback(() => setRetry((v) => v + 1), []);
   return {
-    data: current ? result?.data : undefined,
+    data:
+      current || (keepPreviousData && result?.loader === loader)
+        ? result?.data
+        : undefined,
     error: current ? (result?.error ?? "") : "",
     loading: !current,
     retry: reload,
