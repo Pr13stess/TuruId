@@ -123,61 +123,57 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           </View>
           {mode === "mock" && <Text style={styles.demo}>DATA DEMO</Text>}
         </View>
-        {loading || error ? (
-          <View style={{ flex: 1 }}>
+        <FlatList
+          style={{ flex: 1 }}
+          refreshing={loading}
+          onRefresh={() => { if (!loading) retry(); }}
+          alwaysBounceVertical
+          data={data ?? []}
+          numColumns={2}
+          keyExtractor={(item) => item.id}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.list}
+          renderItem={({ item }) => (
+            <PropertyCard
+              item={item}
+              unit={query.durationUnit}
+              value={query.durationValue}
+              onPress={() =>
+                navigation.navigate("PropertyDetail", { propertyId: item.id })
+              }
+            />
+          )}
+          ListEmptyComponent={
             <Status
               loading={loading}
               error={error}
-              onRetry={error ? retry : undefined}
+              empty="Belum ada kos yang cocok"
+              onRetry={loading ? undefined : error ? retry : () => {
+                setQuery(defaultQuery);
+                setText("");
+              }}
             />
-          </View>
-        ) : (
-          <FlatList
-            data={data ?? []}
-            numColumns={2}
-            keyExtractor={(item) => item.id}
-            columnWrapperStyle={styles.row}
-            contentContainerStyle={styles.list}
-            renderItem={({ item }) => (
-              <PropertyCard
-                item={item}
-                unit={query.durationUnit}
-                value={query.durationValue}
-                onPress={() =>
-                  navigation.navigate("PropertyDetail", { propertyId: item.id })
-                }
-              />
-            )}
-            ListEmptyComponent={
-              <Status
-                empty="Belum ada kos yang cocok"
-                onRetry={() => {
-                  setQuery(defaultQuery);
-                  setText("");
-                }}
-              />
-            }
-            ListFooterComponent={
-              <View style={styles.pagination}>
-                {query.page > 0 && (
-                  <Button
-                    secondary
-                    title="Sebelumnya"
-                    onPress={() => setQuery({ ...query, page: query.page - 1 })}
-                  />
-                )}
-                <Text style={styles.resultLabel}>Halaman {query.page + 1}</Text>
-                {data?.length === 20 && (
-                  <Button
-                    secondary
-                    title="Berikutnya"
-                    onPress={() => setQuery({ ...query, page: query.page + 1 })}
-                  />
-                )}
-              </View>
-            }
-          />
-        )}
+          }
+          ListFooterComponent={
+            !loading && !error ? <View style={styles.pagination}>
+              {query.page > 0 && (
+                <Button
+                  secondary
+                  title="Sebelumnya"
+                  onPress={() => setQuery({ ...query, page: query.page - 1 })}
+                />
+              )}
+              <Text style={styles.resultLabel}>Halaman {query.page + 1}</Text>
+              {data?.length === 20 && (
+                <Button
+                  secondary
+                  title="Berikutnya"
+                  onPress={() => setQuery({ ...query, page: query.page + 1 })}
+                />
+              )}
+            </View> : null
+          }
+        />
 
         {sheet === "filter" && (
           <FilterSheet
@@ -320,7 +316,7 @@ const styles = StyleSheet.create({
   toolText: { color: "#fff", fontSize: 23, lineHeight: 26 },
   resultLabel: { fontSize: 10, color: colors.muted },
   demo: { fontSize: 8, color: colors.muted, letterSpacing: 1 },
-  list: { paddingHorizontal: 20, paddingBottom: 120, gap: 13 },
+  list: { flexGrow: 1, paddingHorizontal: 20, paddingBottom: 120, gap: 13 },
   row: { gap: 12 },
   pagination: {
     paddingVertical: 18,
