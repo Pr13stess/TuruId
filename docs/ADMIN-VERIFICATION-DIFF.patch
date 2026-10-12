@@ -1,0 +1,27 @@
+diff --git a/package-lock.json b/package-lock.json
+index 05f7624..186e069 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -31,0 +32,17 @@
++    "apps/admin-web": {
++      "name": "@turuid/admin-web",
++      "version": "0.1.0",
++      "dependencies": {
++        "@expo/metro-runtime": "~57.0.16",
++        "@supabase/supabase-js": "^2.117.2",
++        "expo": "~57.0.25",
++        "react": "19.2.3",
++        "react-dom": "19.2.3",
++        "react-native": "0.86.3",
++        "react-native-web": "^0.21.2"
++      },
++      "devDependencies": {
++        "@types/react": "~19.2.2",
++        "typescript": "~6.0.3"
++      }
++    },
+@@ -3089,0 +3107,4 @@
++    "node_modules/@turuid/admin-web": {
++      "resolved": "apps/admin-web",
++      "link": true
++    },
