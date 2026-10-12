@@ -1,5 +1,6 @@
 import type { Conversation, Message } from "../models";
 export interface ChatRepository {
+  syncReadReceipt(conversationId: string, userId: string): Promise<string | null>;
   chatImageUrl(path: string): Promise<import("../chatImage").ImageLease>;
   /** Membuat atau mengambil percakapan yang sudah ada untuk kos ini. */
   startConversation(

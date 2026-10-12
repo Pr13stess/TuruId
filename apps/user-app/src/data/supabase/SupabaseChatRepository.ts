@@ -1,4 +1,5 @@
 import { legacyChatUpload } from "../../domain/chatUpload";
+import { syncChatReceipt } from "../../domain/chatReceipt";
 import { readChatImage } from "./readChatImage";
 import { uploadChatImage, insertImageMessage } from "./chatImageUpload";
 import { signChatImage } from "../../domain/chatImage";
@@ -36,6 +37,9 @@ function propertyName(row: ConversationRow): string {
 }
 
 export class SupabaseChatRepository implements ChatRepository {
+  syncReadReceipt(conversationId: string, userId: string) {
+    return syncChatReceipt(this.client, conversationId, userId);
+  }
   async chatImageUrl(path: string) {
     return signChatImage(this.client, path);
   }

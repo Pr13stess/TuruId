@@ -8,6 +8,7 @@ import type { AuthRepository } from "../../domain/repositories/AuthRepository";
  * agar alur chat dapat diperagakan tanpa backend nyata.
  */
 export class MockChatRepository implements ChatRepository {
+  async syncReadReceipt() { return null; }
   async chatImageUrl(path: string) {
     return { url: path, expiresAt: Infinity };
   }

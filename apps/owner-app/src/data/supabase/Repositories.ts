@@ -1,4 +1,5 @@
 import { uploadChatImage, findImageMessage } from "./chatImageUpload";
+import { syncChatReceipt } from "../../domain/chatReceipt";
 import type { ChatImagePayload } from "../../domain/chatUpload";
 import { signChatImage } from "../../domain/chatImage";
 import { uploadPropertyVideo, videoSchemaMissing } from "./propertyVideo";
@@ -234,8 +235,21 @@ export class SupabaseCommunicationRepository
   conversations() {
     return this.read<M.Conversation[]>("conversations");
   }
-  messages(cid: string) {
-    return this.rpc<M.Message[]>("communication_messages", { cid });
+  syncReadReceipt(conversationId: string, userId: string) {
+    return syncChatReceipt(this.client, conversationId, userId);
+  }
+  async messages(cid: string) {
+    // Reading data in a background screen must not acknowledge it as seen.
+    // Preserve the active-account check previously supplied by owner_actor().
+    const { data: auth, error: authError } = await this.client.auth.getUser();
+    if (authError || !auth.user) throw new Error("Sesi tidak aktif. Silakan masuk kembali.");
+    const { data: profile, error: profileError } = await this.client.from("profiles")
+      .select("status").eq("id", auth.user.id).single();
+    if (profileError || profile?.status !== "ACTIVE") throw new Error("Sesi tidak aktif. Silakan masuk kembali.");
+    const { data, error } = await this.client.from("messages").select("*")
+      .eq("conversation_id", cid).order("created_at", { ascending: false }).limit(300);
+    if (error) throw new Error(error.message);
+    return ((data ?? []) as M.Message[]).reverse();
   }
   async send(
     cid: string,

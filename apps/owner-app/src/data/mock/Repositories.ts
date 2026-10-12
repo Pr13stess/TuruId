@@ -286,6 +286,7 @@ export class MockBookingRepository implements BookingRepository {
   }
 }
 export class MockCommunicationRepository implements CommunicationRepository {
+  async syncReadReceipt() { return null; }
   constructor(private s: MockStore) {}
   async open(propertyId: string, userId: string) {
     return this.s.write((s) => {

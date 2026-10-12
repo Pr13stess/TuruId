@@ -1,5 +1,6 @@
 import { Call, Conversation, Message, Restriction } from "../models";
 export interface CommunicationRepository {
+  syncReadReceipt(conversationId: string, userId: string): Promise<string | null>;
   open(propertyId: string, userId: string): Promise<Conversation>;
   conversations(): Promise<Conversation[]>;
   messages(id: string): Promise<Message[]>;

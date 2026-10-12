@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +10,10 @@ import { ChatImageCollage } from "./ChatImageCollage";
 import { chatGroups } from "../../domain/chatCollage";
 import { Load, Photo } from "./UI";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "./ChatIcons";
+import { useRepositories } from "../../application/RepositoriesProvider";
+import { useChatReceipt } from "../useChatReceipt";
+import { groupWasRead } from "../../domain/chatReceipt";
+import { MessageReceipt } from "./MessageReceipt";
 
 type Props = {
   conversation: Conversation;
@@ -43,6 +47,9 @@ function IconButton({ label, onPress, children, disabled = false }: {
 }
 
 export function ChatConversation(p: Props) {
+  const { communication } = useRepositories();
+  const syncReceipt = useCallback(() => communication.syncReadReceipt(p.conversation.id, p.userId!), [communication, p.conversation.id, p.userId]);
+  const readAt = useChatReceipt(syncReceipt, !!p.userId && !p.loading && !p.error);
   const insets = useSafeAreaInsets();
   const [viewer, setViewer] = useState<{ items: GalleryItem[]; initialId: string } | null>(null);
   const list = useRef<FlatList<Message[]>>(null);
@@ -90,7 +97,10 @@ export function ChatConversation(p: Props) {
             <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
               <View style={[styles.bubble, mine && styles.bubbleMine, m.message_type === "IMAGE" && { width: 220 }]}>
                 {m.message_type === "IMAGE" ? <ChatImageCollage items={galleryImages(group)} onOpen={id => setViewer({ items: galleryImages(group), initialId: id })} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
-                <Text style={[styles.bubbleTime, mine && { color: colors.selected }]}>{new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 4 }}>
+                  <Text style={[styles.bubbleTime, mine && { color: colors.selected }]}>{new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</Text>
+                  {mine && m.message_type !== "CALL_EVENT" && <MessageReceipt read={groupWasRead(group, readAt)} sentColor={colors.selected} />}
+                </View>
               </View>
             </View>
           </View>;

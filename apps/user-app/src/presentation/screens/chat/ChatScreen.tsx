@@ -30,6 +30,9 @@ import { chatGroups } from "../../../domain/chatCollage";
 import type { Message } from "../../../domain/models";
 import { imageBatch, galleryImages, MAX_CHAT_PHOTOS, type GalleryItem } from "../../../domain/chatGallery";
 import { ChatImageViewer } from "../../components/ChatImageViewer";
+import { MessageReceipt } from "../../components/MessageReceipt";
+import { useChatReceipt } from "../../hooks/useChatReceipt";
+import { groupWasRead } from "../../../domain/chatReceipt";
 
 
 type Row =
@@ -48,6 +51,8 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
     [chat, conversationId],
   );
   const state = useResource(loader);
+  const syncReceipt = useCallback(() => chat.syncReadReceipt(conversationId, myId!), [chat, conversationId, myId]);
+  const readAt = useChatReceipt(syncReceipt, !!myId && !state.loading && !state.error);
 
   const metaLoader = useCallback(
     () => properties.get(propertyId),
@@ -278,6 +283,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
                 item={item.message}
                 group={item.group}
                 mine={item.message.sender_id === myId}
+                read={groupWasRead(item.group, readAt)}
                 onImagePress={(id) => setViewer({ items: galleryImages(item.group), initialId: id })}
               />
             )
@@ -336,7 +342,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   );
 }
 
-function Bubble({ item, group, mine, onImagePress }: { item: Message; group: Message[]; mine: boolean; onImagePress: (id: string) => void }) {
+function Bubble({ item, group, mine, read, onImagePress }: { item: Message; group: Message[]; mine: boolean; read: boolean; onImagePress: (id: string) => void }) {
   return (
     <View style={[styles.bubbleRow, mine && styles.bubbleRowMine]}>
       <View style={[styles.bubble, mine && styles.bubbleMine]}>
@@ -347,9 +353,12 @@ function Bubble({ item, group, mine, onImagePress }: { item: Message; group: Mes
             {item.text_content}
           </Text>
         )}
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 4 }}>
         <Text style={[styles.bubbleTime, mine && styles.bubbleTimeMine]}>
           {timeLabel(item.created_at)}
         </Text>
+        {mine && item.message_type !== "CALL_EVENT" && <MessageReceipt read={read} sentColor={colors.selected} />}
+        </View>
       </View>
     </View>
   );
