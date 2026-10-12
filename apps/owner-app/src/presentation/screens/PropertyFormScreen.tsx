@@ -8,6 +8,8 @@ import { chooseImage } from "../media";
 import { choosePropertyMedia, preparePropertyPhoto, type PickedPropertyMedia } from "../propertyMedia";
 import { propertyUploadQueue } from "../../domain/propertyGallery";
 import { PropertyVideo } from "../components/PropertyVideo";
+import { PropertyLocationPicker } from "../components/PropertyLocationPicker";
+import { mapPoint } from "../../domain/propertyLocation";
 import {
   Badge,
   Button,
@@ -46,8 +48,8 @@ export function PropertyFormScreen({
       facilities: [],
     },
   );
-  const [lat, setLat] = useState(String(old?.latitude ?? ""));
-  const [lon, setLon] = useState(String(old?.longitude ?? ""));
+  const [pickingLocation, setPickingLocation] = useState(false);
+  const location = mapPoint(value);
   const [evidence, setEvidence] = useState("");
   const [pending, setPending] = useState<ReturnType<typeof propertyUploadQueue<PickedPropertyMedia>> | null>(null);
   const [progress, setProgress] = useState("");
@@ -90,6 +92,12 @@ export function PropertyFormScreen({
     );
   return (
     <Page title={old ? "Edit properti" : "Tambahkan kos"} aligned>
+      {pickingLocation && <PropertyLocationPicker initial={location}
+        onClose={() => setPickingLocation(false)}
+        onConfirm={point => {
+          setValue(current => ({ ...current, ...point }));
+          setPickingLocation(false);
+        }} />}
       <Badge>DATA KOS</Badge>
       <Title>Ruang baru, cerita baru.</Title>
       <T muted>
@@ -128,18 +136,13 @@ export function PropertyFormScreen({
             { value: "MIXED", label: "Campur" },
           ]}
         />
-        <Field
-          label="Latitude (opsional)"
-          value={lat}
-          onChange={setLat}
-          numeric
-        />
-        <Field
-          label="Longitude (opsional)"
-          value={lon}
-          onChange={setLon}
-          numeric
-        />
+        <Title>Lokasi kos</Title>
+        <T muted>{location ? "Titik lokasi sudah dipilih." : "Belum ada titik lokasi. Pilih di peta agar calon penyewa dapat menemukan kos."}</T>
+        <Button title={location ? "Ubah lokasi di peta" : "Pilih lokasi kos"}
+          secondary disabled={action.busy} onPress={() => setPickingLocation(true)} />
+        {!!location && <Link title="Lepaskan titik lokasi" onPress={() => {
+          if (!action.busy) setValue(current => ({ ...current, latitude: null, longitude: null }));
+        }} />}
       </Card>
       <Card>
         <Title>Detail & fasilitas</Title>
@@ -250,20 +253,10 @@ export function PropertyFormScreen({
         disabled={action.busy || !!pending}
         onPress={() =>
           void action.run(async () => {
-            if (Boolean(lat) !== Boolean(lon))
-              throw new Error("Isi kedua koordinat atau kosongkan keduanya.");
-            if (
-              lat &&
-              (!Number.isFinite(Number(lat)) ||
-                Math.abs(Number(lat)) > 90 ||
-                !Number.isFinite(Number(lon)) ||
-                Math.abs(Number(lon)) > 180)
-            )
-              throw new Error("Koordinat tidak valid.");
+            if ((value.latitude !== null || value.longitude !== null) && !location)
+              throw new Error("Pilih ulang titik lokasi di peta.");
             const id = await properties.save({
               ...value,
-              latitude: lat ? Number(lat) : null,
-              longitude: lon ? Number(lon) : null,
               facilities: value.facilities.map((v) => v.trim()).filter(Boolean),
             });
             if (evidence) await properties.submitVerification(id, evidence);
