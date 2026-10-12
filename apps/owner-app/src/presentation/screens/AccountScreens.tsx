@@ -146,7 +146,7 @@ export function ProfileScreen() {
   const a = useAction();
   const q = useLoad(useCallback(() => profile.get(), [profile]));
   return (
-    <Page title="Profil" tab="Profile" back={false} contentContainerStyle={profileStyles.content}>
+    <Page title="Profil" tab="Profile" back={false} contentContainerStyle={profileStyles.content} refreshing={q.loading} onRefresh={q.retry}>
       <Load {...q} />
       {q.data && (
         <>

@@ -79,6 +79,8 @@ export function HomeScreen() {
     <Page
       aligned
       title="TuruId"
+      refreshing={q.loading}
+      onRefresh={q.retry}
       tab="Home"
       back={false}
       header={<HomeHeader onNotifications={() => nav.navigate("Notifications")} />}
@@ -282,7 +284,7 @@ export function PropertiesScreen() {
   const nav = useNav();
   const q = useLoad(useCallback(() => properties.list(), [properties]));
   return (
-    <Page title="Properti saya" aligned>
+    <Page title="Properti saya" aligned refreshing={q.loading} onRefresh={q.retry}>
       <Button
         title="+ Tambahkan kos"
         onPress={() => nav.navigate("PropertyForm", {})}
@@ -308,7 +310,7 @@ export function PropertyScreen({ route }: Props<"Property">) {
   const p = q.data?.properties.find((p) => p.id === route.params.id);
   const rooms = q.data?.rooms.filter((r) => r.property_id === p?.id) ?? [];
   return (
-    <Page title="Kelola properti" aligned>
+    <Page title="Kelola properti" aligned refreshing={q.loading} onRefresh={q.retry}>
       <Load {...q} />
       {p && (
         <>

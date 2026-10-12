@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -497,6 +498,8 @@ export function Page({
   header,
   contentContainerStyle,
   aligned = false,
+  refreshing = false,
+  onRefresh,
 }: {
   children: React.ReactNode;
   title: string;
@@ -506,6 +509,8 @@ export function Page({
   header?: React.ReactNode;
   contentContainerStyle?: StyleProp<ViewStyle>;
   aligned?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }) {
   const nav = useNav();
   return (
@@ -532,11 +537,20 @@ export function Page({
         </View>}
         <ScrollView
           keyboardShouldPersistTaps="handled"
+          alwaysBounceVertical={!!onRefresh}
+          refreshControl={onRefresh ? (
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => { if (!refreshing) onRefresh(); }}
+              colors={[C.navy]}
+              tintColor={C.navy}
+            />
+          ) : undefined}
           contentContainerStyle={[{
             padding: 22,
             gap: 18,
             paddingBottom: tab ? 120 : 36,
-          }, aligned && { padding: spacing.page, gap: spacing.page, paddingBottom: tab ? 130 : 36 }, contentContainerStyle]}
+          }, aligned && { padding: spacing.page, gap: spacing.page, paddingBottom: tab ? 130 : 36 }, contentContainerStyle, onRefresh && { flexGrow: 1 }]}
         >
           <AlignedContent.Provider value={aligned}>{children}</AlignedContent.Provider>
         </ScrollView>
