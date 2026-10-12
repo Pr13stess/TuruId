@@ -63,7 +63,7 @@ export function ChatConversation(p: Props) {
   }, []);
   const scroll = () => list.current?.scrollToEnd({ animated: false });
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       {viewer && <ChatImageViewer items={viewer.items} initialId={viewer.initialId} onClose={() => setViewer(null)} />}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <IconButton label="Kembali" onPress={p.onBack}>
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   bubbleTime: { color: colors.muted, fontSize: 10, alignSelf: "flex-end" },
   error: { color: colors.danger, fontSize: 12, paddingHorizontal: 16, paddingVertical: 4 },
   preview: { backgroundColor: colors.surface, padding: 12, flexDirection: "row", alignItems: "center", gap: 16 },
-  composer: { flexDirection: "row", alignItems: "flex-end", gap: 8, paddingTop: 12, paddingHorizontal: 12, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.surface },
+  composer: { flexShrink: 0, flexDirection: "row", alignItems: "flex-end", gap: 8, paddingTop: 12, paddingHorizontal: 12, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.surface },
   input: { flex: 1, minWidth: 0, minHeight: 44, maxHeight: 100, backgroundColor: colors.soft, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10, color: colors.ink, fontSize: 14 },
   send: { width: 40, height: 40, marginBottom: 2, borderRadius: 20, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
   sendIcon: { color: colors.surface, fontSize: 16 },
