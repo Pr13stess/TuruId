@@ -11,7 +11,6 @@ import {
 } from "../../domain/models";
 import { Props } from "../navigation";
 import { useAction, useLoad } from "../hooks";
-import { colors } from "../theme";
 import {
   Badge,
   Button,
@@ -30,12 +29,33 @@ import {
   Toggle,
 } from "../components/UI";
 export function RoomFormScreen({ route, navigation }: Props<"RoomForm">) {
+  return (
+    <Page title={route.params.room ? "Edit tipe kamar" : "Tipe kamar baru"}>
+      <RoomEditor
+        propertyId={route.params.propertyId}
+        value={route.params.room}
+        onSaved={() => navigation.goBack()}
+      />
+    </Page>
+  );
+}
+export function RoomEditor({
+  propertyId,
+  value,
+  onSaved,
+  onCancel,
+}: {
+  propertyId: string;
+  value?: Room;
+  onSaved: () => void;
+  onCancel?: () => void;
+}) {
   const { rooms } = useRepositories();
   const a = useAction();
   const [r, setR] = useState<Room>(
-    route.params.room ?? {
+    value ?? {
       id: "",
-      property_id: route.params.propertyId,
+      property_id: propertyId,
       name: "",
       floor_label: "Lantai 1",
       room_size_m2: 12,
@@ -58,7 +78,7 @@ export function RoomFormScreen({ route, navigation }: Props<"RoomForm">) {
   const set = <K extends keyof Room>(k: K, v: Room[K]) =>
     setR((s) => ({ ...s, [k]: v }));
   return (
-    <Page title={r.id ? "Edit tipe kamar" : "Tipe kamar baru"} aligned>
+    <>
       <Card>
         <Title>Identitas kamar</Title>
         <Field
@@ -118,17 +138,27 @@ export function RoomFormScreen({ route, navigation }: Props<"RoomForm">) {
         title="Simpan tipe kamar"
         disabled={a.busy}
         onPress={() =>
-          void a.run(
-            () =>
-              rooms.save({
-                ...r,
-                facilities: r.facilities.map((v) => v.trim()).filter(Boolean),
-              }),
-            () => navigation.goBack(),
-          )
+          void a.run(() => {
+            if (!r.name.trim()) throw new Error("Nama tipe kamar wajib diisi.");
+            if (!Number.isFinite(r.room_size_m2) || r.room_size_m2 <= 0)
+              throw new Error("Luas kamar harus lebih dari nol.");
+            validateInventory(r.inventory);
+            return rooms.save({
+              ...r,
+              facilities: r.facilities.map((v) => v.trim()).filter(Boolean),
+            });
+          }, onSaved)
         }
       />
-    </Page>
+      {onCancel && (
+        <Button
+          title="Batal edit tipe kamar"
+          secondary
+          disabled={a.busy}
+          onPress={onCancel}
+        />
+      )}
+    </>
   );
 }
 export function InventoryScreen({ route, navigation }: Props<"Inventory">) {
@@ -142,13 +172,12 @@ export function InventoryScreen({ route, navigation }: Props<"Inventory">) {
   );
   const current = q.data?.find((r) => r.id === route.params.room.id);
   return (
-    <Page title="Inventory kamar" aligned>
+    <Page title="Inventory kamar">
       <Load {...q} />
       {current && (
         <InventoryEditor
           key={`${current.id}-${current.inventory.version}`}
           room={current}
-          busy={a.busy}
           save={(i, reason) =>
             void a.run(
               () => rooms.updateInventory(current.id, i, reason),
@@ -161,14 +190,12 @@ export function InventoryScreen({ route, navigation }: Props<"Inventory">) {
     </Page>
   );
 }
-function InventoryEditor({
+export function InventoryEditor({
   room,
   save,
-  busy,
 }: {
   room: Room;
   save: (i: Inventory, reason: string) => void;
-  busy: boolean;
 }) {
   const [i, setI] = useState(room.inventory);
   const [reason, setReason] = useState("");
@@ -182,13 +209,13 @@ function InventoryEditor({
           style={{
             color: C.orange,
             fontSize: 38,
-            fontWeight: "700",
+            fontWeight: "800",
             lineHeight: 45,
           }}
         >
           {available(i)}
         </T>
-        <T style={{ color: "#D1D2DC", fontSize: 13 }}>
+        <T style={{ color: "#D1D2DC", fontSize: 12 }}>
           Dihitung otomatis dari kapasitas dan seluruh alokasi.
         </T>
       </Card>
@@ -205,25 +232,19 @@ function InventoryEditor({
           <Row key={key}>
             <T style={{ flex: 1 }}>{label}</T>
             <Pressable
-              accessibilityRole="button"
               accessibilityLabel={`Kurangi ${label}`}
-              disabled={busy || i[key] === 0}
-              accessibilityState={{ disabled: busy || i[key] === 0 }}
               onPress={() => setI({ ...i, [key]: Math.max(0, i[key] - 1) })}
-              style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", backgroundColor: colors.soft, borderRadius: 10, opacity: busy || i[key] === 0 ? 0.45 : 1 }}
+              style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
             >
               <T>−</T>
             </Pressable>
-            <T style={{ minWidth: 24, textAlign: "center", fontWeight: "700" }}>
+            <T style={{ minWidth: 24, textAlign: "center", fontWeight: "800" }}>
               {i[key]}
             </T>
             <Pressable
-              accessibilityRole="button"
               accessibilityLabel={`Tambah ${label}`}
-              disabled={busy}
-              accessibilityState={{ disabled: busy }}
               onPress={() => setI({ ...i, [key]: i[key] + 1 })}
-              style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", backgroundColor: colors.soft, borderRadius: 10, opacity: busy ? 0.45 : 1 }}
+              style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
             >
               <T>+</T>
             </Pressable>
@@ -245,16 +266,14 @@ function InventoryEditor({
         placeholder="Contoh: satu kamar selesai dibersihkan"
         multiline
       />
-      <T muted style={{ fontSize: 13 }}>
+      <T muted style={{ fontSize: 12 }}>
         Penyewa dengan booking aktif harus keluar melalui checkout booking.
         Akhir periode sewa tidak mengosongkan kamar otomatis.
       </T>
       <Feedback text={error} error />
       <Button
-        title={busy ? "Menyimpan…" : "Simpan inventory"}
-        disabled={busy}
+        title="Simpan inventory"
         onPress={() => {
-          setError("");
           try {
             validateInventory(i);
             if (reason.trim().length < 5)
@@ -277,7 +296,7 @@ export function PlansScreen({ route, navigation }: Props<"Plans">) {
     ),
   );
   return (
-    <Page title="Paket sewa" aligned>
+    <Page title="Paket sewa">
       <Title>{route.params.room.name}</Title>
       <Button
         title="+ Tambah paket sewa"
@@ -288,13 +307,13 @@ export function PlansScreen({ route, navigation }: Props<"Plans">) {
       <Load {...q} />
       {q.data?.map((p) => (
         <Card key={p.id}>
-          <Row style={{ flexWrap: "wrap" }}>
+          <Row>
             <Title>{p.name}</Title>
             <Badge tone={p.is_active ? "green" : "navy"}>
               {p.is_active ? "Aktif" : "Nonaktif"}
             </Badge>
           </Row>
-          <T style={{ color: colors.primary, fontSize: 22, fontWeight: "700" }}>
+          <T style={{ color: C.orange, fontSize: 22, fontWeight: "800" }}>
             {money(p.price)}
           </T>
           <T muted>
@@ -329,12 +348,33 @@ export function PlansScreen({ route, navigation }: Props<"Plans">) {
   );
 }
 export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
+  return (
+    <Page title="Paket sewa">
+      <PlanEditor
+        roomId={route.params.roomId}
+        value={route.params.plan}
+        onSaved={() => navigation.goBack()}
+      />
+    </Page>
+  );
+}
+export function PlanEditor({
+  roomId,
+  value,
+  onSaved,
+  onCancel,
+}: {
+  roomId: string;
+  value?: Plan;
+  onSaved: () => void;
+  onCancel?: () => void;
+}) {
   const { pricing } = useRepositories();
   const a = useAction();
   const [p, setP] = useState<Plan>(
-    route.params.plan ?? {
+    value ?? {
       id: "",
-      room_type_id: route.params.roomId,
+      room_type_id: roomId,
       name: "",
       duration_unit: "MONTH",
       duration_value: 1,
@@ -357,7 +397,7 @@ export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
   ] as const;
   const c = costs(p);
   return (
-    <Page title="Paket sewa" aligned>
+    <>
       <Card>
         <Field
           label="Nama paket"
@@ -405,7 +445,7 @@ export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
             onChange={(v) => set("down_payment_value", Number(v))}
           />
         )}
-        <T muted style={{ fontSize: 13 }}>
+        <T muted style={{ fontSize: 11 }}>
           Tanpa DP: seluruh harga sewa dibayar saat booking.
         </T>
         <Choices
@@ -458,9 +498,9 @@ export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
           ["Bayar saat booking", c.pay_now],
           ["Sisa sewa saat masuk", c.remaining],
         ].map(([label, value]) => (
-          <Row key={label} style={{ flexWrap: "wrap" }}>
-            <T style={{ fontSize: 13 }}>{label}</T>
-            <T style={{ fontWeight: "700", fontSize: 13 }}>
+          <Row key={label}>
+            <T style={{ fontSize: 12 }}>{label}</T>
+            <T style={{ fontWeight: "700", fontSize: 12 }}>
               {money(Number(value))}
             </T>
           </Row>
@@ -470,13 +510,16 @@ export function PlanFormScreen({ route, navigation }: Props<"PlanForm">) {
       <Button
         title="Simpan paket"
         disabled={a.busy}
-        onPress={() =>
-          void a.run(
-            () => pricing.save(p),
-            () => navigation.goBack(),
-          )
-        }
+        onPress={() => void a.run(() => pricing.save(p), onSaved)}
       />
-    </Page>
+      {onCancel && (
+        <Button
+          title="Batal edit paket"
+          secondary
+          disabled={a.busy}
+          onPress={onCancel}
+        />
+      )}
+    </>
   );
 }

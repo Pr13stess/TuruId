@@ -15,6 +15,7 @@ import { canUsePushNotifications } from "./src/application/runtimeEnv";
 import { Routes } from "./src/presentation/navigation";
 import {
   HomeScreen,
+  ActivitiesScreen,
   PropertiesScreen,
   PropertyScreen,
 } from "./src/presentation/screens/PropertyScreens";
@@ -158,6 +159,7 @@ function SignedIn() {
         >
           <Stack.Screen name="Home" component={HomeScreen} options={{ animation: "none" }} />
           <Stack.Screen name="Properties" component={PropertiesScreen} />
+          <Stack.Screen name="Activities" component={ActivitiesScreen} />
           <Stack.Screen name="Property" component={PropertyScreen} />
           <Stack.Screen name="PropertyForm" component={PropertyFormScreen} />
           <Stack.Screen name="RoomForm" component={RoomFormScreen} />
@@ -207,7 +209,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <View style={{ flex: 1, backgroundColor: "#E9E7E2" }}>
+      <View style={{ flex: 1, backgroundColor: "#F2F3F5" }}>
         <RepositoriesProvider>
           <Root />
         </RepositoriesProvider>
