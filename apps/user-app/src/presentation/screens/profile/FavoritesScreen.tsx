@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ScreenProps } from '../../../navigation/types';
@@ -7,6 +7,7 @@ import { useRepositories } from '../../../providers/RepositoryProvider';
 import { useResource } from '../../hooks/useResource';
 import { Button, Status } from '../../components/Primitives';
 import { colors } from '../../theme';
+import { MinusIcon } from '../../Icons/FavoriteIcons';
 
 export function FavoritesScreen({ navigation }: ScreenProps<'Favorites'>) {
   const { favorites } = useRepositories();
@@ -29,9 +30,19 @@ export function FavoritesScreen({ navigation }: ScreenProps<'Favorites'>) {
       ListHeaderComponent={error ? <Text style={{ color: colors.danger }}>{error}</Text> : null}
       ListEmptyComponent={<Status loading={state.loading} error={state.error} empty="Belum ada favorit di halaman ini. Simpan kos dari halaman detail." onRetry={state.error ? reload : undefined} />}
       renderItem={({ item }) => <View style={{ padding: 18, gap: 12, backgroundColor: colors.surface, borderRadius: 12 }}>
-        <Text style={{ fontSize: 16, fontWeight: '700', color: colors.primary }}>{item.name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <Text style={{ flex: 1, paddingTop: 10, fontSize: 16, fontWeight: '700', color: colors.primary }}>{item.name}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Hapus ${item.name} dari favorit`}
+            accessibilityState={{ disabled: busy }} disabled={busy} onPress={() => remove(item.propertyId)}
+            style={({ pressed }) => ({ width: 44, height: 44, alignItems: 'center', justifyContent: 'center',
+              marginRight: -8, opacity: busy ? 0.4 : pressed ? 0.6 : 1 })}>
+            <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: colors.line,
+              backgroundColor: colors.soft, alignItems: 'center', justifyContent: 'center' }}>
+              <MinusIcon color={colors.primary} size={16} />
+            </View>
+          </Pressable>
+        </View>
         {item.available && <Button title="Lihat kos" onPress={() => navigation.navigate('PropertyDetail', { propertyId: item.propertyId })} />}
-        <Button secondary title="Hapus favorit" disabled={busy} onPress={() => remove(item.propertyId)} />
       </View>}
       ListFooterComponent={!state.loading && !state.error && (page > 0 || !!state.data?.length) ? <View style={{ gap: 12 }}>
         <Button secondary title="Sebelumnya" disabled={page === 0 || busy} onPress={() => setPage(p => p - 1)} />
