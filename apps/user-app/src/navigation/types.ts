@@ -24,6 +24,7 @@ export type RootStackParamList = {
   Chat: { conversationId: string; propertyId: string; propertyName: string };
   Note: { propertyId: string; propertyName: string };
   Notes: undefined;
+  Favorites: undefined;
   EditProfile: undefined;
   ChangePassword: undefined;
   Policy: { kind: "privacy" | "terms" };

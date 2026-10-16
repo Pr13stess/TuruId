@@ -25,6 +25,7 @@ import {
 } from "../components/Primitives";
 import { RoomCard } from "../components/RoomCard";
 import { Sheet } from "../components/Sheet";
+import { FavoriteButton } from '../components/FavoriteButton';
 export function PropertyDetailScreen({
   route,
   navigation,
@@ -143,6 +144,7 @@ export function PropertyDetailScreen({
             <Text style={styles.mapCredit}>OpenStreetMap · buka peta</Text>
           </Pressable>
           <Text style={styles.description}>{p.description}</Text>
+          <FavoriteButton propertyId={propertyId} />
           <Section title="Fasilitas umum">
             <View style={styles.facilityBox}>
               <FeatureGrid items={p.facilities} />

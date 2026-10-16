@@ -31,6 +31,9 @@ import { SupabaseProfileRepository } from "../data/supabase/SupabaseProfileRepos
 import { SupabaseChatRepository } from "../data/supabase/SupabaseChatRepository";
 import { SupabaseCheckoutRepository } from "../data/supabase/SupabaseCheckoutRepository";
 import { SupabaseNoteRepository } from "../data/supabase/SupabaseNoteRepository";
+import type { FavoriteRepository } from '../domain/repositories/FavoriteRepository';
+import { SupabaseFavoriteRepository } from '../data/supabase/SupabaseFavoriteRepository';
+import { MockFavoriteRepository } from '../data/mock/MockFavoriteRepository';
 export interface Repositories {
   properties: PropertyRepository;
   rooms: RoomRepository;
@@ -40,6 +43,7 @@ export interface Repositories {
   chat: ChatRepository;
   checkout: CheckoutRepository;
   notes: NoteRepository;
+  favorites: FavoriteRepository;
   mode: "mock" | "supabase";
 }
 const Context = createContext<Repositories | null>(null);
@@ -66,6 +70,7 @@ function compose(): Repositories {
       chat: new SupabaseChatRepository(client),
       checkout: new SupabaseCheckoutRepository(client),
       notes: new SupabaseNoteRepository(client),
+      favorites: new SupabaseFavoriteRepository(client),
       mode: "supabase",
     };
   }
@@ -79,6 +84,7 @@ function compose(): Repositories {
     chat: new MockChatRepository(auth),
     checkout: new MockCheckoutRepository(),
     notes: new MockNoteRepository(auth),
+    favorites: new MockFavoriteRepository(auth),
     mode: "mock",
   };
 }

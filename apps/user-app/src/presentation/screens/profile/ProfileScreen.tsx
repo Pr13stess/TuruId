@@ -94,7 +94,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
       <MenuSection title="Aktivitas">
         <MenuRow
           label="Favorit"
-          onPress={() => soon("Favorit", "Kos yang kamu simpan akan muncul di sini.")}
+          onPress={() => navigation.navigate("Favorites")}
         />
         <MenuRow
           label="Catatan Saya"
