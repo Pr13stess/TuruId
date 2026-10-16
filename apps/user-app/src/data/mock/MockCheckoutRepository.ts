@@ -3,9 +3,29 @@ import type { Checkout } from "../../domain/models";
 import { CheckoutError } from "../../domain/checkoutErrors";
 import { summarizeCost } from "../../domain/pricing";
 import { mockProperties, mockRooms } from "./fixtures";
+import { filterStatuses, type BookingFilter, type BookingItem, type BookingDetail } from "../../domain/bookings";
 const HOLD_MS = 15 * 60 * 1000;
 /** In-memory stand-in with the same rules as the SQL functions. */
 export class MockCheckoutRepository implements CheckoutRepository {
+  private readonly bookingInfo = new Map<string, { planId: string; createdAt: string }>();
+  private summary(id: string): BookingItem {
+    const b = this.find(id), info = this.bookingInfo.get(id)!;
+    return { id, code: b.bookingCode, planId: info.planId, status: b.status, createdAt: info.createdAt,
+      propertyName: b.propertyName, roomName: b.roomTypeName, planName: b.planName,
+      moveIn: null, checkedIn: null, checkedOut: null, rent: b.rent, downPayment: b.downPayment,
+      deposit: b.securityDeposit, payNow: b.payNow, remainingRent: b.remainingRent, cancelNote: null };
+  }
+  async listBookings(filter: BookingFilter, page: number) {
+    const items = [...this.bookings.keys()].map(id => this.summary(id))
+      .filter(b => !filterStatuses[filter].length || filterStatuses[filter].includes(b.status))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+    return { items: items.slice(page * 20, (page + 1) * 20), hasMore: items.length > (page + 1) * 20 };
+  }
+  async getBookingDetail(id: string): Promise<BookingDetail> {
+    const b = this.find(id);
+    return { booking: this.summary(id), payments: b.paymentStatus ? [{ id: `payment-${id}`, status: b.paymentStatus,
+      amount: b.payNow, createdAt: this.bookingInfo.get(id)!.createdAt, refunds: [] }] : [] };
+  }
   private readonly bookings = new Map<string, Checkout & { roomId: string }>();
   constructor(private readonly now: () => number = Date.now) {}
   private settle(b: Checkout & { roomId: string }) {
@@ -44,6 +64,7 @@ export class MockCheckoutRepository implements CheckoutRepository {
     ).length;
     if (room.available - taken < 1) throw new CheckoutError("SOLD_OUT");
     const bookingId = `mock-booking-${this.bookings.size + 1}`;
+    this.bookingInfo.set(bookingId, { planId, createdAt: new Date(this.now()).toISOString() });
     this.bookings.set(bookingId, {
       roomId: room.id,
       bookingId,

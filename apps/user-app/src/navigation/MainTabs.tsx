@@ -4,17 +4,10 @@ import { FloatingNavBar } from "./FloatingNavBar";
 import { HomeScreen } from "../presentation/screens/HomeScreen";
 import { ChatListScreen } from "../presentation/screens/chat/ChatListScreen";
 import { ProfileScreen } from "../presentation/screens/profile/ProfileScreen";
-import { PlaceholderScreen } from "../presentation/screens/profile/PlaceholderScreen";
+import { BookingsScreen } from "../presentation/screens/bookings/BookingScreens";
 import { colors } from "../presentation/theme";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
-
-const BookingPlaceholder = () => (
-  <PlaceholderScreen
-    title="Belum ada booking"
-    description="Booking kamu akan muncul di sini setelah fitur pemesanan tersedia."
-  />
-);
 
 export function MainTabs() {
   return (
@@ -39,7 +32,7 @@ export function MainTabs() {
       />
       <Tab.Screen
         name="BookingTab"
-        component={BookingPlaceholder}
+        component={BookingsScreen}
         options={{ title: "Booking Saya" }}
       />
       <Tab.Screen

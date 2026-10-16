@@ -9,6 +9,7 @@ import { Button, Status } from "../components/Primitives";
 import { PaymentWebView } from "../components/PaymentWebView";
 import { colors } from "../theme";
 import { rupiah } from "../format";
+import { bookingLabels } from "../../domain/bookings";
 const cancelText: Record<string, string> = {
   HOLD_EXPIRED: "Waktu checkout habis, kamar dilepas kembali.",
   USER_CANCELLED: "Checkout dibatalkan. Tidak ada pembayaran yang diproses.",
@@ -109,6 +110,7 @@ export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
         ) : (
           <>
             <Text style={styles.title}>{data.propertyName}</Text>
+            <Text style={styles.meta}>Status booking: {bookingLabels[data.status]}</Text>
             <Text style={styles.meta}>
               {data.roomTypeName} · {data.planName} · {data.bookingCode}
             </Text>
@@ -178,7 +180,7 @@ export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
               <Button secondary title="Batalkan checkout" disabled={busy} onPress={confirmCancel} />
             </>
           )}
-          {!open && <Button title="Kembali ke beranda" onPress={() => navigation.popToTop()} />}
+          {!open && <Button title="Lihat detail booking" onPress={() => navigation.replace("BookingDetail", { bookingId })} />}
         </View>
       )}
       {paying && data?.redirectUrl && (

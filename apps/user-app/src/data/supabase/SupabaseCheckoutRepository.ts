@@ -2,6 +2,8 @@ import { FunctionsHttpError, type SupabaseClient } from "@supabase/supabase-js";
 import type { CheckoutRepository } from "../../domain/repositories/CheckoutRepository";
 import type { BookingStatus, Checkout } from "../../domain/models";
 import { toCheckoutError } from "../../domain/checkoutErrors";
+import { listBookings, getBookingDetail } from "./bookingQueries";
+import type { BookingFilter } from "../../domain/bookings";
 const statuses: BookingStatus[] = [
   "DRAFT", "HELD", "PENDING_PAYMENT", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED",
 ];
@@ -46,6 +48,8 @@ async function failure(error: unknown): Promise<never> {
   throw toCheckoutError(error);
 }
 export class SupabaseCheckoutRepository implements CheckoutRepository {
+  listBookings(filter: BookingFilter, page: number) { return listBookings(this.client, filter, page); }
+  getBookingDetail(id: string) { return getBookingDetail(this.client, id); }
   constructor(private readonly client: SupabaseClient) {}
   async start(planId: string) {
     const { data, error } = await this.client.functions.invoke("create-payment", {

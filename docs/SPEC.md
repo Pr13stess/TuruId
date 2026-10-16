@@ -15,6 +15,7 @@ Bagian ini ditambahkan setelah spesifikasi v2.0 dan **berlaku lebih dulu** darip
    - Rahasia Xendit hanya boleh ada di backend.
 2. **Nama produk: TuruId.** Sebagian kode dan konfigurasi masih memakai "KosKu / KosKu Owner". Rebranding teks dan logo dikerjakan lebih dulu; identitas teknis (package ID, scheme, key penyimpanan) dikerjakan terpisah.
 3. **Cakupan pengerjaan saat ini.** Item berikut tetap menjadi bagian spesifikasi, tetapi **sedang ditunda** dan harus dinyatakan sebagai batas cakupan, bukan fitur selesai, bila belum dikerjakan: booking dan checkout dari User App (termasuk pembayaran dan refund end-to-end), voice/video call dengan Agora pada perangkat nyata, serta notifikasi push. Ubah catatan ini bila status berubah.
+   - Pembaruan 17 Oktober 2026: tab daftar/detail Booking User, filter status, snapshot biaya, dan navigasi kembali ke checkout sudah diimplementasikan serta diuji lokal. Pembayaran/refund end-to-end di DEV tetap belum dinyatakan selesai; lihat `docs/USER-BOOKINGS.md`.
 4. **Sumber kebenaran migrasi database:** `supabase/migrations` di root. Konsolidasi dilakukan lewat migrasi tambahan yang aditif, tanpa mengedit riwayat yang sudah diterapkan.
 
 ---

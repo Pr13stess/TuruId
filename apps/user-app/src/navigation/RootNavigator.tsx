@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "./types";
 import { MainTabs } from "./MainTabs";
+import { BookingDetailScreen } from "../presentation/screens/bookings/BookingScreens";
 import { useAuthSession } from "../presentation/hooks/useAuthSession";
 import { LoginScreen } from "../presentation/screens/LoginScreen";
 import { RegisterScreen } from "../presentation/screens/RegisterScreen";
@@ -85,6 +86,7 @@ export function RootNavigator() {
               component={CheckoutScreen}
               options={{ title: "Checkout" }}
             />
+            <Stack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Detail booking" }} />
             <Stack.Screen
               name="Chat"
               component={ChatScreen}
