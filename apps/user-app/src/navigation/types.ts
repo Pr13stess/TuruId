@@ -25,6 +25,7 @@ export type RootStackParamList = {
   Note: { propertyId: string; propertyName: string };
   Notes: undefined;
   Favorites: undefined;
+  Notifications: undefined;
   EditProfile: undefined;
   ChangePassword: undefined;
   Policy: { kind: "privacy" | "terms" };

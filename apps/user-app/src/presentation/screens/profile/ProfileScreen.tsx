@@ -108,7 +108,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
         <MenuRow
           label="Notifikasi"
           last
-          onPress={() => soon("Notifikasi", "Pemberitahuan tentang akun dan kos akan muncul di sini.")}
+          onPress={() => navigation.navigate("Notifications")}
         />
       </MenuSection>
 

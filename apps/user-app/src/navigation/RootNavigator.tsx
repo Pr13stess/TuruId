@@ -15,6 +15,7 @@ import { ChatScreen } from "../presentation/screens/chat/ChatScreen";
 import { NoteScreen } from "../presentation/screens/notes/NoteScreen";
 import { NotesScreen } from "../presentation/screens/notes/NotesScreen";
 import { FavoritesScreen } from '../presentation/screens/profile/FavoritesScreen';
+import { NotificationsScreen } from '../presentation/screens/profile/NotificationsScreen';
 import { EditProfileScreen } from "../presentation/screens/profile/EditProfileScreen";
 import { ChangePasswordScreen } from "../presentation/screens/profile/ChangePasswordScreen";
 import { PolicyScreen } from "../presentation/screens/profile/PolicyScreen";
@@ -101,6 +102,7 @@ export function RootNavigator() {
             />
             <Stack.Screen name="Notes" component={NotesScreen} options={{ title: 'Catatan Saya' }} />
             <Stack.Screen name="Favorites" component={FavoritesScreen} options={{ title: 'Favorit' }} />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifikasi' }} />
             <Stack.Screen
               name="EditProfile"
               component={EditProfileScreen}

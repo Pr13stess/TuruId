@@ -58,8 +58,8 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           />
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Notifikasi, belum tersedia"
-            onPress={() => setSheet("future")}
+            accessibilityLabel="Notifikasi"
+            onPress={() => navigation.navigate("Notifications")}
             style={styles.notification}
           >
             <NotifIcon color="#fff" />
