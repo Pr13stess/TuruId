@@ -24,6 +24,20 @@ function toNote(row: NoteRow, propertyName: string): Note {
 export class SupabaseNoteRepository implements NoteRepository {
   constructor(private readonly client: SupabaseClient) {}
 
+  async list(page: number): Promise<Note[]> {
+    if (!Number.isSafeInteger(page) || page < 0) throw new Error('Halaman tidak valid.');
+    const userId = await this.currentUserId();
+    const { data, error } = await this.client.from('notes')
+      .select('id,property_id,content,version,updated_at,properties(name)')
+      .eq('user_id', userId).order('updated_at', { ascending: false })
+      .order('id', { ascending: false }).range(page * 20, page * 20 + 20);
+    if (error) throw new Error('Catatan gagal dimuat. Coba lagi.');
+    return (data ?? []).map(row => {
+      const property = row.properties as unknown as { name: string } | null;
+      return toNote(row, property?.name || 'Kos tidak tersedia');
+    });
+  }
+
   private async currentUserId(): Promise<string> {
     const { data, error } = await this.client.auth.getUser();
     if (error) throw new Error(error.message);

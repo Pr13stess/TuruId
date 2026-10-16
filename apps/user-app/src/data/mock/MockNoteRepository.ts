@@ -15,14 +15,24 @@ export class MockNoteRepository implements NoteRepository {
 
   constructor(private readonly auth: AuthRepository) {}
 
-  private async requireUser(): Promise<void> {
+  private async requireUser(): Promise<string> {
     const session = await this.auth.getSession();
     if (!session) throw new Error("Masuk terlebih dahulu untuk menulis catatan.");
+    return session.user.id;
+  }
+
+  async list(page: number): Promise<Note[]> {
+    if (!Number.isSafeInteger(page) || page < 0) throw new Error('Halaman tidak valid.');
+    const userId = await this.requireUser();
+    return [...this.notes.entries()].filter(([key]) => key.startsWith(`${userId}\n`))
+      .map(([, note]) => ({ ...note }))
+      .sort((a, b) => b.updated_at.localeCompare(a.updated_at) || b.id.localeCompare(a.id))
+      .slice(page * 20, page * 20 + 21);
   }
 
   async getByProperty(propertyId: string, propertyName: string) {
-    await this.requireUser();
-    const existing = this.notes.get(propertyId);
+    const userId = await this.requireUser();
+    const existing = this.notes.get(`${userId}\n${propertyId}`);
     if (!existing) return null;
     return { ...existing, property_name: propertyName };
   }
@@ -33,10 +43,10 @@ export class MockNoteRepository implements NoteRepository {
     content: string,
     version: number | null,
   ) {
-    await this.requireUser();
+    const userId = await this.requireUser();
     if (content.length > NOTE_MAX_LENGTH)
       throw new Error(`Catatan maksimal ${NOTE_MAX_LENGTH} karakter.`);
-    const existing = this.notes.get(propertyId) ?? null;
+    const existing = this.notes.get(`${userId}\n${propertyId}`) ?? null;
     const currentVersion = existing?.version ?? null;
     if (currentVersion !== version) throw new NoteConflictError();
     const next: Note = {
@@ -47,12 +57,12 @@ export class MockNoteRepository implements NoteRepository {
       version: (currentVersion ?? 0) + 1,
       updated_at: new Date().toISOString(),
     };
-    this.notes.set(propertyId, next);
+    this.notes.set(`${userId}\n${propertyId}`, next);
     return next;
   }
 
   async deleteByProperty(propertyId: string) {
-    await this.requireUser();
-    this.notes.delete(propertyId);
+    const userId = await this.requireUser();
+    this.notes.delete(`${userId}\n${propertyId}`);
   }
 }

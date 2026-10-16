@@ -13,6 +13,7 @@ import { PlanSelectionScreen } from "../presentation/screens/PlanSelectionScreen
 import { CheckoutScreen } from "../presentation/screens/CheckoutScreen";
 import { ChatScreen } from "../presentation/screens/chat/ChatScreen";
 import { NoteScreen } from "../presentation/screens/notes/NoteScreen";
+import { NotesScreen } from "../presentation/screens/notes/NotesScreen";
 import { EditProfileScreen } from "../presentation/screens/profile/EditProfileScreen";
 import { ChangePasswordScreen } from "../presentation/screens/profile/ChangePasswordScreen";
 import { PolicyScreen } from "../presentation/screens/profile/PolicyScreen";
@@ -97,6 +98,7 @@ export function RootNavigator() {
               component={NoteScreen}
               options={{ title: "Catatan" }}
             />
+            <Stack.Screen name="Notes" component={NotesScreen} options={{ title: 'Catatan Saya' }} />
             <Stack.Screen
               name="EditProfile"
               component={EditProfileScreen}

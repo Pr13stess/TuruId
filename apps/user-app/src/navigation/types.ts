@@ -23,6 +23,7 @@ export type RootStackParamList = {
   BookingDetail: { bookingId: string };
   Chat: { conversationId: string; propertyId: string; propertyName: string };
   Note: { propertyId: string; propertyName: string };
+  Notes: undefined;
   EditProfile: undefined;
   ChangePassword: undefined;
   Policy: { kind: "privacy" | "terms" };

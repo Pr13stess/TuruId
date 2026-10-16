@@ -11,6 +11,7 @@ export class NoteConflictError extends Error {
 }
 
 export interface NoteRepository {
+  list(page: number): Promise<Note[]>;
   /** null when the person has never written a note for this property.
    * propertyName is supplied by the caller (already on hand from the
    * property screen) rather than joined server-side, since notes does
