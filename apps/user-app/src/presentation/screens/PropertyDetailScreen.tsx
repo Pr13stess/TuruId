@@ -218,7 +218,7 @@ export function PropertyDetailScreen({
           ]}
         >
           <Text style={styles.primaryText} numberOfLines={1}>
-            Pilih kamar
+            Lihat kamar
           </Text>
         </Pressable>
       </View>
