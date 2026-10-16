@@ -38,7 +38,7 @@ export function FavoritesScreen({ navigation }: ScreenProps<'Favorites'>) {
               marginRight: -8, opacity: busy ? 0.4 : pressed ? 0.6 : 1 })}>
             <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: colors.line,
               backgroundColor: colors.soft, alignItems: 'center', justifyContent: 'center' }}>
-              <MinusIcon color={colors.primary} size={16} />
+              <MinusIcon color={colors.danger} size={16} />
             </View>
           </Pressable>
         </View>
