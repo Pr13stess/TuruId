@@ -164,7 +164,7 @@ export function PropertyDetailScreen({
               <ReviewIcon color={colors.primary} />
             </Pressable>
           </View>
-          <PropertyReviewsPreview propertyId={propertyId} photos={p.images} onViewAll={() => navigation.navigate('Reviews', { propertyId })} />
+          <PropertyReviewsPreview propertyId={propertyId} onViewAll={() => navigation.navigate('Reviews', { propertyId })} />
           <Section title="Fasilitas umum">
             <View style={styles.facilityBox}>
               <FeatureGrid items={p.facilities} />
