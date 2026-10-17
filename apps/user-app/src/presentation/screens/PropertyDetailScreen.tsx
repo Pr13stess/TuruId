@@ -28,6 +28,8 @@ import { RoomCard } from "../components/RoomCard";
 import { Sheet } from "../components/Sheet";
 import { FavoriteButton } from '../components/FavoriteButton';
 import { propertyShareText } from '../../domain/propertyFeedback';
+import { ShareIcon, ReviewIcon } from '../Icons/ShareIcon';
+import { PropertyReviewsPreview } from '../components/PropertyReviewsPreview';
 export function PropertyDetailScreen({
   route,
   navigation,
@@ -146,13 +148,23 @@ export function PropertyDetailScreen({
             <Text style={styles.mapCredit}>OpenStreetMap · buka peta</Text>
           </Pressable>
           <Text style={styles.description}>{p.description}</Text>
-          <FavoriteButton propertyId={propertyId} />
-          <View style={{ gap: 10, marginBottom: 16 }}>
-            <Button secondary title="Bagikan kos" onPress={() => {
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10, marginVertical: 12 }}>
+            <FavoriteButton propertyId={propertyId} />
+            <Pressable accessibilityRole="button" accessibilityLabel="Bagikan kos" onPress={() => {
               void Share.share({ message: propertyShareText(p) }).catch(() => setNotice('Kos belum bisa dibagikan. Coba lagi.'));
-            }} />
-            <Button secondary title="Lihat ulasan" onPress={() => navigation.navigate('Reviews', { propertyId })} />
+            }} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44,
+              paddingHorizontal: 14, borderRadius: 22, borderWidth: 1, borderColor: colors.line,
+              backgroundColor: pressed ? colors.soft : colors.surface })}>
+              <ShareIcon color={colors.primary} />
+              <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '600' }}>Bagikan</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Lihat ulasan" onPress={() => navigation.navigate('Reviews', { propertyId })}
+              style={({ pressed }) => ({ width: 44, height: 44, alignItems: 'center', justifyContent: 'center',
+                borderRadius: 22, borderWidth: 1, borderColor: colors.line, backgroundColor: pressed ? colors.soft : colors.surface })}>
+              <ReviewIcon color={colors.primary} />
+            </Pressable>
           </View>
+          <PropertyReviewsPreview propertyId={propertyId} photos={p.images} onViewAll={() => navigation.navigate('Reviews', { propertyId })} />
           <Section title="Fasilitas umum">
             <View style={styles.facilityBox}>
               <FeatureGrid items={p.facilities} />

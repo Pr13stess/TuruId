@@ -21,7 +21,7 @@ export function FavoriteButton({ propertyId }: { propertyId: string }) {
     catch (e) { setError(e instanceof Error ? e.message : 'Favorit gagal diperbarui.'); }
     finally { lock.current = false; setBusy(false); }
   }
-  return <View style={{ gap: 8, marginVertical: 12 }}>
+  return <View style={{ gap: 8, flexShrink: 1 }}>
     <Pressable accessibilityRole="button"
       accessibilityLabel={state.error ? 'Coba muat favorit' : state.data ? 'Hapus dari favorit' : 'Simpan kos ke favorit'}
       accessibilityState={{ selected: state.data === true, disabled: busy || state.loading, busy: busy || state.loading }}
