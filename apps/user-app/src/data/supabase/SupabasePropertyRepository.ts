@@ -3,7 +3,9 @@ import type { PropertyRepository } from "../../domain/repositories/PropertyRepos
 import type { SearchQuery } from "../../domain/models";
 import { array, parseProperty, parseSearchRow } from "../mappers/catalog";
 import { resolveOwnerMediaImages } from "./resolveOwnerMedia";
+import { listPublicReviews } from './publicReviews';
 export class SupabasePropertyRepository implements PropertyRepository {
+  listReviews(propertyId: string, page: number) { return listPublicReviews(this.client, propertyId, page); }
   constructor(private readonly client: SupabaseClient) {}
   async videoUrl(path: string) {
     if (!path.startsWith("property-videos/")) throw new Error("Lokasi video tidak valid.");

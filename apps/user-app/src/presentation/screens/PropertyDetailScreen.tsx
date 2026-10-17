@@ -4,6 +4,7 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -26,6 +27,7 @@ import {
 import { RoomCard } from "../components/RoomCard";
 import { Sheet } from "../components/Sheet";
 import { FavoriteButton } from '../components/FavoriteButton';
+import { propertyShareText } from '../../domain/propertyFeedback';
 export function PropertyDetailScreen({
   route,
   navigation,
@@ -145,6 +147,12 @@ export function PropertyDetailScreen({
           </Pressable>
           <Text style={styles.description}>{p.description}</Text>
           <FavoriteButton propertyId={propertyId} />
+          <View style={{ gap: 10, marginBottom: 16 }}>
+            <Button secondary title="Bagikan kos" onPress={() => {
+              void Share.share({ message: propertyShareText(p) }).catch(() => setNotice('Kos belum bisa dibagikan. Coba lagi.'));
+            }} />
+            <Button secondary title="Lihat ulasan" onPress={() => navigation.navigate('Reviews', { propertyId })} />
+          </View>
           <Section title="Fasilitas umum">
             <View style={styles.facilityBox}>
               <FeatureGrid items={p.facilities} />
