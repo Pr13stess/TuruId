@@ -1,6 +1,15 @@
 # Balas ulasan — hasil implementasi lokal
 
-17 Oktober 2026. Implementasi dan tes lokal selesai; belum apply DEV, belum diuji di perangkat. Tidak ada push, dependensi baru, perubahan policy lama, atau akses backend.
+17 Oktober 2026. Implementasi dan tes lokal selesai; migrasi balasan telah diterapkan ke DEV fhapolumdqqewwhxnjcb atas persetujuan pengguna. Belum diuji di perangkat. Tidak ada push, dependensi baru, atau perubahan policy lama.
+
+## Hasil penerapan DEV
+
+- Preflight: project-ref lokal cocok DEV; kolom/RPC balasan belum ada, versi migrasi belum tercatat. RLS aktif, hanya policy SELECT reviews_select; anon/authenticated tidak memiliki UPDATE tabel atau grant UPDATE kolom. Ada satu ulasan APPROVED.
+- Menjalankan hanya `supabase.cmd db query --linked --project-ref fhapolumdqqewwhxnjcb --file supabase/migrations/202610170004_owner_review_reply.sql`, berhasil.
+- Mencatat versi dengan `supabase.cmd migration repair 202610170004 --status applied --linked --project-ref fhapolumdqqewwhxnjcb`, berhasil. Tidak menggunakan db push atau menerapkan migrasi lain.
+- Verifikasi: kedua kolom nullable dan constraint terpasang; RPC security definer dengan search_path kosong, authenticated boleh EXECUTE, anon tidak. Authenticated tetap tidak memiliki UPDATE tabel; RLS dan policy SELECT identik dengan preflight. owner_read masih memuat to_jsonb(r).
+- Jumlah ulasan tetap 1, jumlah balasan 0. Tidak menulis balasan percobaan atau mengubah moderasi ulasan nyata.
+- Bukti DEV ini memverifikasi penerapan schema/izin, bukan keberhasilan kirim dan tampil melalui Android. Uji akun Owner → User masih perlu dilakukan melalui aplikasi.
 
 ## Hasil
 
@@ -12,7 +21,7 @@ Draft hanya selama komponen terbuka; keluar dari halaman/aplikasi dapat membuang
 
 Migrasi baru `supabase/migrations/202610170004_owner_review_reply.sql` sesuai SQL proposal: dua kolom nullable di reviews, constraint, dan RPC owner_reply_review. Tidak mengubah migrasi atau policy lama. Jalur root mengikuti addendum SPEC. Pembacaan owner_read yang memakai to_jsonb otomatis membawa kolom baru; tidak perlu mengganti RPC lama. Reader User fallback hanya untuk error kolom balasan belum tersedia, bukan error jaringan/izin.
 
-Migrasi belum diterapkan ke DEV. Sebelum apply, konfirmasi target fhapolumdqqewwhxnjcb dan periksa definisi/grant aktual reviews serta riwayat migrasi. Jika ada grant UPDATE luas atau schema konflik, berhenti; jangan mengubah policy/grant lama tanpa persetujuan baru. Jangan menggunakan db push yang bisa ikut menerapkan migrasi lain yang belum diizinkan.
+Migrasi sudah diterapkan ke DEV sesuai hasil di atas. Untuk lingkungan lain, konfirmasi target dan periksa definisi/grant aktual reviews serta riwayat migrasi terlebih dahulu. Jika ada grant UPDATE luas atau schema konflik, berhenti; jangan mengubah policy/grant lama tanpa persetujuan baru. Jangan menggunakan db push yang bisa ikut menerapkan migrasi lain yang belum diizinkan.
 
 ## Validasi lokal
 
