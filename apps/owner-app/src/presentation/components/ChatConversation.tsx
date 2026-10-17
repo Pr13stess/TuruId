@@ -3,17 +3,21 @@ import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Conversation, Message } from "../../domain/models";
-import { colors, radius } from "../theme";
+import { radius } from "../theme";
 import { ChatImageViewer } from "./ChatImageViewer";
 import { galleryImages, type GalleryItem } from "../../domain/chatGallery";
 import { ChatImageCollage } from "./ChatImageCollage";
 import { chatGroups } from "../../domain/chatCollage";
-import { Load, Photo } from "./UI";
+import { C, Load, Photo } from "./UI";
 import { AddImageIcon, CallIcon, VideoCallIcon } from "./ChatIcons";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { useChatReceipt } from "../useChatReceipt";
 import { groupWasRead } from "../../domain/chatReceipt";
 import { MessageReceipt } from "./MessageReceipt";
+
+// User App layout, retaining the Owner palette.
+const colors = { primary: C.navy, ink: C.navy, surface: C.white, background: C.cream,
+  line: C.line, soft: C.soft, muted: C.muted, selected: C.peach, danger: C.red };
 
 type Props = {
   conversation: Conversation;
@@ -69,14 +73,16 @@ export function ChatConversation(p: Props) {
         <IconButton label="Kembali" onPress={p.onBack}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </IconButton>
-        <View style={styles.avatar}><Text style={styles.avatarText}>{p.conversation.tenant.trim().slice(0, 1) || "?"}</Text></View>
+        <View style={styles.avatar}><Ionicons name="person" size={22} color={colors.muted} /></View>
         <View style={styles.headerText}>
           <Text numberOfLines={1} style={styles.headerTitle}>{p.conversation.tenant}</Text>
           <Text numberOfLines={1} style={styles.headerSub}>{p.conversation.property_name}</Text>
         </View>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
         <IconButton label="Panggilan suara" disabled={p.busy} onPress={() => p.onCall("VOICE")}><CallIcon color={colors.primary} size={22} /></IconButton>
         <IconButton label="Panggilan video" disabled={p.busy} onPress={() => p.onCall("VIDEO")}><VideoCallIcon color={colors.primary} size={22} /></IconButton>
-        <IconButton label={menu ? "Tutup menu chat" : "Menu chat"} onPress={() => setMenu(!menu)}><Text style={styles.more}>⋮</Text></IconButton>
+        <IconButton label={menu ? "Tutup menu chat" : "Menu chat"} onPress={() => setMenu(!menu)}><Ionicons name="ellipsis-vertical" size={22} color={colors.primary} /></IconButton>
+        </View>
       </View>
       {menu && <View style={styles.menu}>
         <Pressable accessibilityRole="button" accessibilityLabel="Atur" onPress={() => { setMenu(false); p.onRestrictions(); }} style={styles.menuItem}><Text style={styles.menuText}>Pembatasan pengguna</Text></Pressable>
@@ -94,15 +100,17 @@ export function ChatConversation(p: Props) {
           const previous = index ? new Date(groups[index - 1][0].created_at).toLocaleDateString("id-ID") : "";
           return <View>
             {day !== previous && <View style={styles.dateWrap}><Text style={styles.dateChip}>{new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</Text></View>}
-            <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
+            {m.message_type === "CALL_EVENT" ? <Text style={styles.empty}>{m.text_content}</Text> : <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
               <View style={[styles.bubble, mine && styles.bubbleMine, m.message_type === "IMAGE" && { width: 220 }]}>
                 {m.message_type === "IMAGE" ? <ChatImageCollage items={galleryImages(group)} onOpen={id => setViewer({ items: galleryImages(group), initialId: id })} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
+                {m.message_type === "IMAGE" && group.filter(item => !!item.text_content).map(item =>
+                  <Text key={item.id} style={[styles.bubbleText, mine && { color: colors.surface }]}>{item.text_content}</Text>)}
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 4 }}>
                   <Text style={[styles.bubbleTime, mine && { color: colors.selected }]}>{new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</Text>
-                  {mine && m.message_type !== "CALL_EVENT" && <MessageReceipt read={groupWasRead(group, readAt)} sentColor={colors.selected} />}
+                  {mine && <MessageReceipt read={groupWasRead(group, readAt)} sentColor={colors.selected} />}
                 </View>
               </View>
-            </View>
+            </View>}
           </View>;
         }} />
       {!!p.sendError && <Text accessibilityRole="alert" style={styles.error}>{p.sendError}</Text>}
@@ -120,7 +128,7 @@ export function ChatConversation(p: Props) {
         <Pressable accessibilityRole="button" accessibilityLabel={p.sendError ? "Coba kirim lagi" : "Kirim"}
           disabled={p.busy || (!p.text.trim() && !p.image)} onPress={p.onSend}
           style={[styles.send, (p.busy || (!p.text.trim() && !p.image)) && { opacity: 0.5 }]}>
-          {p.busy ? <ActivityIndicator color={colors.surface} size="small" /> : <Text style={styles.sendIcon}>➤</Text>}
+          {p.busy ? <ActivityIndicator color={C.orangeDark} size="small" /> : <Ionicons name="send" size={18} color={C.orangeDark} />}
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -130,11 +138,11 @@ export function ChatConversation(p: Props) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  header: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 8, paddingBottom: 10, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.line },
+  header: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingBottom: 10, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.line },
   iconButton: { width: 36, minHeight: 44, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.selected, alignItems: "center", justifyContent: "center" },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.soft, borderWidth: 1, borderColor: colors.line, alignItems: "center", justifyContent: "center" },
   avatarText: { color: colors.primary, fontSize: 16, fontWeight: "700" },
-  headerText: { flex: 1, minWidth: 0, marginHorizontal: 4 },
+  headerText: { flex: 1, minWidth: 0 },
   headerTitle: { color: colors.ink, fontSize: 16, fontWeight: "700" },
   headerSub: { color: colors.muted, fontSize: 12, marginTop: 1 },
   more: { color: colors.primary, fontSize: 26 },
@@ -155,6 +163,6 @@ const styles = StyleSheet.create({
   preview: { backgroundColor: colors.surface, padding: 12, flexDirection: "row", alignItems: "center", gap: 16 },
   composer: { flexShrink: 0, flexDirection: "row", alignItems: "flex-end", gap: 8, paddingTop: 12, paddingHorizontal: 12, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.surface },
   input: { flex: 1, minWidth: 0, minHeight: 44, maxHeight: 100, backgroundColor: colors.soft, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10, color: colors.ink, fontSize: 14 },
-  send: { width: 40, height: 40, marginBottom: 2, borderRadius: 20, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
+  send: { width: 40, height: 40, marginBottom: 2, borderRadius: 20, backgroundColor: colors.soft, alignItems: "center", justifyContent: "center" },
   sendIcon: { color: colors.surface, fontSize: 16 },
 });
