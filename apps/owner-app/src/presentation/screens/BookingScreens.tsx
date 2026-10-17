@@ -3,6 +3,7 @@ import { Pressable, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
+import { useBookingList } from "../useBookingList";
 import {
   Badge,
   Button,
@@ -21,10 +22,9 @@ import {
   Title,
 } from "../components/UI";
 export function BookingsScreen() {
-  const { bookings } = useRepositories();
   const nav = useNav();
   const [filter, setFilter] = useState("ALL");
-  const q = useLoad(useCallback(() => bookings.list(), [bookings]));
+  const q = useBookingList();
   const list = q.data?.filter(
     (b) =>
       filter === "ALL" ||
@@ -44,12 +44,13 @@ export function BookingsScreen() {
         options={[
           { value: "ALL", label: "Semua" },
           { value: "WAIT", label: "Menunggu bayar" },
-          { value: "CONFIRMED", label: "Confirmed" },
+          { value: "CONFIRMED", label: "Terkonfirmasi" },
           { value: "ACTIVE", label: "Ditempati" },
           { value: "HISTORY", label: "Riwayat" },
         ]}
       />
       <Load {...q} />
+      <Button title="Muat ulang booking" secondary disabled={q.loading} onPress={q.retry} />
       {list?.map((b) => (
         <Pressable
           key={b.id}
@@ -86,11 +87,13 @@ export function BookingScreen({ route }: Props<"Booking">) {
   const nav = useNav();
   const a = useAction();
   const [reason, setReason] = useState("");
-  const q = useLoad(useCallback(() => bookings.list(), [bookings]));
+  const q = useBookingList();
   const b = q.data?.find((b) => b.id === route.params.id);
   return (
     <Page title="Detail booking">
       <Load {...q} />
+      <Button title="Muat ulang booking" secondary disabled={q.loading || a.busy} onPress={q.retry} />
+      {!q.loading && !q.error && !b && <Empty title="Booking tidak ditemukan" body="Muat ulang daftar booking atau kembali ke halaman Pemesanan." />}
       {b && (
         <>
           <Card>
@@ -155,6 +158,7 @@ export function BookingScreen({ route }: Props<"Booking">) {
                 value={reason}
                 onChange={setReason}
                 multiline
+                disabled={a.busy}
               />
               <Button
                 title={
@@ -162,7 +166,7 @@ export function BookingScreen({ route }: Props<"Booking">) {
                     ? "Tandai check-in"
                     : "Tandai checkout"
                 }
-                disabled={a.busy}
+                disabled={a.busy || q.loading || !!q.error || reason.trim().length < 5}
                 onPress={() =>
                   void a.run(() =>
                     bookings.transition(
@@ -173,6 +177,7 @@ export function BookingScreen({ route }: Props<"Booking">) {
                   )
                 }
               />
+              <T muted>Catatan tindakan minimal 5 karakter.</T>
               <Button
                 title="Ajukan pembatalan khusus ke admin"
                 secondary

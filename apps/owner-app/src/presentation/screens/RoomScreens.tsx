@@ -178,6 +178,7 @@ export function InventoryScreen({ route, navigation }: Props<"Inventory">) {
         <InventoryEditor
           key={`${current.id}-${current.inventory.version}`}
           room={current}
+          busy={a.busy}
           save={(i, reason) =>
             void a.run(
               () => rooms.updateInventory(current.id, i, reason),
@@ -193,9 +194,11 @@ export function InventoryScreen({ route, navigation }: Props<"Inventory">) {
 export function InventoryEditor({
   room,
   save,
+  busy = false,
 }: {
   room: Room;
   save: (i: Inventory, reason: string) => void;
+  busy?: boolean;
 }) {
   const [i, setI] = useState(room.inventory);
   const [reason, setReason] = useState("");
@@ -233,6 +236,7 @@ export function InventoryEditor({
             <T style={{ flex: 1 }}>{label}</T>
             <Pressable
               accessibilityLabel={`Kurangi ${label}`}
+              disabled={busy}
               onPress={() => setI({ ...i, [key]: Math.max(0, i[key] - 1) })}
               style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
             >
@@ -243,6 +247,7 @@ export function InventoryEditor({
             </T>
             <Pressable
               accessibilityLabel={`Tambah ${label}`}
+              disabled={busy}
               onPress={() => setI({ ...i, [key]: i[key] + 1 })}
               style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
             >
@@ -261,6 +266,7 @@ export function InventoryEditor({
       </Card>
       <Field
         label="Alasan penyesuaian"
+        disabled={busy}
         value={reason}
         onChange={setReason}
         placeholder="Contoh: satu kamar selesai dibersihkan"
@@ -273,6 +279,7 @@ export function InventoryEditor({
       <Feedback text={error} error />
       <Button
         title="Simpan inventory"
+        disabled={busy}
         onPress={() => {
           try {
             validateInventory(i);

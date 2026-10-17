@@ -21,6 +21,13 @@ Agora, hapus akun, dan laporan pengguna tidak dilanjutkan. Kode lama fitur terse
 
 ## Pekerjaan lanjutan dan batas izin
 
+### Perbaikan lokal booking berikutnya
+
+- Daftar/detail booking memuat ulang saat mendapat fokus dan setiap 15 detik selama layar terpilih; timer dihentikan saat meninggalkan layar. Ada tombol muat ulang manual, dan data sebelumnya dipertahankan selama pemuatan.
+- Detail yang tidak ditemukan memiliki pesan kosong yang jelas. Check-in/checkout dikunci saat pemuatan/error, saat menyimpan, atau catatan kurang dari 5 karakter (sesuai kontrak RPC lama).
+- Editor inventory mengunci pengubah angka, catatan, dan tombol simpan selama penyimpanan. Tidak mengubah rumus kapasitas, RPC, atau transaksi backend.
+- Uji perangkat yang masih diperlukan: booking baru muncul tanpa membuka ulang tab, pindah kembali ke detail memperbarui status, kesalahan jaringan terlihat dan dapat dicoba lagi, simpan inventory tidak menerima perubahan angka selama proses.
+
 1. Uji perangkat/DEV: owner membuat kos dan kamar, admin memverifikasi owner dan kos, owner mempublikasikan; User melihat listing. Periksa paket harga aktif dan kapasitas tersedia.
 2. Booking User muncul di Owner; check-in sekali dan retry tidak menggandakan occupied; checkout sekali dan retry memindahkan kapasitas ke cleaning sekali; setelah dibersihkan kapasitas kembali tersedia.
 3. Chat dua arah: teks, beberapa gambar, retry sebagian, gambar lama, tanda baca, keyboard, viewer swipe/zoom. Tes lokal tidak menggantikan uji sentuh Android.
