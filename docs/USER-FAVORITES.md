@@ -1,6 +1,8 @@
 # Favorit User App
 
-Status: implementasi dan pengujian lokal selesai, belum diterapkan atau diuji di Supabase DEV.
+Status 17 Oktober 2026: implementasi dan pengujian lokal selesai; grant/policy Favorit terverifikasi tersedia di DEV `fhapolumdqqewwhxnjcb`. Pengujian melalui perangkat belum dilakukan.
+
+Saat preflight dengan persetujuan pengguna, kedua policy insert/delete dan grant authenticated ternyata sudah ada, identik dengan migrasi lokal, sementara versi 202610170001 belum tercatat. SQL tidak dijalankan ulang dan policy lama tidak diubah. Hanya `supabase migration repair 202610170001 --status applied --linked --project-ref fhapolumdqqewwhxnjcb` dijalankan untuk mencatat keadaan yang telah diverifikasi. Pemeriksaan sesudahnya: versi tercatat, grant INSERT/DELETE aktif, jumlah favorit tetap satu. Tidak ada data favorit ditambah/dihapus dalam pemeriksaan ini.
 
 - Detail kos memiliki tombol Simpan kos / Tersimpan. Menekan Tersimpan menghapus favorit.
 - Profil > Favorit membuka daftar terbaru, 20 kos per halaman, dengan pull-to-refresh, akses detail, dan hapus favorit.
@@ -8,13 +10,13 @@ Status: implementasi dan pengujian lokal selesai, belum diterapkan atau diuji di
 - Retry menggunakan primary key user_id + property_id dengan ON CONFLICT DO NOTHING, tanpa memperbarui waktu simpan favorit lama. Status diverifikasi kembali setelah operasi.
 - Mode demo menyimpan favorit per akun selama sesi aplikasi; bukan penyimpanan permanen.
 
-## Migrasi yang menunggu penerapan
+## Migrasi yang telah diverifikasi di DEV
 
 `supabase/migrations/202610170001_favorites.sql` sesuai SQL yang disetujui pengguna: menambahkan grant INSERT/DELETE dan dua policy milik sendiri. Insert hanya untuk kos publik. Policy SELECT lama tidak diubah. Tidak ada perubahan storage, booking, auth, atau pembayaran.
 
 Jalur root dipakai karena sumber kebenaran migrasi proyek adalah `supabase/migrations`.
 
-Sebelum diterapkan, baca favorit tetap menggunakan akses lama, tetapi operasi simpan/hapus dapat ditolak backend dan UI menampilkan error. Jangan mengklaim fitur live selesai sebelum verifikasi DEV.
+Kesiapan grant/policy sudah terbukti di DEV; keberhasilan simpan/hapus dari aplikasi dan persistensi setelah login ulang tetap perlu diuji pada perangkat.
 
 ## Bukti lokal
 
