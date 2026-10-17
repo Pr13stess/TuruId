@@ -28,7 +28,7 @@ import { RoomCard } from "../components/RoomCard";
 import { Sheet } from "../components/Sheet";
 import { FavoriteButton } from '../components/FavoriteButton';
 import { propertyShareText } from '../../domain/propertyFeedback';
-import { ShareIcon, ReviewIcon } from '../Icons/ShareIcon';
+import { ShareIcon } from '../Icons/ShareIcon';
 import { PropertyReviewsPreview } from '../components/PropertyReviewsPreview';
 export function PropertyDetailScreen({
   route,
@@ -157,11 +157,6 @@ export function PropertyDetailScreen({
               backgroundColor: pressed ? colors.soft : colors.surface })}>
               <ShareIcon color={colors.primary} />
               <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '600' }}>Bagikan</Text>
-            </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Lihat ulasan" onPress={() => navigation.navigate('Reviews', { propertyId })}
-              style={({ pressed }) => ({ width: 44, height: 44, alignItems: 'center', justifyContent: 'center',
-                borderRadius: 22, borderWidth: 1, borderColor: colors.line, backgroundColor: pressed ? colors.soft : colors.surface })}>
-              <ReviewIcon color={colors.primary} />
             </Pressable>
           </View>
           <PropertyReviewsPreview propertyId={propertyId} onViewAll={() => navigation.navigate('Reviews', { propertyId })} />
