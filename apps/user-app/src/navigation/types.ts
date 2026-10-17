@@ -28,6 +28,7 @@ export type RootStackParamList = {
   Notifications: undefined;
   PaymentHistory: undefined;
   Reviews: { propertyId: string };
+  WriteReview: { bookingId: string };
   EditProfile: undefined;
   ChangePassword: undefined;
   Policy: { kind: "privacy" | "terms" };

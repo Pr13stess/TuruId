@@ -18,6 +18,7 @@ import { FavoritesScreen } from '../presentation/screens/profile/FavoritesScreen
 import { NotificationsScreen } from '../presentation/screens/profile/NotificationsScreen';
 import { PaymentHistoryScreen } from '../presentation/screens/profile/PaymentHistoryScreen';
 import { ReviewsScreen } from '../presentation/screens/profile/ReviewsScreen';
+import { WriteReviewScreen } from '../presentation/screens/profile/WriteReviewScreen';
 import { EditProfileScreen } from "../presentation/screens/profile/EditProfileScreen";
 import { ChangePasswordScreen } from "../presentation/screens/profile/ChangePasswordScreen";
 import { PolicyScreen } from "../presentation/screens/profile/PolicyScreen";
@@ -107,6 +108,7 @@ export function RootNavigator() {
             <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifikasi' }} />
             <Stack.Screen name="PaymentHistory" component={PaymentHistoryScreen} options={{ title: 'Riwayat pembayaran' }} />
             <Stack.Screen name="Reviews" component={ReviewsScreen} options={{ title: 'Ulasan kos' }} />
+            <Stack.Screen name="WriteReview" component={WriteReviewScreen} options={{ title: 'Ulasan saya' }} />
             <Stack.Screen
               name="EditProfile"
               component={EditProfileScreen}

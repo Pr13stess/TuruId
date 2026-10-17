@@ -91,6 +91,7 @@ export function BookingDetailScreen({ route, navigation }: ScreenProps<'BookingD
           </View>)}
         </View>
         {payable && <Button title="Lanjutkan pembayaran / kelola checkout" onPress={() => navigation.navigate('Checkout', { bookingId: b.id, planId: b.planId })} />}
+        {b.status === 'COMPLETED' && <Button title="Beri / lihat ulasan" onPress={() => navigation.navigate('WriteReview', { bookingId: b.id })} />}
         {b.status === 'CONFIRMED' && <Text style={s.muted}>Pembatalan setelah pembayaran memerlukan proses refund oleh pengelola. Pengajuan langsung dari aplikasi belum tersedia.</Text>}
         <Button secondary title="Kembali ke daftar booking" onPress={() => navigation.navigate('Main', { screen: 'BookingTab' })} />
       </>}

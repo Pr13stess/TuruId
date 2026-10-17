@@ -37,6 +37,9 @@ import { MockFavoriteRepository } from '../data/mock/MockFavoriteRepository';
 import type { NotificationRepository } from '../domain/repositories/NotificationRepository';
 import { SupabaseNotificationRepository } from '../data/supabase/SupabaseNotificationRepository';
 import { MockNotificationRepository } from '../data/mock/MockNotificationRepository';
+import type { ReviewRepository } from '../domain/repositories/ReviewRepository';
+import { SupabaseReviewRepository } from '../data/supabase/SupabaseReviewRepository';
+import { MockReviewRepository } from '../data/mock/MockReviewRepository';
 export interface Repositories {
   properties: PropertyRepository;
   rooms: RoomRepository;
@@ -48,6 +51,7 @@ export interface Repositories {
   notes: NoteRepository;
   favorites: FavoriteRepository;
   notifications: NotificationRepository;
+  reviews: ReviewRepository;
   mode: "mock" | "supabase";
 }
 const Context = createContext<Repositories | null>(null);
@@ -76,10 +80,12 @@ function compose(): Repositories {
       notes: new SupabaseNoteRepository(client),
       favorites: new SupabaseFavoriteRepository(client),
       notifications: new SupabaseNotificationRepository(client),
+      reviews: new SupabaseReviewRepository(client),
       mode: "supabase",
     };
   }
   const auth = new MockAuthRepository();
+  const checkout = new MockCheckoutRepository();
   return {
     properties: new MockPropertyRepository(),
     rooms: new MockRoomRepository(),
@@ -87,10 +93,11 @@ function compose(): Repositories {
     auth,
     profiles: new MockProfileRepository(),
     chat: new MockChatRepository(auth),
-    checkout: new MockCheckoutRepository(),
+    checkout,
     notes: new MockNoteRepository(auth),
     favorites: new MockFavoriteRepository(auth),
     notifications: new MockNotificationRepository(auth),
+    reviews: new MockReviewRepository(auth, checkout),
     mode: "mock",
   };
 }

@@ -1,5 +1,7 @@
 # Ulasan, laporan kos, dan bagikan — usulan 17 Oktober 2026
 
+Pembaruan: pengguna meminta melanjutkan **rating/ulasan saja**. Formulir User dan migrasi lokal `202610170003_user_reviews.sql` sekarang dibuat dari bagian user_submit_review di bawah; belum diterapkan ke DEV. Laporan kos tetap berupa usulan dan belum dibuat. Status terbaru ada di `docs/USER-SUBMIT-REVIEW.md`; bagian berikut merekam proposal awal.
+
 ## Bagian yang sudah dibuat lokal
 
 - Bagikan kos menggunakan share sheet perangkat: nama, alamat, dan tautan lokasi OpenStreetMap jika koordinat valid. Tidak mengarang URL website/deep link kos yang belum dikonfigurasi.
