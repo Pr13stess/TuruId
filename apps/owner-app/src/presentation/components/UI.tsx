@@ -215,7 +215,8 @@ export function Field({
   multiline = false,
   numeric = false,
   secure = false,
-  placeholder
+  placeholder,
+  disabled = false,
 }: {
   label: string;
   value: string;
@@ -224,12 +225,15 @@ export function Field({
   numeric?: boolean;
   secure?: boolean;
   placeholder?: string;
+  disabled?: boolean;
 }) {
   return (
     <View style={{ gap: 7, marginBottom: 15 }}>
       <T style={{ fontSize: 12, fontWeight: "600" }}>{label}</T>
       <TextInput
         accessibilityLabel={label}
+        accessibilityState={{ disabled }}
+        editable={!disabled}
         value={value}
         onChangeText={onChange}
         multiline={multiline}

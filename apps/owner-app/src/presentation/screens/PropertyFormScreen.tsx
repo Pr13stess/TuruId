@@ -91,7 +91,7 @@ export function PropertyFormScreen({
       "Foto siap. Simpan untuk menerapkan perubahan.",
     );
   return (
-    <Page title={old ? "Edit properti" : "Tambahkan kos"} aligned>
+    <Page title={old ? "Edit properti" : "Tambahkan kos"}>
       {pickingLocation && <PropertyLocationPicker initial={location}
         onClose={() => setPickingLocation(false)}
         onConfirm={point => {
@@ -235,11 +235,11 @@ export function PropertyFormScreen({
         <Title>Verifikasi properti</Title>
         <T muted>
           Unggah bukti uji kepemilikan/pengelolaan untuk ditinjau admin. Gunakan
-          dokumen dummy.
+          dokumen contoh untuk demo.
         </T>
         {!!evidence && <Photo path={evidence} />}
         <Button
-          title="Pilih bukti dummy"
+          title="Pilih bukti verifikasi"
           secondary
           disabled={action.busy}
           onPress={() => void upload("verification")}

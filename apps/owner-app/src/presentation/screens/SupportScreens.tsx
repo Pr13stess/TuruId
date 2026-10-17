@@ -31,7 +31,7 @@ export function NotificationsScreen() {
     15000,
   );
   return (
-    <Page title="Notifikasi" aligned>
+    <Page title="Notifikasi">
       <Load {...q} />
       {q.data?.map((n) => (
         <Pressable
@@ -215,7 +215,7 @@ export function SettingsScreen() {
                   const Notifications = await import("expo-notifications");
                   if (Platform.OS === "android")
                     await Notifications.setNotificationChannelAsync("default", {
-                      name: "Aktivitas KosKu",
+                      name: "Aktivitas TuruId",
                       importance: Notifications.AndroidImportance.HIGH,
                     });
                   const p = await Notifications.requestPermissionsAsync();

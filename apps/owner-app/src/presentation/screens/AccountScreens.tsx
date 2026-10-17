@@ -384,7 +384,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
           );
       },
       undefined,
-      "Bukti dummy siap.",
+      "Bukti uji siap.",
     );
   return (
     <Page title="Data diri">
@@ -409,7 +409,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
       </Row>
       {step === 0 && (
         <Card>
-          <Title>Bukti verifikasi dummy</Title>
+          <Title>Bukti verifikasi</Title>
           <T muted>
             Gunakan contoh dokumen uji. Foto ini ditinjau admin; aplikasi tidak
             melakukan OCR atau verifikasi KTP otomatis.
@@ -597,7 +597,7 @@ export function PolicyScreen({ route }: Props<"Policy">) {
         ? [
             [
               "Data yang disimpan",
-              "Profil, kos, bukti dummy, komunikasi, metadata panggilan, notifikasi, serta transaksi simulasi digunakan untuk menjalankan layanan. Gambar privat menggunakan akses terbatas dan URL sementara.",
+              "Profil, kos, bukti uji, komunikasi, metadata panggilan, notifikasi, serta transaksi simulasi digunakan untuk menjalankan layanan. Gambar privat menggunakan akses terbatas dan URL sementara.",
             ],
             [
               "Privasi komunikasi",
@@ -625,7 +625,7 @@ export function PolicyScreen({ route }: Props<"Policy">) {
             ]
           : [
               [
-                "Tentang KosKu Owner",
+                "Tentang TuruId Owner",
                 "Aplikasi pengelolaan kos untuk proyek kuliah. Pemilik dapat mengelola kos, kamar, harga, booking, chat, dan survei melalui panggilan.",
               ],
               [

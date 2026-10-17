@@ -41,7 +41,7 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
     return () => clearInterval(timer);
   }, [communication, route.params.id, call?.status]);
   return (
-    <Page title="Panggilan survei" aligned>
+    <Page title="Panggilan survei">
       <Load {...q} />
       {call && (
         <>
