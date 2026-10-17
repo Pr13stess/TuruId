@@ -99,6 +99,8 @@ export interface Booking {
   events: { to_status: string; reason: string; created_at: string }[];
 }
 export interface Review {
+  owner_reply?: string | null;
+  owner_reply_at?: string | null;
   id: string;
   property_id: string;
   tenant: string;

@@ -7,6 +7,7 @@ import { useResource } from '../hooks/useResource';
 import { colors } from '../theme';
 import { Status } from './Primitives';
 import { PropertyImage } from './PropertyImage';
+import { OwnerReviewReply } from './OwnerReviewReply';
 
 export function PropertyReviewsPreview({ propertyId, photos = [], onViewAll }: {
   propertyId: string; photos?: string[]; onViewAll: () => void;
@@ -52,6 +53,7 @@ export function PropertyReviewsPreview({ propertyId, photos = [], onViewAll }: {
             </View>
             <Text style={s.description} numberOfLines={3}>{item.review_text || 'Penyewa memberikan rating tanpa komentar.'}</Text>
             <Text style={s.muted}>Penyewa terverifikasi</Text>
+            <OwnerReviewReply text={item.owner_reply} preview />
           </View>
         </Pressable>} />}
   </View>;

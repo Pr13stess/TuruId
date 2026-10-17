@@ -5,4 +5,5 @@ export interface PropertyRepository {
   save(input: PropertyInput): Promise<string>;
   submitVerification(id: string, evidence: string): Promise<void>;
   reviews(propertyId: string): Promise<Review[]>;
+  replyReview(reviewId: string, text: string): Promise<void>;
 }

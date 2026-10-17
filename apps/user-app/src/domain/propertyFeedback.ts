@@ -1,5 +1,6 @@
 export interface PublicReview {
   id: string; rating: number; review_text: string | null; created_at: string;
+  owner_reply?: string | null; owner_reply_at?: string | null;
 }
 export function propertyShareText(property: { name: string; address: string; latitude: number | null; longitude: number | null }) {
   const { latitude: lat, longitude: lon } = property;

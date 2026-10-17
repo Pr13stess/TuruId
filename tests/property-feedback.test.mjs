@@ -22,7 +22,7 @@ test('public reviews explicitly filter approval even for multi-role accounts, pa
       assert.equal(url.searchParams.get('order'), 'created_at.desc,id.desc');
       assert.equal(url.searchParams.get('offset'), '20');
       assert.equal(url.searchParams.get('limit'), '21');
-      assert.equal(url.searchParams.get('select'), 'id,rating,review_text,created_at');
+      assert.equal(url.searchParams.get('select'), 'id,rating,review_text,created_at,owner_reply,owner_reply_at');
       return Response.json(fail ? { message: 'denied' } : [{ id: 'r1', rating: 4, review_text: 'Nyaman', created_at: '2026-10-17T00:00:00Z' }], { status: fail ? 403 : 200 });
     } },
   });

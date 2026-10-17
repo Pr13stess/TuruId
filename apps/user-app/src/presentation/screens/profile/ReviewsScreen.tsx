@@ -8,6 +8,7 @@ import { useRepositories } from '../../../providers/RepositoryProvider';
 import { useResource } from '../../hooks/useResource';
 import { Button, Status } from '../../components/Primitives';
 import { colors } from '../../theme';
+import { OwnerReviewReply } from '../../components/OwnerReviewReply';
 
 export function ReviewsScreen({ route }: ScreenProps<'Reviews'>) {
   const { properties, mode } = useRepositories();
@@ -29,6 +30,7 @@ export function ReviewsScreen({ route }: ScreenProps<'Reviews'>) {
           </Svg>)}
         </View>
         {!!item.review_text && <Text style={{ color: colors.ink, lineHeight: 22 }}>{item.review_text}</Text>}
+        <OwnerReviewReply text={item.owner_reply} />
         <Text style={{ color: colors.muted, fontSize: 12 }}>{new Date(item.created_at).toLocaleDateString('id-ID')}</Text>
       </View>}
       ListFooterComponent={!state.loading && !state.error && (page > 0 || !!state.data?.length) ? <View style={{ gap: 10 }}>

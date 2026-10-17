@@ -1,4 +1,5 @@
 import { uploadChatImage, findImageMessage } from "./chatImageUpload";
+import { replyToReview } from "./reviewReply";
 import { syncChatReceipt } from "../../domain/chatReceipt";
 import { uploadProfileAvatar } from "./profileAvatar";
 import type { ChatImagePayload } from "../../domain/chatUpload";
@@ -180,6 +181,9 @@ export class SupabasePropertyRepository
     return (await this.read<M.Review[]>("reviews")).filter(
       (r) => r.property_id === id,
     );
+  }
+  replyReview(id: string, text: string) {
+    return replyToReview(this.client, id, text);
   }
 }
 export class SupabaseRoomRepository

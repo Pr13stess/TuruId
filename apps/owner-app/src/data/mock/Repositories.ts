@@ -1,4 +1,5 @@
 import * as M from "../../domain/models";
+import { reviewReplyText } from "../../domain/reviewReply";
 import { AuthRepository } from "../../domain/repositories/AuthRepository";
 import { ProfileRepository } from "../../domain/repositories/ProfileRepository";
 import { PropertyRepository } from "../../domain/repositories/PropertyRepository";
@@ -153,6 +154,20 @@ export class MockPropertyRepository implements PropertyRepository {
   }
   async reviews(id: string) {
     return (await this.s.read()).reviews.filter((r) => r.property_id === id);
+  }
+  async replyReview(id: string, text: string) {
+    const body = reviewReplyText(text);
+    await this.s.write((s) => {
+      const review = s.reviews.find(r => r.id === id);
+      if (!review || !s.properties.some(p => p.id === review.property_id))
+        throw new Error("Ulasan tidak tersedia untuk dibalas.");
+      if (review.owner_reply != null) {
+        if (review.owner_reply === body) return;
+        throw new Error("Ulasan ini sudah dibalas. Muat ulang untuk melihat balasan.");
+      }
+      review.owner_reply = body;
+      review.owner_reply_at = now();
+    });
   }
 }
 export class MockRoomRepository implements RoomRepository {

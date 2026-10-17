@@ -6,6 +6,7 @@ import { useAction } from "../hooks";
 import { chooseImage } from "../media";
 import { Icon } from "./Icon";
 import { RoomsInlinePanel } from "./RoomsInlinePanel";
+import { ReviewReplyForm } from "./ReviewReplyForm";
 import {
   Badge,
   Button,
@@ -386,6 +387,7 @@ export function PropertyEditor({
                 <T style={{ color: C.orangeDark }}>★ {review.rating}/5</T>
               </Row>
               <T>{review.review_text}</T>
+              <ReviewReplyForm key={review.id} review={review} />
               <T muted style={{ fontSize: 11 }}>
                 {date(review.created_at)}
               </T>
