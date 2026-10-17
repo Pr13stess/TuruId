@@ -1,5 +1,19 @@
 # Audit notifikasi dalam aplikasi — 17 Oktober 2026
 
+## Status terbaru: migrasi telah diterapkan ke DEV
+
+Dengan persetujuan pengguna, hanya `202610170002_chat_notifications.sql` diterapkan ke project `fhapolumdqqewwhxnjcb`. Perintah: `supabase db query --linked --project-ref fhapolumdqqewwhxnjcb --file supabase/migrations/202610170002_chat_notifications.sql`, kemudian `supabase migration repair 202610170002 --status applied --linked --project-ref fhapolumdqqewwhxnjcb` untuk mencatat versi yang berhasil diterapkan.
+
+Preflight: function/trigger belum ada, versi belum tercatat, indeks deduplikasi tersedia. Verifikasi sesudah apply: function dan isi SQL sesuai, trigger AFTER INSERT aktif (`tgenabled=O`), SECURITY DEFINER dengan search_path kosong, anon/authenticated tidak memiliki izin memanggil function langsung, versi 202610170002 tercatat applied. Jumlah notifikasi sebelum/sesudah tetap 51; tidak ada backfill.
+
+Migrasi Favorit 202610170001 tetap belum tercatat dan tidak diterapkan. Tidak ada perubahan policy lama, Edge Function, storage, atau dependensi. Tidak membuat pesan uji atau menandai notifikasi pengguna sebagai dibaca.
+
+**Batas bukti:** penerapan dan definisi objek terbukti di DEV; pengiriman baru kedua arah, pembaruan daftar di perangkat, dan login akun ketiga masih belum diuji end-to-end. Bukti perilaku trigger yang tersedia masih berasal dari pengujian lokal sebelumnya (99 tes root/User, 40 Owner).
+
+Uji manual berikutnya: kirim teks dan gambar dari User ke Owner, lalu sebaliknya; buka daftar notifikasi penerima dan tarik refresh; tekan notifikasi untuk membuka chat dan memastikan status dibaca. Retry pesan yang sama tidak boleh menambah notifikasi kedua. Akun ketiga tidak boleh melihat notifikasi tersebut. Pesan lama tidak otomatis muncul sebagai notifikasi baru.
+
+Bagian di bawah adalah catatan audit dan persetujuan sebelum penerapan.
+
 ## Terverifikasi read-only di DEV
 
 Project linked dan target query eksplisit: `fhapolumdqqewwhxnjcb`.
