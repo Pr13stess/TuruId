@@ -16,9 +16,9 @@ Tidak ada deploy, perubahan schema/policy, insert pesan uji, atau perubahan read
 
 Owner memakai communication_send yang membuat event `message:{message_id}`. User memakai insert langsung ke messages untuk teks/gambar, sehingga jalur tersebut tidak membuat notifikasi untuk Owner. Daftar notifikasi User membaca event yang sudah tersedia; implementasi daftar saja tidak memperbaiki arah User ke Owner.
 
-## Usulan SQL — BELUM DISETUJUI / BELUM DIBUAT SEBAGAI MIGRASI / BELUM DITERAPKAN
+## SQL disetujui untuk migrasi dan pengujian lokal — BELUM DITERAPKAN KE DEV
 
-Setelah disetujui, letakkan pada file migrasi baru di root `supabase/migrations`, sumber kebenaran proyek. Tidak menggabungkan jalur Owner, tidak mengubah policy lama, tidak mengubah komunikasi_send, dan tidak mengirim push.
+Persetujuan pengguna diterima untuk membuat dan menguji lokal. SQL berikut disalin tanpa perubahan ke `supabase/migrations/202610170002_chat_notifications.sql`. Root tetap sumber kebenaran migrasi. Tidak menggabungkan jalur Owner, tidak mengubah policy lama, tidak mengubah communication_send, dan tidak menambahkan pengiriman push. Event baru tetap dapat diproses oleh worker push yang sudah ada jika worker tersebut aktif; status worker tidak diverifikasi pada tahap ini.
 
 ```sql
 create function private.notify_chat_message_insert()
@@ -82,3 +82,17 @@ for each row execute function private.notify_chat_message_insert();
 Dengan akun uji yang sudah login: buka notifikasi User, buka event booking/chat, pastikan read_at berubah hanya untuk penerimanya; akun lain tidak dapat membaca atau menandai event itu. Setelah SQL disetujui dan diterapkan, uji kedua arah kirim teks/gambar dan retry. Audit ini tidak menggunakan password atau membuat sesi akun uji.
 
 Panggilan, push, dan dependensi native ditunda sesuai keputusan terakhir pengguna.
+
+## Pengujian migrasi lokal
+
+`tests/chat-notifications.test.mjs` menjalankan migrasi root, seed, serta tiga migrasi Owner yang sudah ada dalam PGlite sementara untuk menguji kompatibilitas. Ini fixture pengujian, bukan konsolidasi jalur migrasi dan tidak mengakses DEV.
+
+Cakupan: tidak melakukan backfill; teks/gambar User melalui insert langsung; teks/gambar Owner melalui RPC asli; retry tidak menduplikasi event; akun ketiga ditolak saat mengirim/membaca dan tidak dapat mengubah read_at akun lain; User tanpa role OWNER dapat menandai notifikasi sendiri; CALL_EVENT dan penerima nonpeserta tidak menghasilkan notifikasi chat; rollback membatalkan pesan dan event bersama; fungsi trigger tidak dapat dipanggil langsung oleh client.
+
+Percobaan tes awal gagal karena fixture PGlite belum menyediakan helper storage.foldername dan kolom storage.objects.owner. Fixture dilengkapi; migrasi produksi dan assertion tidak dilemahkan.
+
+Hasil regresi: `npm test` lulus 99/99; `npm run test --workspace=kosku-owner` lulus 40/40; typecheck User lulus. Masalah typecheck Owner yang sebelumnya tercatat pada prop disabled/aligned belum diperbaiki karena tidak ada kode Owner yang diubah dalam tugas ini.
+
+Lint kedua aplikasi lulus tanpa error; User masih memiliki tiga warning lama di RegisterScreen. Isi file migrasi diverifikasi identik dengan blok SQL yang disetujui.
+
+Sebelum penerapan DEV: minta izin terpisah untuk migrasi ini saja. Verifikasi project ref dan status migrasi yang aktif, lalu terapkan hanya file baru ini; jangan menerapkan migrasi Favorit atau migrasi lain yang masih menunggu tanpa izin. Uji perangkat dan pengiriman nyata dua arah masih belum terbukti.
