@@ -1,6 +1,7 @@
 import type { Checkout } from "../models";
 import type { BookingFilter, BookingPage, BookingDetail } from "../bookings";
 export interface CheckoutRepository {
+  listPayments(page: number): Promise<import('../paymentHistory').PaymentHistoryPage>;
   listBookings(filter: BookingFilter, page: number): Promise<BookingPage>;
   getBookingDetail(id: string): Promise<BookingDetail>;
   /** Holds one unit and opens a payment session. Safe to repeat. */

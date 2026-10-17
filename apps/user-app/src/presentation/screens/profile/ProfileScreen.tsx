@@ -103,7 +103,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
         <MenuRow label="Booking Saya" onPress={() => navigation.navigate("BookingTab")} />
         <MenuRow
           label="Riwayat pembayaran"
-          onPress={() => soon("Riwayat pembayaran", "Riwayat pembayaran akan muncul di sini setelah fitur pemesanan tersedia.")}
+          onPress={() => navigation.navigate("PaymentHistory")}
         />
         <MenuRow
           label="Notifikasi"

@@ -7,6 +7,16 @@ import { filterStatuses, type BookingFilter, type BookingItem, type BookingDetai
 const HOLD_MS = 15 * 60 * 1000;
 /** In-memory stand-in with the same rules as the SQL functions. */
 export class MockCheckoutRepository implements CheckoutRepository {
+  async listPayments(page: number): Promise<import('../../domain/paymentHistory').PaymentHistoryPage> {
+    if (!Number.isSafeInteger(page) || page < 0) throw new Error('Halaman tidak valid.');
+    const items = [...this.bookings.keys()].flatMap(id => {
+      const b = this.find(id);
+      return b.paymentStatus ? [{ id: `payment-${id}`, bookingId: id, bookingCode: b.bookingCode,
+        propertyName: b.propertyName, status: b.paymentStatus, amount: b.payNow,
+        createdAt: this.bookingInfo.get(id)!.createdAt }] : [];
+    }).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+    return { items: items.slice(page * 20, page * 20 + 20), hasMore: items.length > page * 20 + 20 };
+  }
   private readonly bookingInfo = new Map<string, { planId: string; createdAt: string }>();
   private summary(id: string): BookingItem {
     const b = this.find(id), info = this.bookingInfo.get(id)!;

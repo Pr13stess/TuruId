@@ -26,6 +26,7 @@ export type RootStackParamList = {
   Notes: undefined;
   Favorites: undefined;
   Notifications: undefined;
+  PaymentHistory: undefined;
   EditProfile: undefined;
   ChangePassword: undefined;
   Policy: { kind: "privacy" | "terms" };
