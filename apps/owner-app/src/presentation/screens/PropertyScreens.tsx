@@ -6,6 +6,7 @@ import { Props, useNav } from "../navigation";
 import { useLoad } from "../hooks";
 import { Icon, IconName } from "../components/Icon";
 import { PropertyEditor } from "../components/PropertyEditor";
+import { PublicationReadiness } from "../components/PublicationReadiness";
 import {
   Badge,
   Button,
@@ -515,6 +516,7 @@ export function PropertyScreen({ route }: Props<"Property">) {
               rooms={rooms}
               reviews={reviews}
             />
+            <PublicationReadiness property={p} />
             <Button
               title={showBookings ? "Tutup pemesanan kos" : "Pemesanan kos"}
               secondary
