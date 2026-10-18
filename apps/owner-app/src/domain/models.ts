@@ -209,8 +209,12 @@ export const available = (i: Inventory) =>
   i.hold -
   i.reserved;
 export function validateInventory(i: Inventory, activeBookings = 0) {
+  // owner_read includes database metadata alongside these numeric fields.
+  // Validate the contract fields, not IDs or timestamps returned by to_jsonb.
+  const counts = [i.total, i.occupied, i.cleaning, i.maintenance,
+    i.inactive, i.hold, i.reserved, i.version];
   if (
-    Object.values(i).some((n) => !Number.isSafeInteger(n) || n < 0) ||
+    counts.some((n) => !Number.isSafeInteger(n) || n < 0) ||
     available(i) < 0
   )
     throw new Error(
