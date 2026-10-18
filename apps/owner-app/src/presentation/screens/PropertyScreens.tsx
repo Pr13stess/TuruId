@@ -443,7 +443,10 @@ export function PropertyScreen({ route }: Props<"Property">) {
   const nav = useNav();
   const [showBookings, setShowBookings] = useState(false);
   const q = useLoad(
-    useCallback(() => properties.dashboard(), [properties]),
+    useCallback(async () => {
+      const [dashboard, list] = await Promise.all([properties.dashboard(), properties.list()]);
+      return { ...dashboard, properties: list };
+    }, [properties]),
     0,
     true,
   );

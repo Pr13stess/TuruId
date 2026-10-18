@@ -4,12 +4,11 @@ import { useRepositories } from "../../application/RepositoriesProvider";
 import { Property, PropertyInput, Review, Room } from "../../domain/models";
 import { useAction } from "../hooks";
 import { usePropertyEdit } from "../usePropertyEdit";
-import { chooseImage } from "../media";
+import { PropertyGalleryEditor } from "./PropertyGalleryEditor";
 import { Icon } from "./Icon";
 import { RoomsInlinePanel } from "./RoomsInlinePanel";
 import { ReviewReplyForm } from "./ReviewReplyForm";
 import {
-  Badge,
   Button,
   C,
   Card,
@@ -19,7 +18,6 @@ import {
   Feedback,
   Field,
   IconButton,
-  Photo,
   Row,
   Segments,
   T,
@@ -52,6 +50,7 @@ export function PropertyEditor({
   const [draft, setDraft] = useState<PropertyInput>(property);
   const [facility, setFacility] = useState("");
   const [photoBusy, setPhotoBusy] = useState(false);
+  const [galleryPending, setGalleryPending] = useState(false);
   const [localError, setLocalError] = useState("");
   const [reporting, setReporting] = useState<string | null>(null);
   const [reportText, setReportText] = useState("");
@@ -67,7 +66,7 @@ export function PropertyEditor({
       ? profileValues(draft)
       : section === "facilities"
         ? { facilities: draft.facilities, rules: draft.rules }
-        : { photos: draft.photos };
+        : { photos: draft.photos, video_path: draft.video_path };
   const save = (section: "profile" | "facilities" | "photos") =>
     void action.run(
       async () => {
@@ -90,7 +89,7 @@ export function PropertyEditor({
         ? profileValues(property)
         : section === "facilities"
           ? { facilities: property.facilities, rules: property.rules }
-          : { photos: property.photos }),
+          : { photos: property.photos, video_path: property.video_path }),
     }));
     setLocalError("");
     if (section === "facilities") setFacility("");
@@ -102,7 +101,7 @@ export function PropertyEditor({
         ? profileValues(property)
         : section === "facilities"
           ? { facilities: property.facilities, rules: property.rules }
-          : { photos: property.photos },
+          : { photos: property.photos, video_path: property.video_path },
     );
   const saveButtons = (section: "profile" | "facilities" | "photos") => (
     <View style={{ gap: 10 }}>
@@ -113,13 +112,13 @@ export function PropertyEditor({
       )}
       <Button
         title={action.busy ? "Menyimpan…" : "Simpan perubahan"}
-        disabled={busy || (!dirty(section) && !edit.pending)}
+        disabled={busy || galleryPending || (!dirty(section) && !edit.pending)}
         onPress={() => save(section)}
       />
       <Button
         title="Batal perubahan"
         secondary
-        disabled={busy || !dirty(section)}
+        disabled={busy || galleryPending || !dirty(section)}
         onPress={() => cancel(section)}
       />
     </View>
@@ -138,21 +137,6 @@ export function PropertyEditor({
     setFacility("");
     setLocalError("");
   };
-  const upload = async (camera = false) => {
-    if (busy) return;
-    setPhotoBusy(true);
-    setLocalError("");
-    try {
-      const image = await chooseImage(camera);
-      if (!image) return;
-      const path = await support.upload({ ...image, purpose: "property" });
-      setDraft((old) => ({ ...old, photos: [...old.photos, path] }));
-    } catch (e) {
-      setLocalError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setPhotoBusy(false);
-    }
-  };
   return (
     <View style={{ gap: 20 }}>
       <Segments
@@ -165,7 +149,7 @@ export function PropertyEditor({
         options={[
           { value: "profile", label: "Profil" },
           { value: "facilities", label: "Fasilitas" },
-          { value: "photos", label: "Photo" },
+          { value: "photos", label: "Galeri" },
           { value: "reviews", label: "Ulasan" },
           { value: "rooms", label: "Tipe kamar" },
         ]}
@@ -294,71 +278,13 @@ export function PropertyEditor({
             {saveButtons("facilities")}
           </>
         )}
-        {tab === "photos" && (
-          <>
-            <Row>
-              <Title>Galeri kos</Title>
-              <Badge>{draft.photos.length} foto</Badge>
-            </Row>
-            <Row style={{ alignItems: "stretch" }}>
-              <View style={{ flex: 1 }}>
-                <Button
-                  title={photoBusy ? "Mengunggah…" : "+ Tambah foto"}
-                  onPress={() => void upload()}
-                  disabled={busy}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Button
-                  title="Kamera"
-                  secondary
-                  onPress={() => void upload(true)}
-                  disabled={busy}
-                />
-              </View>
-            </Row>
-            {draft.photos.map((path, i) => (
-              <Card key={`${path}-${i}`} style={{ padding: 10 }}>
-                <Photo path={path} height={195} />
-                <Row>
-                  <T muted style={{ fontSize: 11 }}>
-                    {i === 0 ? "Foto sampul" : `Foto ${i + 1}`}
-                  </T>
-                  <IconButton
-                    name="close"
-                    label={`Hapus foto ${i + 1}`}
-                    color={C.red}
-                    onPress={() =>
-                      set(
-                        "photos",
-                        draft.photos.filter((_, n) => n !== i),
-                      )
-                    }
-                  />
-                </Row>
-                {i > 0 && (
-                  <Button
-                    title={`Jadikan foto ${i + 1} sampul`}
-                    secondary
-                    onPress={() =>
-                      set("photos", [
-                        path,
-                        ...draft.photos.filter((_, n) => n !== i),
-                      ])
-                    }
-                  />
-                )}
-              </Card>
-            ))}
-            {!draft.photos.length && (
-              <Empty
-                title="Belum ada foto"
-                body="Tambahkan foto dari galeri atau kamera."
-              />
-            )}
-            {saveButtons("photos")}
-          </>
-        )}
+        <View style={{ display: tab === "photos" ? "flex" : "none", gap: 12 }}>
+          <PropertyGalleryEditor value={draft} disabled={action.busy}
+            onBusyChange={setPhotoBusy}
+            onPendingChange={setGalleryPending}
+            onChange={gallery => setDraft(current => ({ ...current, ...gallery }))} />
+          {saveButtons("photos")}
+        </View>
       </View>
       {tab === "reviews" && (
         <View style={{ gap: 16 }}>
