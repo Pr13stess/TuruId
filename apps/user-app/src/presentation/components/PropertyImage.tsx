@@ -17,9 +17,11 @@ const demoImages: Record<string, ImageSourcePropType> = {
 export function PropertyImage({
   uri,
   style,
+  resizeMode = "cover",
 }: {
   uri?: string;
   style?: StyleProp<ViewStyle>;
+  resizeMode?: "cover" | "contain";
 }) {
   const [failed, setFailed] = useState(false);
   const source = uri ? (demoImages[uri] ?? { uri }) : undefined;
@@ -28,7 +30,7 @@ export function PropertyImage({
       {source && !failed ? (
         <Image
           source={source}
-          resizeMode="cover"
+          resizeMode={resizeMode}
           style={[StyleSheet.absoluteFill, { width: "100%", height: "100%" }]}
           onError={() => setFailed(true)}
           accessibilityLabel="Foto kos"

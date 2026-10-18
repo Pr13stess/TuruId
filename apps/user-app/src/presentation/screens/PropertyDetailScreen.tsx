@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import {
   Linking,
-  Modal,
   Pressable,
   ScrollView,
   Share,
@@ -15,6 +14,7 @@ import { useRepositories } from "../../providers/RepositoryProvider";
 import { useResource } from "../hooks/useResource";
 import { colors } from "../theme";
 import { genderLabel } from "../format";
+import { PropertyPhotoViewer } from "../components/PropertyPhotoViewer";
 import { PropertyImage } from "../components/PropertyImage";
 import { PropertyVideo } from "../components/PropertyVideo";
 import {
@@ -239,25 +239,7 @@ export function PropertyDetailScreen({
           </Text>
         </Pressable>
       </View>
-      <Modal
-        visible={zoom}
-        animationType="fade"
-        onRequestClose={() => setZoom(false)}
-      >
-        <SafeAreaView style={{ flex: 1, backgroundColor: colors.ink }}>
-          <Button title="Tutup foto" onPress={() => setZoom(false)} />
-          <ScrollView
-            maximumZoomScale={4}
-            minimumZoomScale={1}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
-          >
-            <PropertyImage
-              uri={p.images[photo]}
-              style={{ height: 350, width: "100%" }}
-            />
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
+      {zoom && <PropertyPhotoViewer photos={p.images} initialIndex={photo} onClose={() => setZoom(false)} />}
       <Sheet
         visible={notice !== null}
         title="Informasi"
