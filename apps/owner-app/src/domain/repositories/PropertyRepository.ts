@@ -3,6 +3,7 @@ export interface PropertyRepository {
   dashboard(): Promise<Dashboard>;
   list(): Promise<Property[]>;
   save(input: PropertyInput): Promise<string>;
+  editAndSubmit(input: PropertyInput, requestId: string, evidence?: string): Promise<string>;
   submitVerification(id: string, evidence: string): Promise<void>;
   reviews(propertyId: string): Promise<Review[]>;
   replyReview(reviewId: string, text: string): Promise<void>;

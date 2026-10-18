@@ -4,6 +4,7 @@ import { useRepositories } from "../../application/RepositoriesProvider";
 import { PropertyInput } from "../../domain/models";
 import { Props } from "../navigation";
 import { useAction } from "../hooks";
+import { usePropertyEdit } from "../usePropertyEdit";
 import { chooseImage } from "../media";
 import { choosePropertyMedia, preparePropertyPhoto, type PickedPropertyMedia } from "../propertyMedia";
 import { propertyUploadQueue } from "../../domain/propertyGallery";
@@ -30,6 +31,7 @@ export function PropertyFormScreen({
 }: Props<"PropertyForm">) {
   const { properties, support } = useRepositories();
   const action = useAction();
+  const edit = usePropertyEdit();
   const old = route.params.property;
   const [value, setValue] = useState<PropertyInput>(
     old ?? {
@@ -247,6 +249,7 @@ export function PropertyFormScreen({
         {!!old?.review_reason && <Feedback text={old.review_reason} />}
       </Card>
       <Feedback text={action.error} error />
+      {edit.pending && !!action.error && <T muted>Coba simpan lagi untuk memeriksa permintaan sebelumnya. Isi permintaan sebelumnya dipertahankan sampai berhasil. Jika perlu mengganti bukti atau memperbaiki isian, buka ulang formulir setelah memastikan hasil simpan.</T>}
       <Feedback text={action.message} />
       <Button
         title={action.busy ? "Menyimpan…" : "Simpan kos"}
@@ -255,11 +258,14 @@ export function PropertyFormScreen({
           void action.run(async () => {
             if ((value.latitude !== null || value.longitude !== null) && !location)
               throw new Error("Pilih ulang titik lokasi di peta.");
-            const id = await properties.save({
+            const input = {
               ...value,
               facilities: value.facilities.map((v) => v.trim()).filter(Boolean),
-            });
-            if (evidence) await properties.submitVerification(id, evidence);
+            };
+            const id = old
+              ? await edit.submit(async () => input, evidence)
+              : await properties.save(input);
+            if (!old && evidence) await properties.submitVerification(id, evidence);
             navigation.replace("Property", { id });
           })
         }

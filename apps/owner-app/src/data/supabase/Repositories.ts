@@ -1,5 +1,6 @@
 import { uploadChatImage, findImageMessage } from "./chatImageUpload";
 import { replyToReview } from "./reviewReply";
+import { editPropertyAndSubmit } from "./propertyEdit";
 import { syncChatReceipt } from "../../domain/chatReceipt";
 import { uploadProfileAvatar } from "./profileAvatar";
 import type { ChatImagePayload } from "../../domain/chatUpload";
@@ -176,6 +177,9 @@ export class SupabasePropertyRepository
   }
   async submitVerification(pid: string, evidence: string) {
     await this.rpc("owner_verify_property", { pid, evidence });
+  }
+  editAndSubmit(input: M.PropertyInput, requestId: string, evidence?: string) {
+    return editPropertyAndSubmit(this.client, input, requestId, evidence);
   }
   async reviews(id: string) {
     return (await this.read<M.Review[]>("reviews")).filter(

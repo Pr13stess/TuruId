@@ -1,4 +1,5 @@
 import * as M from "../../domain/models";
+import { mockEditAndSubmit, rememberPropertyProof } from "./propertyEdit";
 import { reviewReplyText } from "../../domain/reviewReply";
 import { AuthRepository } from "../../domain/repositories/AuthRepository";
 import { ProfileRepository } from "../../domain/repositories/ProfileRepository";
@@ -149,8 +150,12 @@ export class MockPropertyRepository implements PropertyRepository {
     await this.s.write((s) => {
       const p = s.properties.find((p) => p.id === id);
       if (!p) throw new Error("Kos tidak ditemukan.");
+      rememberPropertyProof(s, id, evidence);
       p.verification_status = "PENDING";
     });
+  }
+  editAndSubmit(input: M.PropertyInput, requestId: string, evidence?: string) {
+    return this.s.write(s => mockEditAndSubmit(s, input, requestId, evidence));
   }
   async reviews(id: string) {
     return (await this.s.read()).reviews.filter((r) => r.property_id === id);

@@ -3,6 +3,7 @@ import { Pressable, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Property, PropertyInput, Review, Room } from "../../domain/models";
 import { useAction } from "../hooks";
+import { usePropertyEdit } from "../usePropertyEdit";
 import { chooseImage } from "../media";
 import { Icon } from "./Icon";
 import { RoomsInlinePanel } from "./RoomsInlinePanel";
@@ -46,6 +47,7 @@ export function PropertyEditor({
 }) {
   const { properties, support } = useRepositories();
   const action = useAction();
+  const edit = usePropertyEdit();
   const [tab, setTab] = useState<Tab>("profile");
   const [draft, setDraft] = useState<PropertyInput>(property);
   const [facility, setFacility] = useState("");
@@ -69,15 +71,17 @@ export function PropertyEditor({
   const save = (section: "profile" | "facilities" | "photos") =>
     void action.run(
       async () => {
-        const latest = (await properties.list()).find(
-          (p) => p.id === property.id,
-        );
-        if (!latest) throw new Error("Properti sudah tidak dapat diakses.");
-        // Save only the selected tab so other local drafts and latest stored fields survive.
-        await properties.save({ ...latest, ...patch(section) });
+        await edit.submit(async () => {
+          const latest = (await properties.list()).find(
+            (p) => p.id === property.id,
+          );
+          if (!latest) throw new Error("Properti sudah tidak dapat diakses.");
+          // Capture the selected tab once, including across uncertain retries.
+          return { ...latest, ...patch(section) };
+        });
       },
       undefined,
-      "Perubahan tersimpan.",
+      "Perubahan tersimpan dan diajukan ulang ke Admin.",
     );
   const cancel = (section: "profile" | "facilities" | "photos") => {
     setDraft((old) => ({
@@ -109,7 +113,7 @@ export function PropertyEditor({
       )}
       <Button
         title={action.busy ? "Menyimpan…" : "Simpan perubahan"}
-        disabled={busy || !dirty(section)}
+        disabled={busy || (!dirty(section) && !edit.pending)}
         onPress={() => save(section)}
       />
       <Button
@@ -467,6 +471,7 @@ export function PropertyEditor({
       </View>
       <Feedback text={localError} error />
       <Feedback text={action.error} error />
+      {edit.pending && !!action.error && <T muted>Coba simpan lagi untuk memeriksa permintaan sebelumnya. Isi permintaan sebelumnya dipertahankan sampai berhasil. Jika perlu mengganti bukti atau memperbaiki isian, buka ulang formulir setelah memastikan hasil simpan.</T>}
       <Feedback text={action.message} />
     </View>
   );

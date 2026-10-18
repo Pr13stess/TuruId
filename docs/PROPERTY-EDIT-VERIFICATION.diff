@@ -1,0 +1,165 @@
+diff --git a/apps/owner-app/src/data/mock/Repositories.ts b/apps/owner-app/src/data/mock/Repositories.ts
+index f73261b..75c5ec1 100644
+--- a/apps/owner-app/src/data/mock/Repositories.ts
++++ b/apps/owner-app/src/data/mock/Repositories.ts
+@@ -1,4 +1,5 @@
+ import * as M from "../../domain/models";
++import { mockEditAndSubmit, rememberPropertyProof } from "./propertyEdit";
+ import { reviewReplyText } from "../../domain/reviewReply";
+ import { AuthRepository } from "../../domain/repositories/AuthRepository";
+ import { ProfileRepository } from "../../domain/repositories/ProfileRepository";
+@@ -149,9 +150,13 @@ export class MockPropertyRepository implements PropertyRepository {
+     await this.s.write((s) => {
+       const p = s.properties.find((p) => p.id === id);
+       if (!p) throw new Error("Kos tidak ditemukan.");
++      rememberPropertyProof(s, id, evidence);
+       p.verification_status = "PENDING";
+     });
+   }
++  editAndSubmit(input: M.PropertyInput, requestId: string, evidence?: string) {
++    return this.s.write(s => mockEditAndSubmit(s, input, requestId, evidence));
++  }
+   async reviews(id: string) {
+     return (await this.s.read()).reviews.filter((r) => r.property_id === id);
+   }
+diff --git a/apps/owner-app/src/data/supabase/Repositories.ts b/apps/owner-app/src/data/supabase/Repositories.ts
+index 7093590..64614e7 100644
+--- a/apps/owner-app/src/data/supabase/Repositories.ts
++++ b/apps/owner-app/src/data/supabase/Repositories.ts
+@@ -1,5 +1,6 @@
+ import { uploadChatImage, findImageMessage } from "./chatImageUpload";
+ import { replyToReview } from "./reviewReply";
++import { editPropertyAndSubmit } from "./propertyEdit";
+ import { syncChatReceipt } from "../../domain/chatReceipt";
+ import { uploadProfileAvatar } from "./profileAvatar";
+ import type { ChatImagePayload } from "../../domain/chatUpload";
+@@ -177,6 +178,9 @@ export class SupabasePropertyRepository
+   async submitVerification(pid: string, evidence: string) {
+     await this.rpc("owner_verify_property", { pid, evidence });
+   }
++  editAndSubmit(input: M.PropertyInput, requestId: string, evidence?: string) {
++    return editPropertyAndSubmit(this.client, input, requestId, evidence);
++  }
+   async reviews(id: string) {
+     return (await this.read<M.Review[]>("reviews")).filter(
+       (r) => r.property_id === id,
+diff --git a/apps/owner-app/src/domain/repositories/PropertyRepository.ts b/apps/owner-app/src/domain/repositories/PropertyRepository.ts
+index 04d81a9..48f8f8a 100644
+--- a/apps/owner-app/src/domain/repositories/PropertyRepository.ts
++++ b/apps/owner-app/src/domain/repositories/PropertyRepository.ts
+@@ -3,6 +3,7 @@ export interface PropertyRepository {
+   dashboard(): Promise<Dashboard>;
+   list(): Promise<Property[]>;
+   save(input: PropertyInput): Promise<string>;
++  editAndSubmit(input: PropertyInput, requestId: string, evidence?: string): Promise<string>;
+   submitVerification(id: string, evidence: string): Promise<void>;
+   reviews(propertyId: string): Promise<Review[]>;
+   replyReview(reviewId: string, text: string): Promise<void>;
+diff --git a/apps/owner-app/src/presentation/components/PropertyEditor.tsx b/apps/owner-app/src/presentation/components/PropertyEditor.tsx
+index 1780e1d..6e5408f 100644
+--- a/apps/owner-app/src/presentation/components/PropertyEditor.tsx
++++ b/apps/owner-app/src/presentation/components/PropertyEditor.tsx
+@@ -3,6 +3,7 @@ import { Pressable, View } from "react-native";
+ import { useRepositories } from "../../application/RepositoriesProvider";
+ import { Property, PropertyInput, Review, Room } from "../../domain/models";
+ import { useAction } from "../hooks";
++import { usePropertyEdit } from "../usePropertyEdit";
+ import { chooseImage } from "../media";
+ import { Icon } from "./Icon";
+ import { RoomsInlinePanel } from "./RoomsInlinePanel";
+@@ -46,6 +47,7 @@ export function PropertyEditor({
+ }) {
+   const { properties, support } = useRepositories();
+   const action = useAction();
++  const edit = usePropertyEdit();
+   const [tab, setTab] = useState<Tab>("profile");
+   const [draft, setDraft] = useState<PropertyInput>(property);
+   const [facility, setFacility] = useState("");
+@@ -69,15 +71,17 @@ export function PropertyEditor({
+   const save = (section: "profile" | "facilities" | "photos") =>
+     void action.run(
+       async () => {
+-        const latest = (await properties.list()).find(
+-          (p) => p.id === property.id,
+-        );
+-        if (!latest) throw new Error("Properti sudah tidak dapat diakses.");
+-        // Save only the selected tab so other local drafts and latest stored fields survive.
+-        await properties.save({ ...latest, ...patch(section) });
++        await edit.submit(async () => {
++          const latest = (await properties.list()).find(
++            (p) => p.id === property.id,
++          );
++          if (!latest) throw new Error("Properti sudah tidak dapat diakses.");
++          // Capture the selected tab once, including across uncertain retries.
++          return { ...latest, ...patch(section) };
++        });
+       },
+       undefined,
+-      "Perubahan tersimpan.",
++      "Perubahan tersimpan dan diajukan ulang ke Admin.",
+     );
+   const cancel = (section: "profile" | "facilities" | "photos") => {
+     setDraft((old) => ({
+@@ -109,7 +113,7 @@ export function PropertyEditor({
+       )}
+       <Button
+         title={action.busy ? "Menyimpan…" : "Simpan perubahan"}
+-        disabled={busy || !dirty(section)}
++        disabled={busy || (!dirty(section) && !edit.pending)}
+         onPress={() => save(section)}
+       />
+       <Button
+@@ -467,6 +471,7 @@ export function PropertyEditor({
+       </View>
+       <Feedback text={localError} error />
+       <Feedback text={action.error} error />
++      {edit.pending && !!action.error && <T muted>Coba simpan lagi untuk memeriksa permintaan sebelumnya. Isi permintaan sebelumnya dipertahankan sampai berhasil. Jika perlu mengganti bukti atau memperbaiki isian, buka ulang formulir setelah memastikan hasil simpan.</T>}
+       <Feedback text={action.message} />
+     </View>
+   );
+diff --git a/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx b/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx
+index c7abf3f..b5f0745 100644
+--- a/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx
++++ b/apps/owner-app/src/presentation/screens/PropertyFormScreen.tsx
+@@ -4,6 +4,7 @@ import { useRepositories } from "../../application/RepositoriesProvider";
+ import { PropertyInput } from "../../domain/models";
+ import { Props } from "../navigation";
+ import { useAction } from "../hooks";
++import { usePropertyEdit } from "../usePropertyEdit";
+ import { chooseImage } from "../media";
+ import { choosePropertyMedia, preparePropertyPhoto, type PickedPropertyMedia } from "../propertyMedia";
+ import { propertyUploadQueue } from "../../domain/propertyGallery";
+@@ -30,6 +31,7 @@ export function PropertyFormScreen({
+ }: Props<"PropertyForm">) {
+   const { properties, support } = useRepositories();
+   const action = useAction();
++  const edit = usePropertyEdit();
+   const old = route.params.property;
+   const [value, setValue] = useState<PropertyInput>(
+     old ?? {
+@@ -247,6 +249,7 @@ export function PropertyFormScreen({
+         {!!old?.review_reason && <Feedback text={old.review_reason} />}
+       </Card>
+       <Feedback text={action.error} error />
++      {edit.pending && !!action.error && <T muted>Coba simpan lagi untuk memeriksa permintaan sebelumnya. Isi permintaan sebelumnya dipertahankan sampai berhasil. Jika perlu mengganti bukti atau memperbaiki isian, buka ulang formulir setelah memastikan hasil simpan.</T>}
+       <Feedback text={action.message} />
+       <Button
+         title={action.busy ? "Menyimpan…" : "Simpan kos"}
+@@ -255,11 +258,14 @@ export function PropertyFormScreen({
+           void action.run(async () => {
+             if ((value.latitude !== null || value.longitude !== null) && !location)
+               throw new Error("Pilih ulang titik lokasi di peta.");
+-            const id = await properties.save({
++            const input = {
+               ...value,
+               facilities: value.facilities.map((v) => v.trim()).filter(Boolean),
+-            });
+-            if (evidence) await properties.submitVerification(id, evidence);
++            };
++            const id = old
++              ? await edit.submit(async () => input, evidence)
++              : await properties.save(input);
++            if (!old && evidence) await properties.submitVerification(id, evidence);
+             navigation.replace("Property", { id });
+           })
+         }
