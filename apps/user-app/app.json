@@ -14,7 +14,16 @@
       "bundleIdentifier": "com.kosku.demo.user"
     },
     "android": {
-      "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"],
+      "permissions": [
+        "RECORD_AUDIO",
+        "MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
       "package": "com.kosku.demo.user"
     },
     "web": {
@@ -22,13 +31,24 @@
     },
     "scheme": "kosku",
     "plugins": [
-      ["expo-audio", { "microphonePermission": "Mikrofon untuk panggilan suara dengan pemilik kos." }],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Mikrofon untuk panggilan suara dengan pemilik kos."
+        }
+      ],
       [
         "expo-location",
         {
           "locationWhenInUsePermission": "KosKu memakai lokasimu hanya untuk menghitung jarak ke kos. Lokasi tidak disimpan."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "314287a8-2c48-4391-a38b-e56a1c17699f"
+      }
+    },
+    "owner": "pr13stess"
   }
 }

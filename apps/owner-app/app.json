@@ -18,8 +18,11 @@
     "android": {
       "package": "com.kosku.demo.owner",
       "permissions": [
-        "CAMERA",
-        "RECORD_AUDIO"
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ]
     },
     "plugins": [
@@ -33,6 +36,12 @@
       "expo-notifications",
       "expo-audio",
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2821f386-2296-4bea-87fc-07683e4c9bc6"
+      }
+    },
+    "owner": "pr13stess"
   }
 }
