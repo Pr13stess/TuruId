@@ -40,7 +40,11 @@ import { MockNotificationRepository } from '../data/mock/MockNotificationReposit
 import type { ReviewRepository } from '../domain/repositories/ReviewRepository';
 import { SupabaseReviewRepository } from '../data/supabase/SupabaseReviewRepository';
 import { MockReviewRepository } from '../data/mock/MockReviewRepository';
+import type { CallRepository } from '../domain/repositories/CallRepository';
+import { SupabaseCallRepository } from '../data/supabase/SupabaseCallRepository';
+import { unavailableCalls } from '../data/mock/UnavailableCallRepository';
 export interface Repositories {
+  calls: CallRepository;
   properties: PropertyRepository;
   rooms: RoomRepository;
   pricing: PricingRepository;
@@ -70,6 +74,7 @@ function compose(): Repositories {
       },
     });
     return {
+      calls: new SupabaseCallRepository(client),
       properties: new SupabasePropertyRepository(client),
       rooms: new SupabaseRoomRepository(client),
       pricing: new SupabasePricingRepository(client),
@@ -87,6 +92,7 @@ function compose(): Repositories {
   const auth = new MockAuthRepository();
   const checkout = new MockCheckoutRepository();
   return {
+    calls: unavailableCalls,
     properties: new MockPropertyRepository(),
     rooms: new MockRoomRepository(),
     pricing: new MockPricingRepository(),

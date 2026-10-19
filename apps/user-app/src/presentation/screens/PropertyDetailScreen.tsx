@@ -28,12 +28,14 @@ import { FavoriteButton } from '../components/FavoriteButton';
 import { propertyShareText } from '../../domain/propertyFeedback';
 import { ShareIcon } from '../Icons/ShareIcon';
 import { PropertyReviewsPreview } from '../components/PropertyReviewsPreview';
+import { useStartVoiceCall } from '../hooks/useStartVoiceCall';
 export function PropertyDetailScreen({
   route,
   navigation,
 }: ScreenProps<"PropertyDetail">) {
   const { propertyId } = route.params;
   const { properties, rooms, chat } = useRepositories();
+  const voice = useStartVoiceCall(id => navigation.navigate('VoiceCall', { id }));
   const videoUrl = useCallback((path: string) => properties.videoUrl(path), [properties]);
   const [openingChat, setOpeningChat] = useState(false);
   const loader = useCallback(
@@ -57,7 +59,6 @@ export function PropertyDetailScreen({
   if (!p) return <Status empty="Kos tidak tersedia atau sudah diarsipkan" />;
   const roomList = state.data?.rooms ?? [];
   const canChoose = roomList.some((r) => r.available > 0 && r.plans.length > 0);
-  const future = () => setNotice("Panggilan akan tersedia pada tahap berikutnya.");
   const openChat = async () => {
     if (openingChat) return;
     setOpeningChat(true);
@@ -167,7 +168,8 @@ export function PropertyDetailScreen({
         </Pressable>
                 <Pressable
           accessibilityRole="button"
-          onPress={future}
+          disabled={voice.busy}
+          onPress={() => { void voice.start(async () => (await chat.startConversation(propertyId, p.name)).id); }}
           style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
         >
           <Text style={styles.actionText} numberOfLines={1}>

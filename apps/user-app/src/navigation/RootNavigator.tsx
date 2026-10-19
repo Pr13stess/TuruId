@@ -1,5 +1,5 @@
 import { ActivityIndicator, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, createNavigationContainerRef } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "./types";
 import { MainTabs } from "./MainTabs";
@@ -25,6 +25,9 @@ import { PolicyScreen } from "../presentation/screens/profile/PolicyScreen";
 import { InfoScreen } from "../presentation/screens/profile/InfoScreen";
 import { ComingSoonScreen } from "../presentation/screens/profile/PlaceholderScreen";
 import { colors } from "../presentation/theme";
+import { VoiceCallScreen } from '../presentation/screens/VoiceCallScreen';
+import { IncomingVoiceCall } from '../presentation/components/IncomingVoiceCall';
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 function LoadingScreen() {
   return (
@@ -36,7 +39,11 @@ function LoadingScreen() {
 export function RootNavigator() {
   const { loading, session } = useAuthSession();
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
+      <View style={{ flex: 1 }}>
+      {session && <IncomingVoiceCall key={session.user.id} userId={session.user.id} onOpen={id => {
+        if (navigationRef.isReady()) navigationRef.navigate('VoiceCall', { id });
+      }} />}
       <Stack.Navigator
         screenOptions={{
           headerTintColor: colors.primary,
@@ -93,6 +100,7 @@ export function RootNavigator() {
               options={{ title: "Checkout" }}
             />
             <Stack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Detail booking" }} />
+            <Stack.Screen name="VoiceCall" component={VoiceCallScreen} options={{ title: 'Panggilan suara' }} />
             <Stack.Screen
               name="Chat"
               component={ChatScreen}
@@ -137,6 +145,7 @@ export function RootNavigator() {
           </>
         )}
       </Stack.Navigator>
+      </View>
     </NavigationContainer>
   );
 }

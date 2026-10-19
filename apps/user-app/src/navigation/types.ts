@@ -22,6 +22,7 @@ export type RootStackParamList = {
   Checkout: { bookingId: string; planId: string };
   BookingDetail: { bookingId: string };
   Chat: { conversationId: string; propertyId: string; propertyName: string };
+  VoiceCall: { id: string };
   Note: { propertyId: string; propertyName: string };
   Notes: undefined;
   Favorites: undefined;

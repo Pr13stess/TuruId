@@ -33,6 +33,7 @@ import { ChatImageViewer } from "../../components/ChatImageViewer";
 import { MessageReceipt } from "../../components/MessageReceipt";
 import { useChatReceipt } from "../../hooks/useChatReceipt";
 import { groupWasRead } from "../../../domain/chatReceipt";
+import { useStartVoiceCall } from '../../hooks/useStartVoiceCall';
 
 
 type Row =
@@ -42,6 +43,7 @@ type Row =
 export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   const { conversationId, propertyId, propertyName } = route.params;
   const { chat, properties } = useRepositories();
+  const voice = useStartVoiceCall(id => navigation.navigate('VoiceCall', { id }));
   const { session } = useAuthSession();
   const insets = useSafeAreaInsets();
   const myId = session?.user.id ?? null;
@@ -143,7 +145,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   const comingSoon = () =>
     Alert.alert(
       "Segera hadir",
-      "Panggilan suara dan video akan tersedia pada tahap berikutnya.",
+      "Panggilan video belum tersedia. Gunakan tombol panggilan suara.",
     );
 
   const sendText = async () => {
@@ -238,7 +240,8 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Panggilan suara"
-            onPress={comingSoon}
+            disabled={voice.busy}
+            onPress={() => { void voice.start(async () => conversationId); }}
             hitSlop={8}
             style={styles.iconButton}
           >
