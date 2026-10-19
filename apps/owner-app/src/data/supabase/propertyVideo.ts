@@ -1,12 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PropertyVideoInput } from "../../domain/propertyGallery";
 import { videoUploadError } from "./videoUploadError";
+import { videoUploadBody } from "./propertyVideoTransport";
 
 export async function uploadPropertyVideo(client: SupabaseClient, video: PropertyVideoInput) {
-  const form = new FormData();
-  form.append("upload_id", video.uploadId);
-  // Native FormData accepts a local URI; web uses ImagePicker's File.
-  form.append("file", video.file ?? ({ uri: video.uri, name: "property.mp4", type: "video/mp4" } as unknown as Blob));
+  const form = videoUploadBody(video);
   const { data, error } = await client.functions.invoke("property-video-upload", { body: form });
   if (error) {
     throw new Error(await videoUploadError(error));

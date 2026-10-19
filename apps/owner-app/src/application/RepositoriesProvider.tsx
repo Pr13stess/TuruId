@@ -14,6 +14,7 @@ import { CommunicationRepository } from "../domain/repositories/CommunicationRep
 import { SupportRepository } from "../domain/repositories/SupportRepository";
 import * as Mock from "../data/mock/Repositories";
 import * as Live from "../data/supabase/Repositories";
+import { videoUploadFetch } from "../data/supabase/propertyVideoTransport";
 import { MockStore } from "../data/mock/MockStore";
 import { Session } from "../domain/models";
 export interface Repositories {
@@ -57,6 +58,7 @@ async function compose(): Promise<{
     );
   if (url && key) {
     const c = createClient(url, key, {
+      global: { fetch: videoUploadFetch(fetch, url) },
       auth: {
         storage: AsyncStorage,
         autoRefreshToken: true,
