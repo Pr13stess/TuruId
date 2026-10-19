@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { useNav } from "../navigation";
 import { Icon, IconName } from "./Icon";
+import { OwnerBrand } from "./OwnerBrand";
 export const C = {
   navy: "#20212B",
   orange: "#F58A07",
@@ -706,41 +707,7 @@ export function ChatLayout({
   );
 }
 export function Brand() {
-  return (
-    <Row style={{ justifyContent: "flex-start", gap: 10 }}>
-      <View
-        style={{
-          width: 35,
-          height: 42,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Icon name="pin" size={37} color={C.orange} />
-        <View
-          style={{
-            position: "absolute",
-            top: 11,
-            width: 15,
-            height: 15,
-            backgroundColor: C.orange,
-          }}
-        >
-          <Icon name="home" size={15} color={C.white} />
-        </View>
-      </View>
-      <T
-        style={{
-          fontWeight: "900",
-          fontSize: 23,
-          lineHeight: 30,
-          letterSpacing: -0.7,
-        }}
-      >
-        Turu.Id
-      </T>
-    </Row>
-  );
+  return <OwnerBrand />;
 }
 export function Page({
   children,

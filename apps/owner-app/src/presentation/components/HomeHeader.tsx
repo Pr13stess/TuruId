@@ -1,18 +1,14 @@
 import React from "react";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { colors } from "../theme";
+import { OwnerBrand } from "./OwnerBrand";
 
-// Logo, bell path and layout match the User App home header.
+// Shared Owner branding; notification layout follows the User App header.
 export function HomeHeader({ onNotifications }: { onNotifications: () => void }) {
   return (
     <View style={styles.header}>
-      <Image
-        source={require("../../../assets/LogoMain.png")}
-        style={styles.logo}
-        resizeMode="contain"
-        accessibilityLabel="TuruId"
-      />
+      <OwnerBrand />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Notifikasi"
@@ -41,7 +37,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     backgroundColor: colors.background,
   },
-  logo: { height: 40, width: 140 },
   notification: {
     height: 36,
     width: 36,
