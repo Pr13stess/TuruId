@@ -1,6 +1,6 @@
 # Galeri video dan foto User — 19 Oktober 2026
 
-Detail kos memakai satu galeri: video (jika tersedia) di indeks pertama, diikuti foto sesuai urutan semula. Preview video dimuat melalui signed URL yang sudah ada, tanpa autoplay atau pembuatan thumbnail/bucket baru. Pengguna dapat menggeser halaman atau memilih tombol Video/Foto. Perbesar membuka galeri fullscreen pada media terpilih; video dapat digeser ke foto pertama, foto tetap mendukung pinch zoom dan swipe. Tombol sebelumnya/berikutnya dan indikator mencakup kedua jenis media.
+Detail kos memakai satu galeri: video (jika tersedia) di indeks pertama, diikuti foto sesuai urutan semula. Preview video dimuat melalui signed URL yang sudah ada, tanpa autoplay atau pembuatan thumbnail/bucket baru. Pengguna menggeser halaman dengan indikator titik di bawah galeri (titik aktif ungu, lainnya abu-abu). Tombol Video/Foto dan teks Perbesar diganti ikon fullscreen di sudut kanan atas. Ikon ini membuka galeri fullscreen pada media terpilih; video dapat digeser ke foto pertama, foto tetap mendukung pinch zoom dan swipe. Tombol sebelumnya/berikutnya dan indikator mencakup kedua jenis media.
 
 Hanya video pada halaman aktif yang dipasang. Membuka fullscreen melepas player inline; berpindah ke foto, meninggalkan layar, atau masuk background melepas player melalui useVideoPlayer. Cleanup tidak memanggil pause pada player yang sudah dirilis. Saat kembali, player dimuat ulang dalam keadaan berhenti; posisi pemutaran tidak dipertahankan.
 
