@@ -12,10 +12,9 @@ import { PricingRepository } from "../domain/repositories/PricingRepository";
 import { BookingRepository } from "../domain/repositories/BookingRepository";
 import { CommunicationRepository } from "../domain/repositories/CommunicationRepository";
 import { SupportRepository } from "../domain/repositories/SupportRepository";
-import * as Mock from "../data/mock/Repositories";
 import * as Live from "../data/supabase/Repositories";
 import { videoUploadFetch } from "../data/supabase/propertyVideoTransport";
-import { MockStore } from "../data/mock/MockStore";
+import { requireOwnerBackendConfig } from "./ownerBackendConfig";
 import { Session } from "../domain/models";
 export interface Repositories {
   auth: AuthRepository;
@@ -48,62 +47,41 @@ async function compose(): Promise<{
     installation = Crypto.randomUUID();
     await AsyncStorage.setItem("kosku-owner-installation", installation);
   }
-  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-  if (Boolean(url) !== Boolean(key))
-    throw new Error(
-      "Konfigurasi Supabase belum lengkap. Isi URL dan publishable key, atau kosongkan keduanya untuk demo.",
-    );
-  if (url && key) {
-    const c = createClient(url, key, {
-      global: { fetch: videoUploadFetch(fetch, url) },
-      auth: {
-        storage: AsyncStorage,
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false,
-      },
-    });
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active") c.auth.startAutoRefresh();
-      else c.auth.stopAutoRefresh();
-    });
-    return {
-      repositories: {
-        mode: "supabase",
-        installation,
-        auth: new Live.SupabaseAuthRepository(c, installation),
-        profile: new Live.SupabaseProfileRepository(c),
-        properties: new Live.SupabasePropertyRepository(c),
-        rooms: new Live.SupabaseRoomRepository(c),
-        pricing: new Live.SupabasePricingRepository(c),
-        bookings: new Live.SupabaseBookingRepository(c),
-        communication: new Live.SupabaseCommunicationRepository(c),
-        support: new Live.SupabaseSupportRepository(c),
-      },
-      dispose: () => {
-        sub.remove();
-        c.auth.stopAutoRefresh();
-      },
-    };
-  }
-  const s = new MockStore(AsyncStorage);
+  const { url, key } = requireOwnerBackendConfig(
+    process.env.EXPO_PUBLIC_SUPABASE_URL,
+    process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+  );
+  const c = createClient(url, key, {
+    global: { fetch: videoUploadFetch(fetch, url) },
+    auth: {
+      storage: AsyncStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  });
+  const sub = AppState.addEventListener("change", (state) => {
+    if (state === "active") c.auth.startAutoRefresh();
+    else c.auth.stopAutoRefresh();
+  });
   return {
     repositories: {
-      mode: "demo",
+      mode: "supabase",
       installation,
-      auth: new Mock.MockAuthRepository(),
-      profile: new Mock.MockProfileRepository(s),
-      properties: new Mock.MockPropertyRepository(s),
-      rooms: new Mock.MockRoomRepository(s),
-      pricing: new Mock.MockPricingRepository(s),
-      bookings: new Mock.MockBookingRepository(s),
-      communication: new Mock.MockCommunicationRepository(s),
-      support: new Mock.MockSupportRepository(s),
+      auth: new Live.SupabaseAuthRepository(c, installation),
+      profile: new Live.SupabaseProfileRepository(c),
+      properties: new Live.SupabasePropertyRepository(c),
+      rooms: new Live.SupabaseRoomRepository(c),
+      pricing: new Live.SupabasePricingRepository(c),
+      bookings: new Live.SupabaseBookingRepository(c),
+      communication: new Live.SupabaseCommunicationRepository(c),
+      support: new Live.SupabaseSupportRepository(c),
     },
-    dispose: () => {},
+    dispose: () => {
+      sub.remove();
+      c.auth.stopAutoRefresh();
+    },
   };
 }
 export function RepositoriesProvider({
@@ -180,7 +158,7 @@ function Initialization({ error }: { error: string }) {
         backgroundColor: "#FAF7F1",
       }}
     >
-      <Text>{error || "Menyiapkan KosKu Owner…"}</Text>
+      <Text>{error || "Menyiapkan TuruId Owner…"}</Text>
     </View>
   );
 }

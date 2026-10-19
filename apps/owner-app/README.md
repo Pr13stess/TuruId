@@ -4,7 +4,7 @@ Aplikasi owner terpisah untuk spesifikasi **Aplikasi Pencarian Kos, revisi 2.0 (
 
 ## Mulai mencoba
 
-Prasyarat: Node.js **22.13+**, npm, dan Expo Go yang mendukung SDK 57 untuk mencoba UI demo. Panggilan Agora dan push asli membutuhkan **Expo Development Build**, bukan Expo Go.
+Prasyarat: Node.js **22.13+**, npm, dan Expo Go yang mendukung SDK 57 untuk mencoba aplikasi. Panggilan Agora dan push asli membutuhkan **Expo Development Build**, bukan Expo Go.
 
 ```sh
 npm ci
@@ -12,7 +12,7 @@ npm start
 # Tekan w untuk browser, atau pindai QR untuk perangkat.
 ```
 
-Tanpa konfigurasi `.env`, aplikasi langsung membuka dashboard demo. Perubahan kos, harga, inventory, pesan, dan status booking disimpan lokal dengan AsyncStorage. Data hanya contoh. Untuk mencoba onboarding owner tanpa properti, buka **Profil → Mulai demo owner baru**.
+Owner App wajib memakai konfigurasi Supabase. Tanpa sesi tersimpan, aplikasi membuka halaman login; setiap pengguna dapat masuk atau mendaftar dengan email sendiri. Akun demo lokal tidak lagi dipakai saat aplikasi dijalankan.
 
 ```sh
 npm run web
@@ -49,7 +49,7 @@ Owner tidak dapat mengubah ulasan, menyetujui verifikasi sendiri, membaca catata
 5. Deploy Edge Functions dan isi secret backend seperti dijelaskan di [SETUP-BACKEND.md](docs/SETUP-BACKEND.md).
 6. Hentikan dan mulai ulang Expo setelah mengubah `.env`.
 
-Provider memilih Supabase hanya jika URL **dan** key terisi. Konfigurasi separuh lengkap menampilkan error. Gangguan Supabase tidak diam-diam diganti data demo.
+Provider hanya memakai Supabase. URL **dan** public key wajib terisi; konfigurasi kosong atau tidak lengkap menampilkan pesan konfigurasi, bukan dashboard demo. Untuk APK EAS, pastikan `EXPO_PUBLIC_SUPABASE_URL` dan `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (atau anon key) tersedia pada environment build yang dipilih, lalu build ulang. Mengubah `.env` setelah APK dibuat tidak memperbarui APK tersebut. Fixture mock tetap tersedia untuk tes lokal.
 
 Saat pertama masuk, `owner_bootstrap` membuat profil dan mendaftarkan peran OWNER untuk akun itu sendiri. Tidak pernah menetapkan ADMIN atau status approved. Data nama/HP dari registrasi disalin ke profil; peran dan verifikasi tidak diambil dari metadata client.
 
