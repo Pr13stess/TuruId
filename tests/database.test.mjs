@@ -1,3 +1,4 @@
+import { storageFixture } from "./support/storageFixture.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
@@ -12,6 +13,7 @@ test("Migrations, seed, RLS isolation, aggregates and integrity", async (t) => {
    create table auth.users(id uuid primary key,email text);
    create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
    grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;`);
+    await storageFixture(db);
     for (const f of (await readdir("supabase/migrations")).sort())
       await db.exec(await readFile(`supabase/migrations/${f}`, "utf8"));
     await db.exec(await readFile("supabase/seed.sql", "utf8"));
@@ -22,7 +24,7 @@ test("Migrations, seed, RLS isolation, aggregates and integrity", async (t) => {
     };
     const rows = async (sql) => (await db.query(sql)).rows;
     await t.test(
-      "Every one of 36 tables has RLS and SELECT policy",
+      "Every one of 38 tables has RLS and SELECT policy",
       async () => {
         assert.equal(
           (
@@ -30,7 +32,7 @@ test("Migrations, seed, RLS isolation, aggregates and integrity", async (t) => {
               "select count(*)::int n from pg_tables where schemaname='public'",
             )
           )[0].n,
-          36,
+          38,
         );
         assert.deepEqual(
           await rows(await readFile("supabase/tests/rls_coverage.sql", "utf8")),

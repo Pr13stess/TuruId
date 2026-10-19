@@ -1,3 +1,4 @@
+import { storageFixture } from "./support/storageFixture.mjs";
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
@@ -41,6 +42,7 @@ test('reply SQL enforces ownership, approval, immutable retry and parent visibil
       create table auth.users(id uuid primary key,email text);
       create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
       grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;`);
+    await storageFixture(db);
     for (const file of (await readdir('supabase/migrations')).sort()) await db.exec(await readFile(`supabase/migrations/${file}`, 'utf8'));
     await db.exec(await readFile('supabase/seed.sql', 'utf8'));
     await q(`insert into public.bookings(id,booking_code,user_id,room_type_id,pricing_plan_id,status)

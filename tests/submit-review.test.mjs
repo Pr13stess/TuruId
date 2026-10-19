@@ -1,3 +1,4 @@
+import { storageFixture } from "./support/storageFixture.mjs";
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
@@ -61,6 +62,7 @@ test('review SQL validates eligibility, moderation and idempotent retry with rea
       create table auth.users(id uuid primary key,email text);
       create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
       grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;`);
+    await storageFixture(db);
     for (const file of (await readdir('supabase/migrations')).sort()) await db.exec(await readFile(`supabase/migrations/${file}`, 'utf8'));
     await db.exec(await readFile('supabase/seed.sql', 'utf8'));
     for (const [number, status] of [[9100, 'COMPLETED'], [9101, 'ACTIVE']]) await q(`insert into public.bookings
