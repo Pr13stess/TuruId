@@ -1,3 +1,5 @@
+> Pembaruan 19 Oktober 2026: SQL di bawah telah disetujui, diuji lokal, dan diterapkan ke DEV `fhapolumdqqewwhxnjcb` sebagai `20261019043019_property_video.sql`. Nama target dan status belum disetujui dalam naskah awal di bawah merupakan catatan historis. Lihat `PROPERTY-VIDEO-DEV.md` untuk hasil deploy dan batas uji.
+
 # SQL yang diajukan — BELUM DISETUJUI / BELUM DIJALANKAN
 
 Target setelah disetujui: file migrasi baru `supabase/migrations/202610110001_property_video.sql` (root adalah sumber kebenaran sesuai SPEC). Dokumen ini hanya proposal, bukan migrasi aktif. Tidak mengubah migrasi, policy, enum IMAGE, bucket owner-media, atau Function owner-upload lama.

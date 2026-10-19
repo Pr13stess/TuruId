@@ -1,3 +1,5 @@
+> Pembaruan 19 Oktober 2026: migrasi `20261018233349_owner_edit_property_and_submit.sql` telah diterapkan ke DEV dengan persetujuan pengguna, bersama dukungan video. RPC dan RLS telah diperiksa. Catatan ?belum diterapkan? di bawah adalah hasil tahap lokal sebelumnya. Lihat `PROPERTY-VIDEO-DEV.md`.
+
 # Edit kos dan pengajuan ulang
 
 19 Oktober 2026. Perubahan kode lokal; migrasi baru **belum diterapkan ke DEV**.
