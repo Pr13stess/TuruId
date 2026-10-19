@@ -41,7 +41,7 @@ function Video({ path, resolve, height }: { path: string; resolve: (path: string
     return () => { active = false; status.remove(); };
   }, [path, resolve, player, retry]);
   return <View style={{ height }}>
-    <VideoView player={player} nativeControls contentFit="contain" fullscreenOptions={{ enable: true }}
+    <VideoView player={player} nativeControls contentFit="contain" fullscreenOptions={{ enable: false }}
       style={{ width: "100%", height, backgroundColor: "#000" }} />
     {loading && !error && <View pointerEvents="none" style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, alignItems: "center", justifyContent: "center" }}><ActivityIndicator color="#fff" accessibilityLabel="Memuat preview video" /></View>}
     {!!error && <View style={{ position: "absolute", top: 20, left: 20, right: 20, padding: 12, backgroundColor: "#080808" }}>
