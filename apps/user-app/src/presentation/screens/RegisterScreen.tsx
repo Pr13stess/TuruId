@@ -1,3 +1,4 @@
+import { UserBrand } from "../components/UserBrand";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -62,6 +63,7 @@ export function RegisterScreen({ navigation }: ScreenProps<"Register">) {
         style={styles.flex}
       >
         <View style={styles.container}>
+          <UserBrand />
           <Text style={styles.title}>Buat akun TuruId</Text>
           <Text style={styles.subtitle}>
             Dipakai untuk menyimpan pilihan sewa dan riwayat booking.

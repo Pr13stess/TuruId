@@ -4,7 +4,7 @@
     "slug": "kosku",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/turuid-logo.png",
     "userInterfaceStyle": "light",
     "ios": {
       "infoPlist": {
@@ -27,7 +27,7 @@
       "package": "com.kosku.demo.user"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/turuid-logo.png"
     },
     "scheme": "kosku",
     "plugins": [

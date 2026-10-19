@@ -1,3 +1,4 @@
+import { UserBrand } from "../components/UserBrand";
 import { useCallback, useState } from "react";
 import {
   FlatList,
@@ -5,7 +6,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  Image,
   View,
 } from "react-native";
 import { FilterIcon, SortIcon, NotifIcon } from "../Icons/Icons";
@@ -50,12 +50,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
     <SafeAreaView edges={["top", "left", "right"]} style={styles.safe}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Image
-            source={require("../../../assets/LogoMain.png")}
-            style={styles.logoImage}
-            resizeMode="contain"
-            accessibilityLabel="TuruId"
-          />
+          <UserBrand />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Notifikasi"
@@ -238,7 +233,6 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
 }
 
 const styles = StyleSheet.create({
-  logoImage: { height: 40, width: 140 },
   safe: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1, width: "100%", maxWidth: 600, alignSelf: "center" },
   future: { fontSize: 14, lineHeight: 22, color: colors.muted },

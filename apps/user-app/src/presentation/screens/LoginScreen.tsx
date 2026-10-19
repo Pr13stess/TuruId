@@ -1,3 +1,4 @@
+import { UserBrand } from "../components/UserBrand";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -38,6 +39,7 @@ export function LoginScreen({ navigation }: ScreenProps<"Login">) {
         style={styles.flex}
       >
         <View style={styles.container}>
+          <UserBrand />
           <Text style={styles.title}>Masuk ke TuruId</Text>
           <Text style={styles.subtitle}>
             {mode === "mock"
