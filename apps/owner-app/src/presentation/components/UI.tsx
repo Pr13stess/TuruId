@@ -829,7 +829,7 @@ export function Page({
     </SafeAreaView>
   );
 }
-function Dock({
+export function Dock({
   active,
   role,
 }: {

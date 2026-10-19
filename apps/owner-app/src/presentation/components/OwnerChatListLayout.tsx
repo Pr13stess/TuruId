@@ -2,8 +2,7 @@ import { type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "../theme";
-import { OwnerNavBar } from "./OwnerNavBar";
-import { IconButton } from "./UI";
+import { Dock, IconButton } from "./UI";
 
 export function OwnerChatListLayout({ children, onHistory }: { children: ReactNode; onHistory: () => void }) {
   return <SafeAreaView style={s.root}>
@@ -15,7 +14,7 @@ export function OwnerChatListLayout({ children, onHistory }: { children: ReactNo
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.content}>
       {children}
     </ScrollView>
-    <OwnerNavBar active="ChatList" />
+    <Dock active="ChatList" role="owner" />
   </SafeAreaView>;
 }
 
