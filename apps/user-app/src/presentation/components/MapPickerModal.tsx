@@ -87,7 +87,7 @@ export function MapPickerModal({
         <View style={styles.mapWrap}>
           <WebView
             originWhitelist={["https://*", "about:*"]}
-            source={{ html, baseUrl: "https://kosku.demo/" }}
+            source={{ html, baseUrl: "https://turuid.demo/" }}
             onMessage={onMessage}
             javaScriptEnabled
             style={StyleSheet.absoluteFill}

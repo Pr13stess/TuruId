@@ -11,7 +11,7 @@ import type {
 export class MockProfileRepository implements ProfileRepository {
   private profile: Profile = {
     id: "mock-user",
-    email: "demo@kosku.test",
+    email: "demo@turuid.test",
     full_name: "Pengguna Demo",
     phone: "081234567890",
     campus_or_company: null,

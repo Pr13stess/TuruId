@@ -145,7 +145,7 @@ export function HomeScreen() {
   const d = q.data?.d;
   return (
     <Page
-      title="Turu.Id"
+      title="TuruId"
       brand
       tab="Home"
       back={false}

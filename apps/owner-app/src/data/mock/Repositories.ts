@@ -18,7 +18,7 @@ function required(v: string) {
 export class MockAuthRepository implements AuthRepository {
   private current: M.Session | null = {
     id: ownerId,
-    email: "owner@kosku.demo",
+    email: "owner@turuid.demo",
   };
   private listeners = new Set<(s: M.Session | null) => void>();
   async session() {

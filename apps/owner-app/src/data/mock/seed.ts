@@ -134,7 +134,7 @@ export function seed(): State {
       id: ownerId,
       full_name: "Chasan Myunda",
       phone: "081234567890",
-      email: "owner@kosku.demo",
+      email: "owner@turuid.demo",
       address: "Yogyakarta",
       verification_status: "APPROVED",
       push_enabled: false,

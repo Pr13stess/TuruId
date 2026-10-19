@@ -80,4 +80,4 @@ export const FAQ: LegalSection[] = [
 ];
 
 export const ABOUT_TEXT =
-  "KosKu adalah aplikasi pencarian kos untuk proyek kuliah. Semua data listing, akun, dan transaksi adalah data uji.";
+  "TuruId adalah aplikasi pencarian kos untuk proyek kuliah. Semua data listing, akun, dan transaksi adalah data uji.";

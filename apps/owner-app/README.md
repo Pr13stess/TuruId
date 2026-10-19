@@ -1,6 +1,6 @@
-# KosKu Owner
+# TuruId Owner
 
-Aplikasi owner terpisah untuk spesifikasi **Aplikasi Pencarian Kos, revisi 2.0 (22 September 2026)**. Tampilan memakai warna navy, oranye, krem, kartu putih, dan navigasi bawah mengambang sesuai referensi owner serta aplikasi KosKu sebelumnya.
+Aplikasi owner terpisah untuk spesifikasi **Aplikasi Pencarian Kos, revisi 2.0 (22 September 2026)**. Tampilan memakai warna navy, oranye, krem, kartu putih, dan navigasi bawah mengambang sesuai referensi owner serta aplikasi TuruId sebelumnya.
 
 ## Mulai mencoba
 
@@ -44,7 +44,7 @@ Owner tidak dapat mengubah ulasan, menyetujui verifikasi sendiri, membaca catata
 
 1. Salin `.env.example` menjadi `.env`, isi URL dan publishable key (anon key lama juga didukung). Jangan memasukkan service role ke aplikasi.
 2. **Database baru:** jalankan tiga file `supabase/base/*.sql` berurutan, lalu semua `supabase/migrations/*.sql` berurutan, melalui SQL Editor.
-3. **Database KosKu sebelumnya:** schema dasar yang sama sudah ada; jalankan **hanya** empat file incremental di `supabase/migrations`. Jangan menjalankan ulang `base`.
+3. **Database TuruId sebelumnya:** schema dasar yang sama sudah ada; jalankan **hanya** empat file incremental di `supabase/migrations`. Jangan menjalankan ulang `base`.
 4. Aktifkan Email Auth dan konfirmasi email. Tambahkan redirect URL `kosku-owner://auth` dan `kosku-owner://reset` pada Auth URL Configuration. Gunakan development build agar deep link aplikasi terdaftar pada OS.
 5. Deploy Edge Functions dan isi secret backend seperti dijelaskan di [SETUP-BACKEND.md](docs/SETUP-BACKEND.md).
 6. Hentikan dan mulai ulang Expo setelah mengubah `.env`.

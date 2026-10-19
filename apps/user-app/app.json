@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "KosKu",
+    "name": "TuruId",
     "slug": "kosku",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -40,7 +40,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "KosKu memakai lokasimu hanya untuk menghitung jarak ke kos. Lokasi tidak disimpan."
+          "locationWhenInUsePermission": "TuruId memakai lokasimu hanya untuk menghitung jarak ke kos. Lokasi tidak disimpan."
         }
       ]
     ],

@@ -54,7 +54,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
             source={require("../../../assets/LogoMain.png")}
             style={styles.logoImage}
             resizeMode="contain"
-            accessibilityLabel="KosKu"
+            accessibilityLabel="TuruId"
           />
           <Pressable
             accessibilityRole="button"

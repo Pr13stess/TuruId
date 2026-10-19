@@ -62,7 +62,7 @@ export function RegisterScreen({ navigation }: ScreenProps<"Register">) {
         style={styles.flex}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Buat akun KosKu</Text>
+          <Text style={styles.title}>Buat akun TuruId</Text>
           <Text style={styles.subtitle}>
             Dipakai untuk menyimpan pilihan sewa dan riwayat booking.
           </Text>
