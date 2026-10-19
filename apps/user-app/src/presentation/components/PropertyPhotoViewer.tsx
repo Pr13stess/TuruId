@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { initialPhoto } from "../../domain/chatGallery";
-import { photoGesture } from "../../domain/chatGesture";
+import { propertyPhotoZoom } from "../../domain/propertyPhotoZoom";
 import { PropertyImage } from "./PropertyImage";
 import { PropertyVideo } from "./PropertyVideo";
 import { propertyGallery } from "../../domain/propertyGallery";
@@ -16,61 +16,73 @@ export function PropertyPhotoViewer({ photos, video, resolveVideo, initialIndex,
   const [index, setIndex] = useState(() => initialPhoto(items, initialId ?? ""));
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const previous = () => setIndex(i => Math.max(0, i - 1));
-  const next = () => setIndex(i => Math.min(items.length - 1, i + 1));
-  const item = items[index];
+  const pager = useRef<ScrollView>(null);
+  const [zoomed, setZoomed] = useState(false);
+  const pageHeight = Math.max(1, height - insets.top - insets.bottom - 120);
+  const go = (i: number) => {
+    setZoomed(false);
+    pager.current?.scrollTo({ x: Math.max(0, Math.min(items.length - 1, i)) * width, y: 0, animated: true });
+  };
+  const previous = () => go(index - 1);
+  const next = () => go(index + 1);
   return <Modal visible animationType="fade" onRequestClose={onClose} statusBarTranslucent presentationStyle="overFullScreen">
     <View style={styles.root} accessibilityViewIsModal>
-      {item?.kind === "video" && resolveVideo && <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}
-        style={{ flexGrow: 0, width, height: Math.max(1, height - insets.top - insets.bottom - 120) }}
-        onMomentumScrollEnd={event => { if (event.nativeEvent.contentOffset.x > width / 2) next(); }}>
-        <View style={{ width }}><PropertyVideo path={item.path} resolve={resolveVideo} height={Math.max(1, height - insets.top - insets.bottom - 120)} /></View>
-        {items[1] && <PropertyImage uri={items[1].path} resizeMode="contain" style={{ width, height: Math.max(1, height - insets.top - insets.bottom - 120) }} />}
-      </ScrollView>}
-      {item?.kind === "photo" && <ZoomPhoto key={`${item.id}:${width}:${height}`} item={item} width={width} height={Math.max(1, height - insets.top - insets.bottom - 120)}
-        onPrevious={previous} onNext={next} onClose={onClose} />}
+      <ScrollView key={width} ref={pager} horizontal pagingEnabled directionalLockEnabled
+        bounces={false} alwaysBounceVertical={false} alwaysBounceHorizontal={false} overScrollMode="never"
+        showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
+        scrollEnabled={!zoomed} contentOffset={{ x: index * width, y: 0 }}
+        style={{ flexGrow: 0, width, height: pageHeight }}
+        onMomentumScrollEnd={event => {
+          setIndex(Math.max(0, Math.min(items.length - 1, Math.round(event.nativeEvent.contentOffset.x / width))));
+          setZoomed(false);
+        }}>
+        {items.map((item, i) => <View key={item.id} style={{ width, height: pageHeight, overflow: "hidden" }}>
+          {item.kind === "video" && resolveVideo
+            ? <PropertyVideo path={item.path} resolve={resolveVideo} height={pageHeight} enabled={index === i} />
+            : <ZoomPhoto key={`${item.id}:${index}:${width}:${height}`} item={item} width={width} height={pageHeight} onZoom={setZoomed} />}
+        </View>)}
+      </ScrollView>
       <View style={[styles.top, { top: insets.top + 8 }]}>
         <Text accessibilityLiveRegion="polite" style={styles.text}>{items.length ? index + 1 : 0}/{items.length}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Tutup galeri" onPress={onClose} style={styles.button}><Text style={styles.text}>✕</Text></Pressable>
       </View>
       <View style={[styles.bottom, { bottom: insets.bottom + 8 }]}>
         <Pressable accessibilityRole="button" accessibilityLabel="Media sebelumnya" disabled={index === 0} onPress={previous} style={[styles.button, index === 0 && styles.disabled]}><Text style={styles.text}>‹</Text></Pressable>
-        <Text style={styles.hint}>Cubit untuk zoom · Geser ke bawah untuk tutup</Text>
+        <Text style={styles.hint}>Geser kiri/kanan · Cubit untuk zoom</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Media berikutnya" disabled={index >= items.length - 1} onPress={next} style={[styles.button, index >= items.length - 1 && styles.disabled]}><Text style={styles.text}>›</Text></Pressable>
       </View>
     </View>
   </Modal>;
 }
 
-function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item: { id: string; path: string }; width: number; height: number; onPrevious: () => void; onNext: () => void; onClose: () => void }) {
+function ZoomPhoto({ item, width, height, onZoom }: {
+  item: { id: string; path: string }; width: number; height: number; onZoom: (value: boolean) => void;
+}) {
   const [scale] = useState(() => new Animated.Value(1));
-  const [pan] = useState(() => new Animated.ValueXY());
+  const [panX] = useState(() => new Animated.Value(0));
   const [responder] = useState(() => {
-    const gesture = photoGesture(width, height, frame => {
-      scale.setValue(frame.scale);
-      pan.setValue({ x: frame.x, y: frame.y });
-    }, action => {
-      if (action === "next") onNext();
-      else if (action === "previous") onPrevious();
-      else onClose();
+    let magnified = false;
+    const gesture = propertyPhotoZoom(width, (value, x) => {
+      scale.setValue(value); panX.setValue(x);
+      magnified = value > 1.01;
+      onZoom(magnified);
     });
     return PanResponder.create({
-      // Own the touch stream from the first finger, including touches over the image.
-      onStartShouldSetPanResponder: () => true,
-      onStartShouldSetPanResponderCapture: () => true,
-      onMoveShouldSetPanResponderCapture: () => true,
+      // Single-finger swipes at normal size belong to the paging ScrollView.
+      onStartShouldSetPanResponder: e => e.nativeEvent.touches.length >= 2 || magnified,
+      onMoveShouldSetPanResponder: e => e.nativeEvent.touches.length >= 2 || magnified,
+      onMoveShouldSetPanResponderCapture: e => e.nativeEvent.touches.length >= 2 || magnified,
       onPanResponderTerminationRequest: () => false,
-      onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: e => gesture.begin(e.nativeEvent.touches),
       onPanResponderStart: e => gesture.move(e.nativeEvent.touches),
       onPanResponderMove: e => gesture.move(e.nativeEvent.touches),
       onPanResponderEnd: e => gesture.move(e.nativeEvent.touches),
       onPanResponderRelease: () => gesture.end(),
-      onPanResponderTerminate: () => gesture.end(true),
+      onPanResponderTerminate: () => gesture.end(),
     });
   });
-  return <View collapsable={false} style={{ width, height, overflow: "hidden", backgroundColor: "#080808" }} {...responder.panHandlers}>
-    <Animated.View pointerEvents="none" style={{ transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale }] }}>
+  return <View collapsable={false} style={{ width, height, overflow: "hidden" }} {...responder.panHandlers}>
+    <Animated.View pointerEvents="none" style={{ transform: [{ translateX: panX }, { scale }] }}>
       <PropertyImage uri={item.path} style={{ width, height }} resizeMode="contain" />
     </Animated.View>
   </View>;
