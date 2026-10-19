@@ -100,7 +100,7 @@ export function RootNavigator() {
               options={{ title: "Checkout" }}
             />
             <Stack.Screen name="BookingDetail" component={BookingDetailScreen} options={{ title: "Detail booking" }} />
-            <Stack.Screen name="VoiceCall" component={VoiceCallScreen} options={{ title: 'Panggilan suara' }} />
+            <Stack.Screen name="VoiceCall" component={VoiceCallScreen} options={{ headerShown: false }} />
             <Stack.Screen
               name="Chat"
               component={ChatScreen}

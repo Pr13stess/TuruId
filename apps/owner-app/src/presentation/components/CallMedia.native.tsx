@@ -6,6 +6,7 @@ import { Button, C, Card, Feedback, Row, T } from "./UI";
 import { CallMediaProps } from "./CallMedia.types";
 import { radius } from "../theme";
 import { loadAgora } from './loadAgora.native';
+import { CallButton, CallControls } from './CallUi';
 export default function CallMedia({ callId, video, onError }: CallMediaProps) {
   const { communication } = useRepositories();
   const engine = useRef<IRtcEngine | null>(null);
@@ -132,6 +133,18 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
       engine.current = null;
     };
   }, [communication, callId, video, onError]);
+  if (!video) return <View style={{ gap: 16 }}>
+    <T muted style={{ textAlign: 'center' }}>{joined ? remote ? 'Suara terhubung' : 'Menunggu audio lawan bicara…' : 'Menghubungkan audio…'}</T>
+    <CallControls>
+      <CallButton icon={muted ? 'mic-off' : 'mic'} label={muted ? 'Aktifkan mic' : 'Bisukan'} selected={muted} disabled={!joined || !!error} onPress={() => {
+        engine.current?.muteLocalAudioStream(!muted); setMuted(!muted);
+      }} />
+      <CallButton icon={speaker ? 'volume-high' : 'ear'} label="Speaker" selected={speaker} disabled={!joined || !!error} onPress={() => {
+        engine.current?.setEnableSpeakerphone(!speaker); setSpeaker(!speaker);
+      }} />
+    </CallControls>
+    <Feedback text={error} error />
+  </View>;
   return (
     <>
       <View

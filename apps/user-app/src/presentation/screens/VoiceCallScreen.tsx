@@ -1,23 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, ScrollView, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppState } from 'react-native';
 import type { ScreenProps } from '../../navigation/types';
 import { useRepositories } from '../../providers/RepositoryProvider';
 import { activeCall, callLabel, type CallAction } from '../../domain/repositories/CallRepository';
 import { useAuthSession } from '../hooks/useAuthSession';
 import { useVoiceCalls } from '../hooks/useVoiceCalls';
-import { Button } from '../components/Primitives';
+import { CallButton, CallControls, CallLayout, CallNotice } from '../components/CallUi';
 import VoiceMedia from '../components/VoiceMedia';
-import { colors } from '../theme';
 
 export function VoiceCallScreen(props: ScreenProps<'VoiceCall'>) {
   return <VoiceCallContent key={props.route.params.id} {...props} />;
 }
 function VoiceCallContent({ route, navigation }: ScreenProps<'VoiceCall'>) {
-  const { calls } = useRepositories();
+  const { calls, chat } = useRepositories();
   const { session } = useAuthSession();
   const { data, error: loadError, refresh } = useVoiceCalls();
   const call = data?.find(c => c.id === route.params.id);
+  const [contact, setContact] = useState('Pemilik kos');
+  useEffect(() => {
+    let active = true;
+    if (call?.conversation_id) void chat.listConversations().then(rows => {
+      const match = rows.find(c => c.id === call.conversation_id);
+      if (active && match) setContact(match.property_name);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [chat, call?.conversation_id]);
   const [error, setError] = useState('');
   const [mediaError, setMediaError] = useState('');
   const [backgroundEnded, setBackgroundEnded] = useState(false);
@@ -62,19 +69,18 @@ function VoiceCallContent({ route, navigation }: ScreenProps<'VoiceCall'>) {
     });
     return () => sub.remove();
   }, [calls, id, refresh]);
-  return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
-    <ScrollView contentContainerStyle={{ padding: 24, gap: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: '700', color: colors.primary }}>Panggilan suara</Text>
-      <Text accessibilityLiveRegion="polite">{backgroundEnded ? 'Panggilan dihentikan saat aplikasi masuk latar belakang.' : call ? callLabel[call.status] : data ? 'Panggilan tidak ditemukan.' : 'Memuat panggilan…'}</Text>
-      {!!loadError && <><Text accessibilityRole="alert">{loadError}</Text><Button title="Muat ulang" secondary onPress={refresh} /></>}
+  const incoming = call?.status === 'RINGING' && call.receiver_id === session?.user.id && !backgroundEnded;
+  return <CallLayout name={contact} onBack={() => navigation.goBack()} status={backgroundEnded ? 'Panggilan dihentikan saat aplikasi masuk latar belakang.' : incoming ? 'Panggilan suara masuk' : call ? callLabel[call.status] : data ? 'Panggilan tidak ditemukan.' : 'Memuat panggilan…'}>
+      {!!loadError && <><CallNotice>{loadError}</CallNotice><CallControls><CallButton icon="refresh" label="Muat ulang" onPress={refresh} /></CallControls></>}
       {call?.status === 'CONNECTED' && call.call_type === 'VOICE' && !mediaError && !backgroundEnded && <VoiceMedia callId={id} onError={mediaFailed} />}
-      {call?.status === 'RINGING' && call.receiver_id === session?.user.id && !backgroundEnded && <>
-        <Button title="Terima panggilan" disabled={busy} onPress={() => { void act('accept'); }} />
-        <Button title="Tolak" secondary disabled={busy} onPress={() => { void act('decline'); }} />
-      </>}
-      {call && activeCall(call.status) && <Button title={call.status === 'RINGING' ? 'Batalkan panggilan' : 'Akhiri panggilan'} disabled={busy} onPress={() => { void act('end'); }} />}
-      {!!(error || mediaError) && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{mediaError || error}</Text>}
-      <Text style={{ color: colors.muted }}>Panggilan tidak direkam. Untuk tahap ini, kedua aplikasi harus tetap terbuka.</Text>
-    </ScrollView>
-  </SafeAreaView>;
+      <CallControls>
+        {incoming ? <>
+          <CallButton icon="call" label="Tolak" tone="end" disabled={busy} onPress={() => { void act('decline'); }} />
+          <CallButton icon="call" label="Terima" tone="accept" disabled={busy} onPress={() => { void act('accept'); }} />
+        </> : call && activeCall(call.status) && !backgroundEnded
+          ? <CallButton icon="call" label={call.status === 'RINGING' ? 'Batalkan' : 'Akhiri'} tone="end" disabled={busy} onPress={() => { void act('end'); }} />
+          : <CallButton icon="close" label="Tutup" onPress={() => navigation.goBack()} />}
+      </CallControls>
+      {!!(error || mediaError) && <CallNotice>{mediaError || error}</CallNotice>}
+  </CallLayout>;
 }

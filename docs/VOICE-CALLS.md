@@ -6,6 +6,8 @@ Pembaruan setelah laporan perangkat: error `react-native-agora doesn't seem to b
 
 ## Cakupan
 
+Pembaruan UI: layar panggilan User dan Owner memakai susunan kontak terpusat, avatar inisial besar, status, dan panel kontrol bulat di bawah, terinspirasi susunan panggilan WhatsApp. Warna tetap TuruId (navy User, oranye Owner). Tombol terima hijau, tolak/akhiri merah, mikrofon dan speaker memakai ikon vektor dengan penanda aktif. Identitas ditampilkan dari percakapan yang sudah dapat diakses, dengan fallback bila gagal dimuat. UI tidak mengklaim enkripsi atau audio berjalan di Expo Go. Typecheck/lint kedua aplikasi dan 8 tes voice lulus; belum ditinjau pada perangkat nyata.
+
 - User dapat memulai panggilan suara dari detail kos dan header chat. Owner dari header chat.
 - Kedua aplikasi menampilkan banner panggilan suara masuk saat terbuka, dengan polling sekitar 3 detik. Buka banner untuk menerima atau menolak.
 - Layar panggilan menyediakan batal/akhiri, mikrofon, speaker/earpiece, status, dan pesan gagal.

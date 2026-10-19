@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PermissionsAndroid, Platform, Text, View } from 'react-native';
 import { useRepositories } from '../../providers/RepositoryProvider';
 import { voiceSession } from '../../domain/voiceSession';
-import { Button } from './Primitives';
+import { CallButton, CallControls } from './CallUi';
 import { colors } from '../theme';
 import type { VoiceMediaProps } from './VoiceMedia.types';
 import { loadAgora } from './loadAgora.native';
@@ -30,11 +30,11 @@ export default function VoiceMedia({ callId, onError }: VoiceMediaProps) {
   }, [calls, callId, onError]);
   return <View style={{ gap: 16 }}>
     <Text accessibilityLiveRegion="polite" style={{ textAlign: 'center', color: colors.primary }}>{status}</Text>
-    <Button title={muted ? 'Aktifkan mikrofon' : 'Matikan mikrofon'} secondary onPress={() => {
+    <CallControls><CallButton icon={muted ? 'mic-off' : 'mic'} label={muted ? 'Aktifkan mic' : 'Bisukan'} selected={muted} onPress={() => {
       if (session.current?.mute(!muted)) setMuted(!muted);
     }} />
-    <Button title={speaker ? 'Gunakan earpiece' : 'Gunakan speaker'} secondary onPress={() => {
+    <CallButton icon={speaker ? 'volume-high' : 'ear'} label="Speaker" selected={speaker} onPress={() => {
       if (session.current?.speaker(!speaker)) setSpeaker(!speaker);
-    }} />
+    }} /></CallControls>
   </View>;
 }
