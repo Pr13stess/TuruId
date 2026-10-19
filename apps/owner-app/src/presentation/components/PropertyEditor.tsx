@@ -5,6 +5,8 @@ import { Property, PropertyInput, Review, Room } from "../../domain/models";
 import { useAction } from "../hooks";
 import { usePropertyEdit } from "../usePropertyEdit";
 import { PropertyGalleryEditor } from "./PropertyGalleryEditor";
+import { PropertyLocationPicker } from "./PropertyLocationPicker";
+import { mapPoint } from "../../domain/propertyLocation";
 import { Icon } from "./Icon";
 import { RoomsInlinePanel } from "./RoomsInlinePanel";
 import { ReviewReplyForm } from "./ReviewReplyForm";
@@ -30,6 +32,8 @@ const profileValues = (p: PropertyInput) => ({
   address: p.address,
   city: p.city,
   province: p.province,
+  latitude: p.latitude,
+  longitude: p.longitude,
   gender_type: p.gender_type,
   description: p.description,
 });
@@ -48,6 +52,8 @@ export function PropertyEditor({
   const edit = usePropertyEdit();
   const [tab, setTab] = useState<Tab>("profile");
   const [draft, setDraft] = useState<PropertyInput>(property);
+  const [pickingLocation, setPickingLocation] = useState(false);
+  const location = mapPoint(draft);
   const [facility, setFacility] = useState("");
   const [photoBusy, setPhotoBusy] = useState(false);
   const [galleryPending, setGalleryPending] = useState(false);
@@ -139,6 +145,16 @@ export function PropertyEditor({
   };
   return (
     <View style={{ gap: 20 }}>
+      {pickingLocation && (
+        <PropertyLocationPicker
+          initial={location}
+          onClose={() => setPickingLocation(false)}
+          onConfirm={(point) => {
+            setDraft((current) => ({ ...current, ...point }));
+            setPickingLocation(false);
+          }}
+        />
+      )}
       <Segments
         scrollable
         value={tab}
@@ -182,6 +198,23 @@ export function PropertyEditor({
               onChange={(v) => set("province", v)}
               disabled={busy}
             />
+            <Card>
+              <T style={{ fontWeight: "700" }}>Titik lokasi kos</T>
+              <T muted style={{ fontSize: 12 }}>
+                {location
+                  ? "Sesuaikan pin agar lokasi kos di peta lebih akurat."
+                  : "Pilih titik lokasi kos di peta."}
+              </T>
+              <Button
+                title={location ? "Perbaiki titik lokasi" : "Pilih titik lokasi"}
+                secondary
+                disabled={busy}
+                onPress={() => setPickingLocation(true)}
+              />
+              <T muted style={{ fontSize: 11 }}>
+                Titik baru diterapkan setelah menekan Simpan perubahan.
+              </T>
+            </Card>
             <Choices
               label="Tipe kos"
               value={draft.gender_type}
