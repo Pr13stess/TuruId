@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, View, useWindowDimensions } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { propertyGallery } from "../../domain/propertyGallery";
+import { colors } from "../theme";
 import { PropertyImage } from "./PropertyImage";
 import { PropertyVideo } from "./PropertyVideo";
 import { PropertyPhotoViewer } from "./PropertyPhotoViewer";
@@ -27,11 +28,12 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
           </Pressable>}
       </View>)}
     </ScrollView>
-    {items.length > 1 && <View accessible accessibilityRole="text"
+    {items.length > 1 && <View accessible accessibilityRole="text" pointerEvents="none"
       accessibilityLabel={`Media ${index + 1} dari ${items.length}`} accessibilityLiveRegion="polite"
-      style={{ height: 22, backgroundColor: "#080808", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}>
-      {items.map((item, i) => <View key={item.id} style={{ width: 5, height: 5, borderRadius: 3,
-        backgroundColor: index === i ? "#8B8FF5" : "#55555C" }} />)}
+      style={{ position: "absolute", bottom: 12, left: 0, right: 0, flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}>
+      {items.map((item, i) => <View key={item.id} style={{ width: 6, height: 6, borderRadius: 3,
+        borderWidth: 0.5, borderColor: colors.primary,
+        backgroundColor: index === i ? colors.orange : colors.surface }} />)}
     </View>}
     <Pressable accessibilityRole="button" accessibilityLabel="Buka galeri layar penuh" onPress={() => setFullscreen(true)}
       style={{ position: "absolute", top: 10, right: 10, width: 44, height: 44, borderRadius: 22, backgroundColor: "#08080888", alignItems: "center", justifyContent: "center" }}>
