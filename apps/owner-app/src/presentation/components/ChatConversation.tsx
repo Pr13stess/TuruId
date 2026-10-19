@@ -1,3 +1,4 @@
+import { CallEventCard } from "./CallEventCard";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -100,7 +101,7 @@ export function ChatConversation(p: Props) {
           const previous = index ? new Date(groups[index - 1][0].created_at).toLocaleDateString("id-ID") : "";
           return <View>
             {day !== previous && <View style={styles.dateWrap}><Text style={styles.dateChip}>{new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</Text></View>}
-            {m.message_type === "CALL_EVENT" ? <Text style={styles.empty}>{m.text_content}</Text> : <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
+            {m.message_type === "CALL_EVENT" ? <CallEventCard text={m.text_content} mine={mine} time={new Date(m.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} /> : <View style={[styles.bubbleRow, mine && { justifyContent: "flex-end" }]}>
               <View style={[styles.bubble, mine && styles.bubbleMine, m.message_type === "IMAGE" && { width: 220 }]}>
                 {m.message_type === "IMAGE" ? <ChatImageCollage items={galleryImages(group)} onOpen={id => setViewer({ items: galleryImages(group), initialId: id })} /> : <Text style={[styles.bubbleText, mine && { color: colors.surface }]}>{m.text_content}</Text>}
                 {m.message_type === "IMAGE" && group.filter(item => !!item.text_content).map(item =>

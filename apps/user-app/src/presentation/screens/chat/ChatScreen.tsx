@@ -1,3 +1,4 @@
+import { CallEventCard } from "../../components/CallEventCard";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -346,6 +347,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
 }
 
 function Bubble({ item, group, mine, read, onImagePress }: { item: Message; group: Message[]; mine: boolean; read: boolean; onImagePress: (id: string) => void }) {
+  if (item.message_type === "CALL_EVENT") return <CallEventCard text={item.text_content} mine={mine} time={timeLabel(item.created_at)} />;
   return (
     <View style={[styles.bubbleRow, mine && styles.bubbleRowMine]}>
       <View style={[styles.bubble, mine && styles.bubbleMine]}>
@@ -360,7 +362,7 @@ function Bubble({ item, group, mine, read, onImagePress }: { item: Message; grou
         <Text style={[styles.bubbleTime, mine && styles.bubbleTimeMine]}>
           {timeLabel(item.created_at)}
         </Text>
-        {mine && item.message_type !== "CALL_EVENT" && <MessageReceipt read={read} sentColor={colors.selected} />}
+        {mine && <MessageReceipt read={read} sentColor={colors.selected} />}
         </View>
       </View>
     </View>
