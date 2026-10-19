@@ -158,7 +158,7 @@ function Initialization({ error }: { error: string }) {
         backgroundColor: "#FAF7F1",
       }}
     >
-      <Text>{error || "Menyiapkan TuruId Owner…"}</Text>
+      <Text>{error || "Menyiapkan Turu.Id Owner…"}</Text>
     </View>
   );
 }

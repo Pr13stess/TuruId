@@ -2,9 +2,9 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme";
 
 export function OwnerBrand() {
-  return <View style={styles.brand} accessible accessibilityLabel="TuruId Owner">
+  return <View style={styles.brand} accessible accessibilityLabel="Turu.Id Owner">
     <Image source={require("../../../assets/owner-logo.png")} resizeMode="contain" style={styles.logo} />
-    <Text style={styles.name}>TuruId</Text>
+    <Text style={styles.name}>Turu.Id</Text>
   </View>;
 }
 

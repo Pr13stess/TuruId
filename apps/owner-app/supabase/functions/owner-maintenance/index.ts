@@ -23,7 +23,7 @@ Deno.serve((req) =>
           body: JSON.stringify({
             to: item.token,
             title: item.title,
-            body: "Buka TuruId untuk melihat pembaruan.",
+            body: "Buka Turu.Id untuk melihat pembaruan.",
             sound: "default",
             data: { target_type: item.target_type, target_id: item.target_id },
             ttl: 60,

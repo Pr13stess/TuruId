@@ -610,7 +610,7 @@ export function PolicyScreen({ route }: Props<"Policy">) {
             ]
           : [
               [
-                "Tentang TuruId Owner",
+                "Tentang Turu.Id Owner",
                 "Aplikasi pengelolaan kos untuk proyek kuliah. Pemilik dapat mengelola kos, kamar, harga, booking, chat, dan survei melalui panggilan.",
               ],
               [

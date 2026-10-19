@@ -64,7 +64,7 @@ export function RegisterScreen({ navigation }: ScreenProps<"Register">) {
       >
         <View style={styles.container}>
           <UserBrand />
-          <Text style={styles.title}>Buat akun TuruId</Text>
+          <Text style={styles.title}>Buat akun Turu.Id</Text>
           <Text style={styles.subtitle}>
             Dipakai untuk menyimpan pilihan sewa dan riwayat booking.
           </Text>

@@ -6,7 +6,7 @@ import { listPublicReviews } from '../apps/user-app/src/data/supabase/publicRevi
 
 test('share includes actual name/address and only a valid map location, not a fabricated listing URL', () => {
   const p = { name: 'Kos A', address: 'Jalan A', latitude: 0, longitude: 0 };
-  assert.match(propertyShareText(p), /Kos A — TuruId\nJalan A/);
+  assert.match(propertyShareText(p), /Kos A — Turu\.Id\nJalan A/);
   assert.match(propertyShareText(p), /mlat=0&mlon=0/);
   for (const latitude of [null, NaN, 91]) assert.doesNotMatch(propertyShareText({ ...p, latitude }), /https:/);
 });

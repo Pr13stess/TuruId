@@ -215,7 +215,7 @@ export function SettingsScreen() {
                   const Notifications = await import("expo-notifications");
                   if (Platform.OS === "android")
                     await Notifications.setNotificationChannelAsync("default", {
-                      name: "Aktivitas TuruId",
+                      name: "Aktivitas Turu.Id",
                       importance: Notifications.AndroidImportance.HIGH,
                     });
                   const p = await Notifications.requestPermissionsAsync();

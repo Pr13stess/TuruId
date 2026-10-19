@@ -3,13 +3,13 @@ import { colors } from "../theme";
 
 export function UserBrand() {
   return (
-    <View style={styles.brand} accessible accessibilityLabel="TuruId">
+    <View style={styles.brand} accessible accessibilityLabel="Turu.Id">
       <Image
         source={require("../../../assets/turuid-logo.png")}
         resizeMode="contain"
         style={styles.logo}
       />
-      <Text style={styles.name}>TuruId</Text>
+      <Text style={styles.name}>Turu.Id</Text>
     </View>
   );
 }

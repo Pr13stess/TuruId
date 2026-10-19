@@ -12,7 +12,7 @@ export function InfoScreen({ route }: ScreenProps<"Info">) {
     >
       {about ? (
         <>
-          <Text style={s.title}>Tentang TuruId</Text>
+          <Text style={s.title}>Tentang Turu.Id</Text>
           <Text style={s.body}>{ABOUT_TEXT}</Text>
         </>
       ) : (

@@ -33,7 +33,7 @@ export function CallLayout({ name, status, onBack, children, video = false }: {
       <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Kembali dan tutup panggilan" style={s.back}>
         <Ionicons name="chevron-back" size={26} color={colors.primary} />
       </Pressable>
-      <Text style={s.brand}>TuruId</Text>
+      <Text style={s.brand}>Turu.Id</Text>
       <View style={s.back} />
     </View>
     <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>

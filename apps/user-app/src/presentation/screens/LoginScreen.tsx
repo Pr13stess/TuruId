@@ -40,7 +40,7 @@ export function LoginScreen({ navigation }: ScreenProps<"Login">) {
       >
         <View style={styles.container}>
           <UserBrand />
-          <Text style={styles.title}>Masuk ke TuruId</Text>
+          <Text style={styles.title}>Masuk ke Turu.Id</Text>
           <Text style={styles.subtitle}>
             {mode === "mock"
               ? "Mode demo: daftar akun baru dulu jika belum punya, data tidak tersimpan permanen."
