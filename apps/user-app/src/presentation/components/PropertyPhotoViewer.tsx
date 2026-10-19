@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { Animated, Modal, PanResponder, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { initialPhoto } from "../../domain/chatGallery";
 import { photoGesture } from "../../domain/chatGesture";
 import { PropertyImage } from "./PropertyImage";
+import { PropertyVideo } from "./PropertyVideo";
+import { propertyGallery } from "../../domain/propertyGallery";
 
-export function PropertyPhotoViewer({ photos, initialIndex, onClose }: { photos: string[]; initialIndex: number; onClose: () => void }) {
-  const items = photos.map((path, index) => ({ id: String(index), path }));
-  const initialId = String(initialIndex);
-  const [index, setIndex] = useState(() => initialPhoto(items, initialId));
+export function PropertyPhotoViewer({ photos, video, resolveVideo, initialIndex, onClose }: {
+  photos: string[]; video?: string; resolveVideo?: (path: string) => Promise<string>;
+  initialIndex: number; onClose: () => void;
+}) {
+  const items = propertyGallery(photos, video);
+  const initialId = items[initialIndex]?.id ?? items[0]?.id;
+  const [index, setIndex] = useState(() => initialPhoto(items, initialId ?? ""));
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const previous = () => setIndex(i => Math.max(0, i - 1));
@@ -16,16 +21,22 @@ export function PropertyPhotoViewer({ photos, initialIndex, onClose }: { photos:
   const item = items[index];
   return <Modal visible animationType="fade" onRequestClose={onClose} statusBarTranslucent presentationStyle="overFullScreen">
     <View style={styles.root} accessibilityViewIsModal>
-      {item && <ZoomPhoto key={`${item.id}:${width}:${height}`} item={item} width={width} height={Math.max(1, height - insets.top - insets.bottom - 120)}
+      {item?.kind === "video" && resolveVideo && <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+        style={{ flexGrow: 0, width, height: Math.max(1, height - insets.top - insets.bottom - 120) }}
+        onMomentumScrollEnd={event => { if (event.nativeEvent.contentOffset.x > width / 2) next(); }}>
+        <View style={{ width }}><PropertyVideo path={item.path} resolve={resolveVideo} height={Math.max(1, height - insets.top - insets.bottom - 120)} /></View>
+        {items[1] && <PropertyImage uri={items[1].path} resizeMode="contain" style={{ width, height: Math.max(1, height - insets.top - insets.bottom - 120) }} />}
+      </ScrollView>}
+      {item?.kind === "photo" && <ZoomPhoto key={`${item.id}:${width}:${height}`} item={item} width={width} height={Math.max(1, height - insets.top - insets.bottom - 120)}
         onPrevious={previous} onNext={next} onClose={onClose} />}
       <View style={[styles.top, { top: insets.top + 8 }]}>
         <Text accessibilityLiveRegion="polite" style={styles.text}>{items.length ? index + 1 : 0}/{items.length}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Tutup gambar" onPress={onClose} style={styles.button}><Text style={styles.text}>✕</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Tutup galeri" onPress={onClose} style={styles.button}><Text style={styles.text}>✕</Text></Pressable>
       </View>
       <View style={[styles.bottom, { bottom: insets.bottom + 8 }]}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Gambar sebelumnya" disabled={index === 0} onPress={previous} style={[styles.button, index === 0 && styles.disabled]}><Text style={styles.text}>‹</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Media sebelumnya" disabled={index === 0} onPress={previous} style={[styles.button, index === 0 && styles.disabled]}><Text style={styles.text}>‹</Text></Pressable>
         <Text style={styles.hint}>Cubit untuk zoom · Geser ke bawah untuk tutup</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Gambar berikutnya" disabled={index >= items.length - 1} onPress={next} style={[styles.button, index >= items.length - 1 && styles.disabled]}><Text style={styles.text}>›</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Media berikutnya" disabled={index >= items.length - 1} onPress={next} style={[styles.button, index >= items.length - 1 && styles.disabled]}><Text style={styles.text}>›</Text></Pressable>
       </View>
     </View>
   </Modal>;

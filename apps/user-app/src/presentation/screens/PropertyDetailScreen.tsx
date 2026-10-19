@@ -14,9 +14,7 @@ import { useRepositories } from "../../providers/RepositoryProvider";
 import { useResource } from "../hooks/useResource";
 import { colors } from "../theme";
 import { genderLabel } from "../format";
-import { PropertyPhotoViewer } from "../components/PropertyPhotoViewer";
-import { PropertyImage } from "../components/PropertyImage";
-import { PropertyVideo } from "../components/PropertyVideo";
+import { PropertyMediaGallery } from "../components/PropertyMediaGallery";
 import {
   Button,
   FeatureGrid,
@@ -46,9 +44,7 @@ export function PropertyDetailScreen({
     [properties, rooms, propertyId],
   );
   const state = useResource(loader);
-  const [photo, setPhoto] = useState(0),
-    [zoom, setZoom] = useState(false),
-    [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   if (state.loading || state.error)
     return (
       <Status
@@ -81,41 +77,7 @@ export function PropertyDetailScreen({
   return (
     <SafeAreaView edges={["bottom"]} style={styles.safe}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Perbesar foto kos"
-          onPress={() => setZoom(true)}
-        >
-          <PropertyImage
-            key={photo}
-            uri={p.images[photo]}
-            style={styles.hero}
-          />
-          <View style={styles.photoCount}>
-            <Text style={styles.photoCountText}>
-              {photo + 1} / {Math.max(1, p.images.length)} · Perbesar
-            </Text>
-          </View>
-        </Pressable>
-        {p.images.length > 1 && (
-          <ScrollView horizontal contentContainerStyle={styles.gallery}>
-            {p.images.map((uri, index) => (
-              <Pressable
-                key={`${uri}-${index}`}
-                accessibilityRole="button"
-                accessibilityLabel={`Foto ${index + 1}`}
-                onPress={() => setPhoto(index)}
-                style={[
-                  styles.mini,
-                  index === photo && { borderColor: colors.primary },
-                ]}
-              >
-                <PropertyImage uri={uri} style={{ height: 45, width: 68 }} />
-              </Pressable>
-            ))}
-          </ScrollView>
-        )}
-        {!!p.video_path && <PropertyVideo path={p.video_path} resolve={videoUrl} />}
+        <PropertyMediaGallery key={p.id} photos={p.images} video={p.video_path} resolve={videoUrl} />
         <View style={styles.body}>
           <View style={styles.titleRow}>
             <Text style={styles.name}>{p.name}</Text>
@@ -239,7 +201,6 @@ export function PropertyDetailScreen({
           </Text>
         </Pressable>
       </View>
-      {zoom && <PropertyPhotoViewer photos={p.images} initialIndex={photo} onClose={() => setZoom(false)} />}
       <Sheet
         visible={notice !== null}
         title="Informasi"
@@ -254,28 +215,6 @@ export function PropertyDetailScreen({
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
   content: { width: "100%", maxWidth: 600, alignSelf: "center" },
-  hero: { height: 240 },
-  photoCount: {
-    position: "absolute",
-    bottom: 14,
-    right: 14,
-    padding: 7,
-    borderRadius: 7,
-    backgroundColor: "#2A2D45CC",
-  },
-  photoCountText: { color: "#fff", fontSize: 10 },
-  gallery: {
-    flexDirection: "row",
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  mini: {
-    borderWidth: 2,
-    borderColor: "transparent",
-    borderRadius: 6,
-    overflow: "hidden",
-  },
   body: { padding: 20 },
   titleRow: {
     flexDirection: "row",

@@ -1,24 +1,27 @@
-import { useCallback, useEffect, useState } from "react";
-import { AppState, Pressable, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, AppState, Pressable, Text, View } from "react-native";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { useFocusEffect } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 
-export function PropertyVideo({ path, resolve }: { path: string; resolve: (path: string) => Promise<string> }) {
-  const [open, setOpen] = useState(false);
-  return <View style={{ marginVertical: 12 }}>
-    {open ? <Video key={path} path={path} resolve={resolve} /> :
-      <Pressable accessibilityRole="button" accessibilityLabel="Lihat video kos" onPress={() => setOpen(true)}
-        style={{ height: 160, backgroundColor: "#2A2D45", borderRadius: 12, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ color: "white", fontSize: 18 }}>▶ Lihat video kos</Text>
-        <Text style={{ color: "white", marginTop: 8 }}>Maksimal 60 detik</Text>
-      </Pressable>}
+export function PropertyVideo({ path, resolve, height = 240, enabled = true }: {
+  path: string; resolve: (path: string) => Promise<string>; height?: number; enabled?: boolean;
+}) {
+  const focused = useIsFocused();
+  const [foreground, setForeground] = useState(AppState.currentState === "active");
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", state => setForeground(state === "active"));
+    return () => sub.remove();
+  }, []);
+  return <View style={{ height, backgroundColor: "#080808" }}>
+    {enabled && focused && foreground && <Video key={path} path={path} resolve={resolve} height={height} />}
   </View>;
 }
 
-function Video({ path, resolve }: { path: string; resolve: (path: string) => Promise<string> }) {
+function Video({ path, resolve, height }: { path: string; resolve: (path: string) => Promise<string>; height: number }) {
   const player = useVideoPlayer(null);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     let active = true;
     const load = async () => {
@@ -27,23 +30,25 @@ function Video({ path, resolve }: { path: string; resolve: (path: string) => Pro
         if (!active) return;
         await player.replaceAsync({ uri });
         // Loading never starts playback automatically.
-        if (active) { player.pause(); setError(""); }
-      } catch { if (active) setError("Video belum bisa diputar. Coba muat ulang."); }
+        if (active) { player.pause(); setError(""); setLoading(false); }
+      } catch { if (active) { setLoading(false); setError("Video belum bisa diputar. Coba muat ulang."); } }
     };
     void load();
     const status = player.addListener("statusChange", event => {
       if (active && event.status === "error") setError("Video belum bisa diputar. Coba muat ulang.");
     });
-    const app = AppState.addEventListener("change", state => { if (state !== "active") player.pause(); });
-    return () => { active = false; status.remove(); app.remove(); };
+    // Expo releases the player on unmount; cleanup must not call pause().
+    return () => { active = false; status.remove(); };
   }, [path, resolve, player, retry]);
-  useFocusEffect(useCallback(() => () => { player.pause(); }, [player]));
-  return <View>
+  return <View style={{ height }}>
     <VideoView player={player} nativeControls contentFit="contain" fullscreenOptions={{ enable: true }}
-      style={{ width: "100%", height: 220, backgroundColor: "#000" }} />
-    {!!error && <Text accessibilityRole="alert">{error}</Text>}
-    <Pressable accessibilityRole="button" accessibilityLabel="Muat ulang video" onPress={() => setRetry(n => n + 1)} style={{ paddingVertical: 12 }}>
-      <Text>Muat ulang video</Text>
-    </Pressable>
+      style={{ width: "100%", height, backgroundColor: "#000" }} />
+    {loading && !error && <View pointerEvents="none" style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, alignItems: "center", justifyContent: "center" }}><ActivityIndicator color="#fff" accessibilityLabel="Memuat preview video" /></View>}
+    {!!error && <View style={{ position: "absolute", top: 20, left: 20, right: 20, padding: 12, backgroundColor: "#080808" }}>
+      <Text accessibilityRole="alert" style={{ color: "white" }}>{error}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel="Muat ulang video" onPress={() => { setError(""); setLoading(true); setRetry(n => n + 1); }} style={{ paddingVertical: 12 }}>
+        <Text style={{ color: "white" }}>Muat ulang video</Text>
+      </Pressable>
+    </View>}
   </View>;
 }
