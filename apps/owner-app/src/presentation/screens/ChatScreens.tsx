@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import * as Crypto from "expo-crypto";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Restriction } from "../../domain/models";
@@ -7,11 +7,10 @@ import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
 import { ChatConversation } from "../components/ChatConversation";
+import { OwnerChatListLayout } from "../components/OwnerChatListLayout";
+import { colors } from "../theme";
 import {
-  Avatar,
   Badge,
-  ChatLayout,
-  IconButton,
   Button,
   C,
   Card,
@@ -45,16 +44,15 @@ export function ChatListScreen() {
     true,
   );
   return (
-    <ChatLayout title="Obrolan" tab="ChatList">
+    <OwnerChatListLayout onHistory={() => setHistory(!history)}>
       <Load {...q} loading={q.loading && !q.data} />
       {q.data?.chats.map((conversation) => (
-        <Card
+        <View
           key={conversation.id}
           style={{
-            borderRadius: 13,
-            borderColor: "#BFC0C8",
-            padding: 12,
-            gap: 0,
+            borderBottomWidth: 1,
+            borderColor: colors.line,
+            paddingVertical: 16,
           }}
         >
           <Row style={{ gap: 5 }}>
@@ -62,34 +60,32 @@ export function ChatListScreen() {
               accessibilityRole="button"
               accessibilityLabel={`Buka percakapan dengan ${conversation.tenant}`}
               onPress={() => nav.navigate("Chat", { conversation })}
+              onLongPress={() => setMenu(menu === conversation.id ? null : conversation.id)}
+              accessibilityHint="Tekan lama untuk opsi percakapan"
               style={{
                 flex: 1,
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 12,
-                minHeight: 58,
+                minHeight: 44,
               }}
             >
-              <Avatar name={conversation.tenant} size={43} />
-              <View style={{ flex: 1, gap: 4 }}>
-                <T style={{ fontSize: 13, fontWeight: "800" }}>
-                  {conversation.tenant}
-                </T>
-                <T muted style={{ fontSize: 11, lineHeight: 16 }}>
-                  {conversation.last_message || "Mulai percakapan"}
-                </T>
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.orangeSoft, alignItems: "center", justifyContent: "center" }}>
+                <Text style={{ color: colors.orange, fontSize: 21, fontWeight: "700" }}>{conversation.tenant.trim().charAt(0).toUpperCase() || "?"}</Text>
               </View>
-            </Pressable>
-            <View style={{ alignItems: "center" }}>
+              <View style={{ flex: 1, gap: 4 }}>
+                <Text numberOfLines={1} style={{ color: colors.primary, fontSize: 17, fontWeight: "700" }}>
+                  {conversation.tenant}
+                </Text>
+                <Text numberOfLines={1} style={{ color: colors.muted, fontSize: 15, lineHeight: 21 }}>
+                  {conversation.last_message || "Mulai percakapan"}
+                </Text>
+              </View>
+            <View style={{ alignItems: "flex-end", gap: 6 }}>
+              <Text style={{ color: colors.muted, fontSize: 12 }}>{conversation.updated_at && Number.isFinite(Date.parse(conversation.updated_at)) ? new Date(conversation.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : ""}</Text>
               {conversation.unread > 0 && <Badge>{conversation.unread}</Badge>}
-              <IconButton
-                name="more"
-                label={`Opsi chat ${conversation.tenant}`}
-                onPress={() =>
-                  setMenu(menu === conversation.id ? null : conversation.id)
-                }
-              />
             </View>
+            </Pressable>
           </Row>
           {menu === conversation.id && (
             <View
@@ -111,7 +107,7 @@ export function ChatListScreen() {
               />
             </View>
           )}
-        </Card>
+        </View>
       ))}
       {q.data?.chats.length === 0 && (
         <Empty
@@ -119,13 +115,9 @@ export function ChatListScreen() {
           body="Pesan calon penghuni akan tampil di sini."
         />
       )}
-      <Button
-        title={history ? "Tutup riwayat panggilan" : "Riwayat panggilan"}
-        secondary
-        onPress={() => setHistory(!history)}
-      />
       {history && (
         <>
+          <Title>Riwayat panggilan</Title>
           {q.data?.calls.map((call) => (
             <Pressable
               key={call.id}
@@ -153,7 +145,7 @@ export function ChatListScreen() {
           )}
         </>
       )}
-    </ChatLayout>
+    </OwnerChatListLayout>
   );
 }
 export function ChatScreen({ route, navigation }: Props<"Chat">) {
