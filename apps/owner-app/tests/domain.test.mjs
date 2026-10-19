@@ -50,6 +50,22 @@ test("DP is part of rent; deposit remains separate", () => {
     }),
   );
 });
+test("no DP displays zero while full rent and separate deposit remain payable at booking", () => {
+  const plan = {
+    ...seed().plans[0], price: 1200000,
+    down_payment_type: "NONE", down_payment_value: 0,
+    security_deposit_type: "NONE", security_deposit_value: 0,
+  };
+  assert.deepEqual(costs(plan), {
+    dp: 0, deposit: 0, pay_now: 1200000, remaining: 0,
+  });
+  assert.deepEqual(costs({ ...plan, security_deposit_type: "FIXED", security_deposit_value: 300000 }), {
+    dp: 0, deposit: 300000, pay_now: 1500000, remaining: 0,
+  });
+  assert.deepEqual(costs({ ...plan, down_payment_type: "FIXED", down_payment_value: 200000 }), {
+    dp: 200000, deposit: 0, pay_now: 200000, remaining: 1000000,
+  });
+});
 test("Mock persists atomic transitions and rejects stale inventory without damaging saved state", async () => {
   let saved = null;
   const storage = {

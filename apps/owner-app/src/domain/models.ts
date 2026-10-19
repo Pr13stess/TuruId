@@ -254,7 +254,14 @@ export function costs(p: Plan) {
       : t === "FIXED"
         ? v
         : Math.round((p.price * v) / 100);
-  const dp = amount(p.down_payment_type, p.down_payment_value, p.price);
+  const dp = amount(p.down_payment_type, p.down_payment_value, 0);
   const deposit = amount(p.security_deposit_type, p.security_deposit_value, 0);
-  return { dp, deposit, pay_now: dp + deposit, remaining: p.price - dp };
+  // Without an installment DP, rent is paid in full at booking, but is not a DP.
+  const rentAtBooking = p.down_payment_type === "NONE" ? p.price : dp;
+  return {
+    dp,
+    deposit,
+    pay_now: rentAtBooking + deposit,
+    remaining: p.price - rentAtBooking,
+  };
 }
