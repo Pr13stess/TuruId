@@ -17,12 +17,15 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
   const [error, setError] = useState("");
   const [muted, setMuted] = useState(false);
   const [camera, setCamera] = useState(video);
-  const [speaker, setSpeaker] = useState(true);
+  const [speaker, setSpeaker] = useState(video);
   useEffect(() => {
     let active = true;
+    let failed = false;
+    let renewing = false;
     let rtc: IRtcEngine | undefined;
     const fail = (message: string) => {
-      if (active) {
+      if (active && !failed) {
+        failed = true;
         if (message.includes("AgoraRtcNg"))
           message =
             "Panggilan asli memerlukan Expo Development Build yang menyertakan Agora.";
@@ -59,11 +62,24 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
             throw new Error("Izin kamera ditolak. Gunakan panggilan suara.");
         }
       }
+      if (!active) return;
       const credentials = await communication.token(callId);
       if (!active) return;
       rtc = Agora.createAgoraRtcEngine();
       engine.current = rtc;
       rtc.initialize({ appId: credentials.appId });
+      const renew = async () => {
+        if (!active || failed || renewing) return;
+        renewing = true;
+        try {
+          const c = await communication.token(callId);
+          if (active && !failed && rtc) {
+            const result = rtc.renewToken(c.token);
+            if (result < 0) fail('Token panggilan gagal diperbarui.');
+          }
+        } catch (e) { fail(e instanceof Error ? e.message : 'Token gagal diperbarui.'); }
+        finally { renewing = false; }
+      };
       rtc.registerEventHandler({
         onJoinChannelSuccess: () => {
           if (active) setJoined(true);
@@ -81,14 +97,12 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
             fail("Jaringan panggilan terputus.");
         },
         onTokenPrivilegeWillExpire: () => {
-          void communication
-            .token(callId)
-            .then((c) => rtc?.renewToken(c.token))
-            .catch((e) => fail(e.message));
+          void renew();
         },
+        onRequestToken: () => { void renew(); },
       });
       rtc.enableAudio();
-      rtc.setEnableSpeakerphone(true);
+      rtc.setDefaultAudioRouteToSpeakerphone(video);
       if (video) {
         rtc.enableVideo();
         rtc.startPreview();
@@ -110,9 +124,10 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
     })().catch((e) => fail(e.message));
     return () => {
       active = false;
-      rtc?.leaveChannel();
-      rtc?.stopPreview();
-      rtc?.release();
+      try {
+        rtc?.leaveChannel();
+        if (video) rtc?.stopPreview();
+      } finally { rtc?.release(); rtc = undefined; }
       engine.current = null;
     };
   }, [communication, callId, video, onError]);
@@ -161,6 +176,7 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
         <Row style={{ flexWrap: "wrap" }}>
           <Button
             title={muted ? "Aktifkan mic" : "Matikan mic"}
+            disabled={!joined || !!error}
             secondary
             onPress={() => {
               engine.current?.muteLocalAudioStream(!muted);
@@ -168,7 +184,8 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
             }}
           />
           <Button
-            title={speaker ? "Earpiece" : "Speaker"}
+            title={speaker ? "Gunakan earpiece" : "Gunakan speaker"}
+            disabled={!joined || !!error}
             secondary
             onPress={() => {
               engine.current?.setEnableSpeakerphone(!speaker);

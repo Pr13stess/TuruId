@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Alert, Platform, Pressable, Text, View } from "react-native";
 import * as Crypto from "expo-crypto";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Restriction } from "../../domain/models";
@@ -155,6 +155,7 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
   const [text, setText] = useState("");
   const [image, setImage] = useState("");
   const clientId = useRef(Crypto.randomUUID());
+  const startingCall = useRef(false);
   const q = useLoad(
     useCallback(
       () => communication.messages(conversation.id),
@@ -197,7 +198,11 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
       undefined,
       "",
     );
-  const startCall = (type: "VOICE" | "VIDEO") =>
+  const startCall = (type: "VOICE" | "VIDEO") => {
+    if (type === 'VIDEO') { Alert.alert('Panggilan video', 'Tahap ini baru mendukung panggilan suara.'); return; }
+    if (Platform.OS === 'web') { Alert.alert('Panggilan suara', 'Gunakan development build Android/iOS untuk menelepon.'); return; }
+    if (startingCall.current) return;
+    startingCall.current = true;
     void action.run(
       async () => {
         const call = await communication.startCall(conversation.id, type);
@@ -205,7 +210,8 @@ export function ChatScreen({ route, navigation }: Props<"Chat">) {
       },
       undefined,
       "",
-    );
+    ).finally(() => { startingCall.current = false; });
+  };
   return <ChatConversation
     conversation={conversation} userId={session?.id} messages={q.data ?? []}
     loading={q.loading && !q.data} error={q.error} retry={q.retry}

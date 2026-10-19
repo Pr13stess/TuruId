@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { AppState } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Props } from "../navigation";
 import { useAction, useLoad } from "../hooks";
@@ -15,17 +16,31 @@ import {
   Title,
   Toggle,
 } from "../components/UI";
-export function CallScreen({ route, navigation }: Props<"Call">) {
+export function CallScreen(props: Props<"Call">) {
+  return <CallContent key={props.route.params.id} {...props} />;
+}
+function CallContent({ route, navigation }: Props<"Call">) {
   const { communication, session, mode } = useRepositories();
   const a = useAction();
   const q = useLoad(
     useCallback(() => communication.calls(), [communication]),
     3000,
+    true,
   );
   const call = q.data?.find((c) => c.id === route.params.id);
   const [muted, setMuted] = useState(false);
   const [video, setVideo] = useState(true);
   const [mediaError, setMediaError] = useState("");
+  const [backgroundEnded, setBackgroundEnded] = useState(false);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'background') {
+        setBackgroundEnded(true);
+        void communication.updateCall(route.params.id, 'end').catch(() => {});
+      }
+    });
+    return () => sub.remove();
+  }, [communication, route.params.id]);
   useEffect(
     () =>
       navigation.addListener("beforeRemove", () => {
@@ -34,26 +49,26 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
     [navigation, communication, route.params.id],
   );
   useEffect(() => {
-    if (call?.status !== "CONNECTED") return;
+    if (call?.status !== "CONNECTED" || backgroundEnded || mediaError) return;
     const timer = setInterval(() => {
       void communication.heartbeat(route.params.id).catch(() => {});
     }, 20000);
     return () => clearInterval(timer);
-  }, [communication, route.params.id, call?.status]);
+  }, [communication, route.params.id, call?.status, backgroundEnded, mediaError]);
   return (
     <Page title="Panggilan survei">
-      <Load {...q} />
+      <Load {...q} loading={q.loading && !q.data} />
       {call && (
         <>
           <Badge tone="navy">
-            {call.call_type === "VIDEO" ? "VIDEO CALL" : "VOICE CALL"}
+            {call.call_type === "VIDEO" ? "PANGGILAN VIDEO" : "PANGGILAN SUARA"}
           </Badge>
           <Title>
-            {call.status === "RINGING"
-              ? "Menunggu jawaban…"
+            {backgroundEnded ? "Panggilan dihentikan saat aplikasi masuk latar belakang." : call.status === "RINGING"
+              ? call.receiver_id === session?.id ? "Panggilan masuk" : "Menunggu jawaban…"
               : call.status === "CONNECTED"
                 ? "Panggilan berlangsung"
-                : `Panggilan ${call.status.toLowerCase()}`}
+                : ({ COMPLETED: 'Panggilan selesai', MISSED: 'Tidak terjawab', DECLINED: 'Panggilan ditolak', CANCELLED: 'Panggilan dibatalkan', FAILED: 'Panggilan terputus' }[call.status])}
           </Title>
           {mode === "demo" ? (
             <Card
@@ -76,7 +91,7 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
               </T>
             </Card>
           ) : (
-            call.status === "CONNECTED" && (
+            call.status === "CONNECTED" && !mediaError && !backgroundEnded && (
               <CallMedia
                 callId={call.id}
                 video={call.call_type === "VIDEO"}
@@ -84,7 +99,7 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
               />
             )
           )}
-          {call.status === "RINGING" &&
+          {call.status === "RINGING" && !backgroundEnded &&
             (call.receiver_id === session?.id || mode === "demo") && (
               <>
                 <Button
@@ -137,6 +152,7 @@ export function CallScreen({ route, navigation }: Props<"Call">) {
           <T muted style={{ fontSize: 13 }}>
             Panggilan tidak direkam. Catatan pribadi pencari kos tetap privat
             dan tidak ditampilkan kepada owner.
+            {' '}Untuk tahap ini, kedua aplikasi harus tetap terbuka.
           </T>
         </>
       )}

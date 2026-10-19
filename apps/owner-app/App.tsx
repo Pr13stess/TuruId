@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, View } from "react-native";
+import { AppState, Platform, View } from "react-native";
 import {
   NavigationContainer,
   createNavigationContainerRef,
@@ -78,24 +78,31 @@ function SignedIn() {
   const [incoming, setIncoming] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
-    const check = () =>
+    let pending = false;
+    const check = () => {
+      if (pending || AppState.currentState !== 'active') return;
+      pending = true;
       void communication
         .calls()
         .then((calls) => {
           if (active)
             setIncoming(
               calls.find(
-                (c) => c.status === "RINGING" && c.receiver_id === session?.id,
+                (c) => c.call_type === "VOICE" && c.status === "RINGING" && c.receiver_id === session?.id,
               )?.id ?? null,
             );
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => { pending = false; });
+    };
     const unsub = communication.watch(check);
-    const timer = setInterval(check, 8000);
+    const foreground = AppState.addEventListener('change', state => { if (state === 'active') check(); });
+    const timer = setInterval(check, 3000);
     check();
     return () => {
       active = false;
       unsub();
+      foreground.remove();
       clearInterval(timer);
     };
   }, [communication, session?.id]);
