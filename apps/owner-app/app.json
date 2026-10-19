@@ -35,7 +35,15 @@
       ],
       "expo-notifications",
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Turu.Id Owner memakai lokasi saat ini untuk membantu menentukan titik kos di peta.",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ]
     ],
     "extra": {
       "eas": {
