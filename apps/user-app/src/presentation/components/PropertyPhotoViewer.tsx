@@ -48,7 +48,6 @@ export function PropertyPhotoViewer({ photos, video, resolveVideo, initialIndex,
       </View>
       <View style={[styles.bottom, { bottom: insets.bottom + 8 }]}>
         <Pressable accessibilityRole="button" accessibilityLabel="Media sebelumnya" disabled={index === 0} onPress={previous} style={[styles.button, index === 0 && styles.disabled]}><Text style={styles.text}>‹</Text></Pressable>
-        <Text style={styles.hint}>Geser kiri/kanan · Cubit untuk zoom</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Media berikutnya" disabled={index >= items.length - 1} onPress={next} style={[styles.button, index >= items.length - 1 && styles.disabled]}><Text style={styles.text}>›</Text></Pressable>
       </View>
     </View>
@@ -93,7 +92,6 @@ const styles = StyleSheet.create({
   top: { position: "absolute", left: 16, right: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   bottom: { position: "absolute", left: 8, right: 8, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   text: { color: "#fff", fontSize: 18, fontWeight: "600" },
-  hint: { color: "#ddd", fontSize: 11, flex: 1, textAlign: "center" },
   button: { minWidth: 48, minHeight: 48, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   disabled: { opacity: 0.3 },
 });
