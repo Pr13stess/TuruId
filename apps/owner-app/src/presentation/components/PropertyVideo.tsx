@@ -1,12 +1,18 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AppState, Pressable, Text, View } from "react-native";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { useFocusEffect } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 
 export function PropertyVideo({ path, resolve }: { path: string; resolve: (path: string) => Promise<string> }) {
   const [open, setOpen] = useState(false);
+  const focused = useIsFocused();
+  const [foreground, setForeground] = useState(AppState.currentState === "active");
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", state => setForeground(state === "active"));
+    return () => subscription.remove();
+  }, []);
   return <View style={{ marginVertical: 12 }}>
-    {open ? <Video key={path} path={path} resolve={resolve} /> :
+    {open ? (focused && foreground ? <Video key={path} path={path} resolve={resolve} /> : null) :
       <Pressable accessibilityRole="button" accessibilityLabel="Lihat video kos" onPress={() => setOpen(true)}
         style={{ height: 160, backgroundColor: "#2A2D45", borderRadius: 12, alignItems: "center", justifyContent: "center" }}>
         <Text style={{ color: "white", fontSize: 18 }}>▶ Lihat video kos</Text>
@@ -34,10 +40,10 @@ function Video({ path, resolve }: { path: string; resolve: (path: string) => Pro
     const status = player.addListener("statusChange", event => {
       if (active && event.status === "error") setError("Video belum bisa diputar. Coba muat ulang.");
     });
-    const app = AppState.addEventListener("change", state => { if (state !== "active") player.pause(); });
-    return () => { active = false; status.remove(); app.remove(); };
+    // useVideoPlayer owns release on unmount. Never call pause from cleanup:
+    // Expo may already have released the shared native object at that point.
+    return () => { active = false; status.remove(); };
   }, [path, resolve, player, retry]);
-  useFocusEffect(useCallback(() => () => { player.pause(); }, [player]));
   return <View>
     <VideoView player={player} nativeControls contentFit="contain" fullscreenOptions={{ enable: true }}
       style={{ width: "100%", height: 220, backgroundColor: "#000" }} />
