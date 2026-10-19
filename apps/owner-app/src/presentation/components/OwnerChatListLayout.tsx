@@ -6,6 +6,7 @@ import { Dock, IconButton } from "./UI";
 
 export function OwnerChatListLayout({ children, onHistory }: { children: ReactNode; onHistory: () => void }) {
   return <SafeAreaView style={s.root}>
+    <View style={s.body}>
     <View style={s.header}>
       <View style={{ width: 44 }} />
       <Text style={s.title}>Chat</Text>
@@ -15,11 +16,14 @@ export function OwnerChatListLayout({ children, onHistory }: { children: ReactNo
       {children}
     </ScrollView>
     <Dock active="ChatList" role="owner" />
+    </View>
   </SafeAreaView>;
 }
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
+  // Match Page: absolute Dock is anchored inside the safe-area content bounds.
+  body: { flex: 1 },
   header: { height: 64, paddingHorizontal: 16, backgroundColor: colors.surface, flexDirection: "row", alignItems: "center" },
   title: { flex: 1, textAlign: "center", fontSize: 22, fontWeight: "700", color: colors.primary },
   content: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 120 },
