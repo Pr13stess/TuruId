@@ -3,7 +3,36 @@
 Backend tetap Supabase DEV `fhapolumdqqewwhxnjcb.supabase.co`.
 Deployment web tidak menjalankan migrasi atau membuat role admin.
 
+## Deployment aktif (20 Oktober 2026)
+
+- URL: https://turuid-admin.vercel.app
+- Proyek: `makan-nasi1/turuid-admin`.
+- Deployment: `dpl_491KQ5pJPjxzWgWGsvtScsp6sCKa`.
+- Cara yang dipakai: build lokal lalu upload Build Output API statis dengan
+  `vercel deploy --prebuilt --prod --yes`. Label production di Vercel menunjuk
+  URL hosting utama; backend tetap DEV.
+- Hanya `index.html` dan `_expo` (JS/CSS) yang masuk output hosting.
+  Source, `.env`, dan file database tidak diunggah.
+- HTML, JS, CSS teruji HTTP 200 tanpa sesi Vercel. JS cocok dengan bundle lokal
+  dan memuat host DEV. Login/keputusan admin di situs belum diuji.
+- Tidak terhubung Git otomatis. Perubahan lokal memerlukan build dan deploy ulang.
+
+Untuk memperbarui dengan cara yang sama, jalankan build dari folder aplikasi,
+lalu salin `dist/index.html` dan `dist/_expo` ke `.vercel/output/static`.
+Gunakan output baru/bersih supaya aset lama tidak ikut disalin. Buat
+`.vercel/output/config.json` berisi:
+
+```json
+{"version":3,"routes":[{"handle":"filesystem"},{"src":"/.*","dest":"/index.html"}]}
+```
+
+Kemudian jalankan `npx vercel@latest deploy --prebuilt --prod --yes` dari folder
+`apps/admin-web` yang sudah terhubung ke proyek. Konfigurasi `.env` DEV harus
+tersedia saat build lokal; env Vercel tidak mengganti isi bundle prebuilt.
+
 ## Pengaturan proyek
+
+Pengaturan berikut untuk opsi build dari source di Vercel, bukan upload prebuilt:
 
 - Root Directory: `apps/admin-web`.
 - Framework Preset: Other.
