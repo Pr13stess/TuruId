@@ -5,6 +5,7 @@ import { useRepositories } from "../../application/RepositoriesProvider";
 import { Button, C, Card, Feedback, Row, T } from "./UI";
 import { CallMediaProps } from "./CallMedia.types";
 import { radius } from "../theme";
+import { loadAgora } from './loadAgora.native';
 export default function CallMedia({ callId, video, onError }: CallMediaProps) {
   const { communication } = useRepositories();
   const engine = useRef<IRtcEngine | null>(null);
@@ -35,7 +36,7 @@ export default function CallMedia({ callId, video, onError }: CallMediaProps) {
       }
     };
     void (async () => {
-      const Agora = await import("react-native-agora");
+      const Agora = await loadAgora();
       if (!active) return;
       setSdk(Agora);
       if (Platform.OS === "android") {

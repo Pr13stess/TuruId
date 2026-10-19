@@ -5,6 +5,7 @@ import { voiceSession } from '../../domain/voiceSession';
 import { Button } from './Primitives';
 import { colors } from '../theme';
 import type { VoiceMediaProps } from './VoiceMedia.types';
+import { loadAgora } from './loadAgora.native';
 
 export default function VoiceMedia({ callId, onError }: VoiceMediaProps) {
   const { calls } = useRepositories();
@@ -14,7 +15,7 @@ export default function VoiceMedia({ callId, onError }: VoiceMediaProps) {
   const [speaker, setSpeaker] = useState(false);
   useEffect(() => {
     const current = voiceSession({
-      sdk: () => import('react-native-agora'),
+      sdk: loadAgora,
       permission: async () => {
         const granted = Platform.OS === 'android'
           ? await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO) === PermissionsAndroid.RESULTS.GRANTED

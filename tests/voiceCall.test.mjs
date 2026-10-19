@@ -36,6 +36,14 @@ test('voice: denied microphone never requests token or creates engine', async ()
   await h.session.start();
   assert.equal(tokens, 0); assert.equal(h.actions.length, 0); assert.match(h.errors[0], /mikrofon/);
 });
+test('voice: missing native SDK surfaces build instructions without asking permission or token', async () => {
+  let permissions = 0, tokens = 0;
+  const h = harness({ sdk: async () => { throw new Error('Build dan install ulang aplikasi dengan Agora.'); },
+    permission: async () => { permissions++; }, token: async () => { tokens++; return credentials; } });
+  await h.session.start();
+  assert.equal(permissions, 0); assert.equal(tokens, 0);
+  assert.equal(h.actions.length, 0); assert.match(h.errors[0], /Build dan install ulang/);
+});
 test('voice: leaving while token is loading cannot create late engine', async () => {
   const token = deferred(); let requested;
   const waiting = new Promise(r => { requested = r; });

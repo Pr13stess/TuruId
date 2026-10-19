@@ -2,6 +2,8 @@
 
 Implementasi lokal 19 Oktober 2026. Belum terbukti berjalan di Supabase DEV atau dua perangkat nyata. Tidak ada deploy, akses backend, migrasi, perubahan RLS, atau push pada pekerjaan ini.
 
+Pembaruan setelah laporan perangkat: error `react-native-agora doesn't seem to be linked` berarti modul native tidak tersedia pada binary yang dipasang. Kedua aplikasi sekarang mengecek `TurboModuleRegistry.get('AgoraRtcNg')` sebelum mengimpor SDK, agar Expo Go/build lama memperoleh petunjuk build ulang. Delapan tes voice terarah dan typecheck/lint kedua aplikasi lulus; pengaman ini belum diuji pada perangkat yang melaporkan error. Reload JavaScript tidak menggantikan build/install ulang binary native. Samsung pop-up view belum diverifikasi; perubahan AppState ke background tetap mengakhiri panggilan sesuai batas tahap ini.
+
 ## Cakupan
 
 - User dapat memulai panggilan suara dari detail kos dan header chat. Owner dari header chat.
