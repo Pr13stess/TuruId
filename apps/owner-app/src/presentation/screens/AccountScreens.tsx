@@ -6,6 +6,8 @@ import { Profile } from "../../domain/models";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
+import { ProfilePhotoEditor } from "../components/ProfilePhotoEditor";
+import { ProfileAvatar } from "../components/ProfileUi";
 import {
   Badge,
   Brand,
@@ -149,33 +151,7 @@ export function ProfileScreen() {
       {q.data && (
         <>
           <View style={{ alignItems: "center", gap: 7, paddingBottom: 9 }}>
-            <View
-              style={{
-                width: 78,
-                height: 78,
-                borderRadius: 40,
-                backgroundColor: C.peach,
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 5,
-              }}
-            >
-              <T
-                style={{
-                  fontSize: 27,
-                  lineHeight: 34,
-                  fontWeight: "800",
-                  color: C.orangeDark,
-                }}
-              >
-                {q.data.full_name
-                  .trim()
-                  .split(/\s+/)
-                  .slice(0, 2)
-                  .map((n) => n[0])
-                  .join("") || "O"}
-              </T>
-            </View>
+            <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} />
             <T
               style={{
                 fontSize: 19,
@@ -333,12 +309,21 @@ export function ProfileScreen() {
 }
 export function EditProfileScreen({ navigation }: Props<"EditProfile">) {
   const { profile } = useRepositories();
-  const q = useLoad(useCallback(() => profile.get(), [profile]));
+  // Keep identity edits mounted when saving a photo refreshes the profile.
+  const q = useLoad(useCallback(() => profile.get(), [profile]), 0, true);
   return (
     <Page title="Ubah profil">
       <Load {...q} />
       {q.data && (
-        <ProfileEditor value={q.data} done={() => navigation.goBack()} />
+        <>
+          <Card>
+            <View style={{ alignItems: "center" }}>
+              <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} />
+            </View>
+            <ProfilePhotoEditor />
+          </Card>
+          <ProfileEditor value={q.data} done={() => navigation.goBack()} />
+        </>
       )}
     </Page>
   );
