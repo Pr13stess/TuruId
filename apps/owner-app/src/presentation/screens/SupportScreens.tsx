@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Platform, Pressable } from "react-native";
+import Constants from "expo-constants";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
@@ -224,7 +225,9 @@ export function SettingsScreen() {
                     throw new Error(
                       "Izin OS ditolak. Aktifkan di pengaturan perangkat.",
                     );
-                  const projectId = process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+                  const projectId = Constants.expoConfig?.extra?.eas?.projectId
+                    ?? Constants.easConfig?.projectId
+                    ?? process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
                   if (!projectId)
                     throw new Error("EAS project ID belum dikonfigurasi.");
                   const token = await Notifications.getExpoPushTokenAsync({

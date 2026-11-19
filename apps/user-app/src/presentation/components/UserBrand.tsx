@@ -3,7 +3,7 @@ import { colors } from "../theme";
 
 export function UserBrand() {
   return (
-    <View style={styles.brand} accessible accessibilityLabel="Turu.Id">
+    <View className="flex-row items-center gap-[4px]" accessible accessibilityLabel="Turu.Id">
       <Image
         source={require("../../../assets/turuid-logo.png")}
         resizeMode="contain"
@@ -15,7 +15,6 @@ export function UserBrand() {
 }
 
 const styles = StyleSheet.create({
-  brand: { flexDirection: "row", alignItems: "center", gap: 4 },
   logo: { width: 48, height: 48 },
   name: {
     color: colors.primary,

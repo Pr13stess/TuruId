@@ -31,6 +31,7 @@
     },
     "scheme": "kosku",
     "plugins": [
+      "expo-notifications",
       [
         "expo-audio",
         {
