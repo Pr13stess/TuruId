@@ -14,16 +14,18 @@ export function Sheet({
   title,
   onClose,
   children,
+  animationType = "slide",
 }: PropsWithChildren<{
   visible: boolean;
   title: string;
   onClose: () => void;
+  animationType?: "none" | "slide" | "fade";
 }>) {
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType={animationType}
       onRequestClose={onClose}
     >
       <View className="flex-1 items-center justify-end bg-overlay">

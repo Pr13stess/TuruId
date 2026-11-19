@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text } from "react-native";
 import type { ReferenceLocation } from "../../domain/models";
 import { Sheet } from "./Sheet";
 import { Button, Chip } from "./Primitives";
 import { MapPickerModal } from "./MapPickerModal";
+import { loadRecentLocations, locationKey, rememberLocation } from "./recentLocations";
 import {
   describeCoordinates,
   getCurrentCoordinates,
@@ -30,13 +31,29 @@ export function LocationSheet({
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [mapOpen, setMapOpen] = useState(false);
+  const [recent, setRecent] = useState<ReferenceLocation[]>([]);
+  const [recentLoading, setRecentLoading] = useState(true);
+  useEffect(() => {
+    let active = true;
+    void loadRecentLocations().then((points) => {
+      if (active) {
+        setRecent(points);
+        setRecentLoading(false);
+      }
+    });
+    return () => { active = false; };
+  }, []);
+  function select(point: ReferenceLocation | null) {
+    if (point) void rememberLocation(point);
+    onSelect(point);
+  }
   async function useMyLocation() {
     setError("");
     setBusy(true);
     try {
       const point = await getCurrentCoordinates();
       const label = await describeCoordinates(point, "Lokasi saya");
-      onSelect({ label, ...point });
+      select({ label, ...point });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Lokasi belum bisa diambil.");
     } finally {
@@ -45,7 +62,7 @@ export function LocationSheet({
   }
   return (
     <>
-      <Sheet visible={!mapOpen} title="Lokasi acuan" onClose={onClose}>
+      <Sheet visible={!mapOpen} title="Lokasi acuan" onClose={onClose} animationType="fade">
         <Text className="text-label leading-muted text-muted">
           Pilih titik acuan untuk menghitung jarak (garis lurus) ke kos.
         </Text>
@@ -60,21 +77,34 @@ export function LocationSheet({
           onPress={() => setMapOpen(true)}
         />
         {!!error && <Text className="text-label leading-muted text-danger">{error}</Text>}
+        <Text className="text-label font-semibold text-primary">Terakhir dipilih</Text>
+        {recentLoading ? (
+          <Text className="text-label leading-muted text-muted">Memuat lokasi terakhir…</Text>
+        ) : recent.length ? recent.map((point) => (
+          <Chip
+            key={locationKey(point)}
+            label={point.label}
+            selected={!!current && locationKey(current) === locationKey(point)}
+            onPress={() => select(point)}
+          />
+        )) : (
+          <Text className="text-label leading-muted text-muted">Belum ada lokasi yang dipilih.</Text>
+        )}
         <Text className="text-label leading-muted text-muted">Atau pilih titik populer</Text>
         {places.map((p) => (
-          <Chip key={p.label} label={p.label} onPress={() => onSelect(p)} />
+          <Chip key={p.label} label={p.label} onPress={() => select(p)} />
         ))}
         <Button
           secondary
           title="Hapus lokasi acuan"
-          onPress={() => onSelect(null)}
+          onPress={() => select(null)}
         />
       </Sheet>
       {mapOpen && (
         <MapPickerModal
           initial={current}
           onClose={() => setMapOpen(false)}
-          onConfirm={onSelect}
+          onConfirm={select}
         />
       )}
     </>
