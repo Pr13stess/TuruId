@@ -1,0 +1,14 @@
+@theme {
+  --animate-location-sheet-in: location-sheet-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-location-sheet-out: location-sheet-out 200ms cubic-bezier(0.4, 0, 1, 1) both;
+
+  @keyframes location-sheet-in {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes location-sheet-out {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+}

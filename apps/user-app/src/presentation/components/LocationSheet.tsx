@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Text } from "react-native";
 import type { ReferenceLocation } from "../../domain/models";
 import { Sheet } from "./Sheet";
@@ -33,6 +33,29 @@ export function LocationSheet({
     [mapOpen, setMapOpen] = useState(false);
   const [recent, setRecent] = useState<ReferenceLocation[]>([]);
   const [recentLoading, setRecentLoading] = useState(true);
+  const [closing, setClosing] = useState(false);
+  const afterClose = useRef<(() => void) | null>(null);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+  useEffect(() => {
+    if (!closing) return;
+    // Keep mounted until the 200ms NativeWind exit keyframe has finished.
+    const timer = setTimeout(() => {
+      const action = afterClose.current;
+      afterClose.current = null;
+      setClosing(false);
+      action?.();
+    }, 220);
+    return () => clearTimeout(timer);
+  }, [closing]);
+  function closeThen(action: () => void) {
+    if (!mounted.current || afterClose.current) return;
+    afterClose.current = action;
+    setClosing(true);
+  }
   useEffect(() => {
     let active = true;
     void loadRecentLocations().then((points) => {
@@ -44,8 +67,10 @@ export function LocationSheet({
     return () => { active = false; };
   }, []);
   function select(point: ReferenceLocation | null) {
+    if (!mounted.current || afterClose.current) return;
     if (point) void rememberLocation(point);
-    onSelect(point);
+    if (mapOpen) onSelect(point);
+    else closeThen(() => onSelect(point));
   }
   async function useMyLocation() {
     setError("");
@@ -62,7 +87,14 @@ export function LocationSheet({
   }
   return (
     <>
-      <Sheet visible={!mapOpen} title="Lokasi acuan" onClose={onClose} animationType="fade">
+      <Sheet
+        visible={!mapOpen}
+        title="Lokasi acuan"
+        onClose={() => closeThen(onClose)}
+        animationType="none"
+        panelClassName={closing ? "animate-location-sheet-out" : "animate-location-sheet-in"}
+        interactive={!closing}
+      >
         <Text className="text-label leading-muted text-muted">
           Pilih titik acuan untuk menghitung jarak (garis lurus) ke kos.
         </Text>
@@ -74,7 +106,7 @@ export function LocationSheet({
         <Button
           secondary
           title="Pilih di peta"
-          onPress={() => setMapOpen(true)}
+          onPress={() => closeThen(() => setMapOpen(true))}
         />
         {!!error && <Text className="text-label leading-muted text-danger">{error}</Text>}
         <Text className="text-label font-semibold text-primary">Terakhir dipilih</Text>

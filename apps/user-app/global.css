@@ -3,6 +3,7 @@
 @import "tailwindcss/utilities.css";
 
 @import "nativewind/theme";
+@import "./src/presentation/components/location-motion.css";
 
 /* Keep shared values in sync with src/presentation/theme.ts. */
 @theme {
