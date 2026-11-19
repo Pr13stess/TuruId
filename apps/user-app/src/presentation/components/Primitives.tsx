@@ -24,14 +24,9 @@ export function Button({
       accessibilityState={{ disabled }}
       onPress={onPress}
       disabled={disabled}
-      style={({ pressed }) => [
-        s.button,
-        secondary && s.secondary,
-        disabled && s.disabled,
-        pressed && { opacity: 0.8 },
-      ]}
+      className={`min-h-[48px] items-center justify-center rounded-control px-[18px] py-[13px] ${secondary ? "bg-soft" : "bg-accent"} ${disabled ? "opacity-40" : "active:opacity-80"}`}
     >
-      <Text style={[s.buttonText, secondary && { color: colors.primary }]}>
+      <Text className={`text-body font-bold ${secondary ? "text-primary" : "text-ink"}`}>
         {title}
       </Text>
     </Pressable>
@@ -52,9 +47,9 @@ export function Chip({
       accessibilityState={{ selected }}
       onPress={onPress}
       disabled={!onPress}
-      style={[s.chip, selected && s.chipActive]}
+      className={`rounded-chip border px-[12px] py-[10px] ${selected ? "border-accent-strong bg-accent-soft" : "border-line bg-surface"}`}
     >
-      <Text style={[s.chipText, selected && { color: colors.surface }]}>
+      <Text className={`text-label font-semibold ${selected ? "text-accent-strong" : "text-primary"}`}>
         {label}
       </Text>
     </Pressable>
@@ -65,8 +60,8 @@ export function Section({
   children,
 }: PropsWithChildren<{ title: string }>) {
   return (
-    <View style={s.section}>
-      <Text style={s.sectionTitle}>{title}</Text>
+    <View className="mb-[26px] gap-[12px]">
+      <Text className="text-section font-bold text-ink">{title}</Text>
       {children}
     </View>
   );
@@ -83,18 +78,18 @@ export function Status({
   onRetry?: () => void;
 }) {
   return (
-    <View style={s.status}>
+    <View className="items-center gap-[16px] p-[32px]">
       {loading ? (
         <>
           <ActivityIndicator color={colors.primary} />
-          <Text style={s.muted}>Memuat kos pilihanmu…</Text>
+          <Text className="text-label leading-muted text-muted">Memuat kos pilihanmu…</Text>
         </>
       ) : (
         <>
-          <Text style={s.sectionTitle}>
+          <Text className="text-section font-bold text-ink">
             {error ? "Belum bisa memuat data" : (empty ?? "Belum ada data")}
           </Text>
-          {error && <Text style={s.muted}>{error}</Text>}
+          {error && <Text className="text-label leading-muted text-muted">{error}</Text>}
           {onRetry && <Button title="Coba lagi" onPress={onRetry} secondary />}
         </>
       )}
@@ -103,18 +98,19 @@ export function Status({
 }
 export function FeatureGrid({ items }: { items: string[] }) {
   return (
-    <View style={s.features}>
+    <View className="flex-row flex-wrap gap-[12px]">
       {items.map((item) => (
-        <View key={item} style={s.feature}>
-          <View style={s.featureMark}>
-            <Text style={{ color: colors.primary, fontSize: 12 }}>✓</Text>
+        <View key={item} className="w-[47%] flex-row items-center gap-[8px]">
+          <View className="h-[27px] w-[27px] items-center justify-center rounded-chip bg-soft">
+            <Text className="text-label text-primary">✓</Text>
           </View>
-          <Text style={s.featureText}>{item}</Text>
+          <Text className="flex-1 text-caption text-ink">{item}</Text>
         </View>
       ))}
     </View>
   );
 }
+/** @deprecated Use theme-backed className utilities. Retained until all consumers migrate. */
 export const s = StyleSheet.create({
   button: {
     backgroundColor: colors.primary,

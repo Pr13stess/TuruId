@@ -3,3 +3,29 @@
 @import "tailwindcss/utilities.css";
 
 @import "nativewind/theme";
+
+/* Keep shared values in sync with src/presentation/theme.ts. */
+@theme {
+  --color-background: #FAF7F1;
+  --color-surface: #FFFFFF;
+  --color-ink: #202131;
+  --color-primary: #2A2D45;
+  --color-accent: #F58A00;
+  --color-accent-strong: #9E5400;
+  --color-accent-soft: #FFF0D9;
+  --color-muted: #6B6B76;
+  --color-line: #E9E6E1;
+  --color-soft: #F3F1EE;
+  --color-success: #418263;
+  --color-danger: #AA4141;
+
+  --radius-chip: 8px;
+  --radius-control: 12px;
+  --radius-card: 16px;
+
+  --text-caption: 11px;
+  --text-label: 12px;
+  --text-body: 14px;
+  --text-section: 17px;
+  --leading-muted: 19px;
+}
