@@ -29,6 +29,8 @@ export function Sheet({
     <Modal
       visible={visible}
       transparent
+      statusBarTranslucent
+      navigationBarTranslucent
       animationType={animationType}
       onRequestClose={onClose}
     >
@@ -39,7 +41,7 @@ export function Sheet({
           style={StyleSheet.absoluteFill}
           onPress={onClose}
         />
-        <View className={panelClassName} pointerEvents={interactive ? "auto" : "none"} style={{ width: "100%", maxWidth: 600, maxHeight: "90%" }}>
+        <View className={panelClassName} pointerEvents={interactive ? "auto" : "none"} style={{ width: "100%", maxWidth: 600, maxHeight: "90%", backgroundColor: colors.surface, borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card }}>
           <SafeAreaView edges={["bottom"]} style={{ flexShrink: 1, backgroundColor: colors.surface, borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card }}>
             <View className="mt-[10px] h-[4px] w-[40px] self-center rounded-pill bg-muted" />
             <View className="flex-row items-center justify-between gap-[12px] p-[20px]">
