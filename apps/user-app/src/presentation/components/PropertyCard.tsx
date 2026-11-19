@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import type { Listing, DurationUnit } from "../../domain/models";
 import { PropertyImage } from "./PropertyImage";
 import { FavoriteButton } from "./FavoriteButton";
@@ -16,20 +17,29 @@ export function PropertyCard({
   onPress: () => void;
 }) {
   return (
-    <View className="relative w-full">
+    <View className="w-full rounded-card border border-line bg-surface shadow-card">
+      <View className="relative overflow-hidden rounded-t-card">
+        <CardPhotos key={JSON.stringify(item.images)} images={item.images} name={item.name} onPress={onPress} />
+        <View
+          pointerEvents="box-none"
+          style={{ position: "absolute", top: 10, left: 10, right: 10, zIndex: 1 }}
+          className="flex-row items-start justify-between"
+        >
+          <View pointerEvents="none" className="rounded-chip bg-surface px-[8px] py-[4px]">
+            <Text className="text-caption font-bold text-primary">{genderLabel(item.gender_type)}</Text>
+          </View>
+          <View className="max-w-[200px] items-end">
+            <FavoriteButton propertyId={item.id} compact />
+          </View>
+        </View>
+      </View>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Lihat ${item.name}`}
         onPress={onPress}
-        className="w-full rounded-card border border-line bg-surface shadow-card"
+        className="w-full rounded-b-card"
       >
-        <View className="overflow-hidden rounded-t-card">
-          <PropertyImage uri={item.images[0]} style={{ width: "100%", aspectRatio: 16 / 10 }} />
-          <View className="absolute left-[12px] top-[12px] rounded-chip bg-surface px-[10px] py-[6px]">
-            <Text className="text-caption font-bold text-primary">{genderLabel(item.gender_type)}</Text>
-          </View>
-        </View>
-        <View className="gap-[10px] p-[14px]">
+        <View className="gap-[6px] p-[12px]">
           <View className="flex-row items-start gap-[8px]">
             <Text numberOfLines={2} className="flex-1 text-header font-bold leading-body text-ink">
               {item.name}
@@ -50,11 +60,11 @@ export function PropertyCard({
           </Text>
           <View className="flex-row flex-wrap items-center gap-[6px]">
             {item.facilities.slice(0, 2).map((x) => (
-              <Text className="shrink rounded-chip bg-soft px-[8px] py-[6px] text-caption text-muted" key={x}>
+              <Text className="shrink rounded-chip bg-soft px-[8px] py-[4px] text-caption text-muted" key={x}>
                 {x}
               </Text>
             ))}
-            <Text className={`rounded-chip bg-soft px-[8px] py-[6px] text-caption ${item.matching_available === 0 ? "text-muted" : "text-success"}`}>
+            <Text className={`rounded-chip bg-soft px-[8px] py-[4px] text-caption ${item.matching_available === 0 ? "text-muted" : "text-success"}`}>
               {item.matching_available
                 ? `${item.matching_available} tersedia`
                 : "Penuh"}
@@ -67,9 +77,59 @@ export function PropertyCard({
           </View>
         </View>
       </Pressable>
-      <View className="absolute right-[12px] top-[12px] max-w-[200px]">
-        <FavoriteButton propertyId={item.id} compact />
-      </View>
+    </View>
+  );
+}
+
+function CardPhotos({ images, name, onPress }: { images: string[]; name: string; onPress: () => void }) {
+  const [width, setWidth] = useState(0);
+  const [page, setPage] = useState(0);
+  const photos = images.length ? images : [undefined];
+
+  return (
+    <View
+      style={{ width: "100%", aspectRatio: 2 }}
+      onLayout={({ nativeEvent }) => {
+        const nextWidth = nativeEvent.layout.width;
+        if (nextWidth !== width) {
+          setWidth(nextWidth);
+          setPage(0);
+        }
+      }}
+    >
+      {width > 0 && <ScrollView
+        key={width}
+        horizontal
+        pagingEnabled
+        directionalLockEnabled
+        showsHorizontalScrollIndicator={false}
+        scrollEnabled={photos.length > 1}
+        scrollEventThrottle={16}
+        onScroll={({ nativeEvent }) => {
+          setPage(Math.max(0, Math.min(photos.length - 1, Math.round(nativeEvent.contentOffset.x / width))));
+        }}
+      >
+        {photos.map((uri, index) => (
+          <Pressable
+            key={`${index}:${uri ?? "empty"}`}
+            accessibilityRole="button"
+            accessibilityLabel={`Lihat ${name}`}
+            onPress={onPress}
+            style={{ width, height: "100%" }}
+          >
+            <PropertyImage uri={uri} style={{ width: "100%", height: "100%" }} />
+          </Pressable>
+        ))}
+      </ScrollView>}
+      {images.length > 0 && <View
+        pointerEvents="none"
+        style={{ position: "absolute", bottom: 10, right: 10 }}
+        className="rounded-pill bg-surface px-[8px] py-[4px]"
+      >
+        <Text accessibilityLabel={`Gambar ${page + 1} dari ${images.length}`} className="text-caption font-semibold text-ink">
+          {page + 1} / {images.length}
+        </Text>
+      </View>}
     </View>
   );
 }
