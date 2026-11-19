@@ -6,7 +6,7 @@ export function UserBrand() {
       <Image
         source={require("../../../assets/turuid-logo.png")}
         resizeMode="contain"
-        className="h-[23px] w-[23px]"
+        className="h-[32px] w-[32px]"
       />
       <Text className="text-brand font-black tracking-[-0.7px] text-primary">Turu.Id</Text>
     </View>
