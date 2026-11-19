@@ -100,6 +100,7 @@ export function LocationSheet({
         </Text>
         <Button
           title={busy ? "Mencari lokasimu…" : "Gunakan lokasi saya"}
+          tone="primary"
           disabled={busy}
           onPress={useMyLocation}
         />
