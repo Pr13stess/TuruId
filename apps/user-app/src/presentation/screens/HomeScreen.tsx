@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { FilterIcon, SortIcon, NotifIcon } from "../Icons/Icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { defaultQuery } from "../../domain/models";
 import { useRepositories } from "../../providers/RepositoryProvider";
 import type { TabScreenProps } from "../../navigation/types";
@@ -23,6 +23,7 @@ import { LocationSheet } from "../components/LocationSheet";
 import { Sheet } from "../components/Sheet";
 
 export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
+  const insets = useSafeAreaInsets();
   const { properties, auth, mode } = useRepositories();
   const { session } = useAuthSession();
   const [query, setQuery] = useState(defaultQuery),
@@ -127,7 +128,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           numColumns={2}
           keyExtractor={(item) => item.id}
           columnWrapperStyle={styles.row}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingBottom: 120 + insets.bottom }]}
           renderItem={({ item }) => (
             <PropertyCard
               item={item}

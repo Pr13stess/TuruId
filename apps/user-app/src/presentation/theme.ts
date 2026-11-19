@@ -21,3 +21,7 @@ export const colors = {
   danger: "#AA4141",
 };
 export const radius = { chip: 8, control: 12, card: 16, button: 12 };
+
+export const typography = {
+  headerTitle: { fontSize: 16, fontWeight: "700" as const, color: colors.primary },
+};

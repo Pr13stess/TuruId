@@ -24,7 +24,7 @@ import { ChangePasswordScreen } from "../presentation/screens/profile/ChangePass
 import { PolicyScreen } from "../presentation/screens/profile/PolicyScreen";
 import { InfoScreen } from "../presentation/screens/profile/InfoScreen";
 import { ComingSoonScreen } from "../presentation/screens/profile/PlaceholderScreen";
-import { colors } from "../presentation/theme";
+import { colors, typography } from "../presentation/theme";
 import { VoiceCallScreen } from '../presentation/screens/VoiceCallScreen';
 import { IncomingVoiceCall } from '../presentation/components/IncomingVoiceCall';
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -49,8 +49,9 @@ export function RootNavigator() {
           headerTintColor: colors.primary,
           headerTitleAlign: "center",
           headerShadowVisible: false,
-          headerTitleStyle: { fontSize: 16, fontWeight: "700" },
-          contentStyle: { backgroundColor: "#fff" },
+          headerTitleStyle: typography.headerTitle,
+          headerStyle: { backgroundColor: colors.surface },
+          contentStyle: { backgroundColor: colors.background },
         }}
       >
         {loading ? (

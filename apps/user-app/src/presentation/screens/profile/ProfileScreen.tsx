@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
   Alert,
@@ -28,6 +29,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
 };
 
 export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
+  const insets = useSafeAreaInsets();
   const { auth } = useRepositories();
   const { profile, loading, error, reload } = useProfile();
   const [signingOut, setSigningOut] = useState(false);
@@ -65,7 +67,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
   return (
     <ScrollView
       style={{ backgroundColor: colors.background }}
-      contentContainerStyle={s.content}
+      contentContainerStyle={[s.content, { paddingBottom: 130 + insets.bottom }]}
     >
       <View style={s.header}>
         <Avatar uri={profile.avatar_url} name={profile.full_name} size={76} />

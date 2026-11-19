@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import type { MainTabParamList } from "./types";
@@ -22,9 +22,10 @@ export function FloatingNavBar({ state, navigation }: BottomTabBarProps) {
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.wrap, { paddingBottom: insets.bottom + 20 }]}
+      className="absolute inset-x-0 bottom-0 px-[20px]"
+      style={{ paddingBottom: insets.bottom + 20 }}
     >
-      <View style={styles.dock}>
+      <View className="flex-row items-center justify-around rounded-pill border border-line bg-surface p-[8px] shadow-dock">
         {state.routes.map((route, index) => {
           const item = ITEMS[route.name as keyof MainTabParamList];
           if (!item) return null;
@@ -45,11 +46,12 @@ export function FloatingNavBar({ state, navigation }: BottomTabBarProps) {
               accessibilityLabel={item.label}
               accessibilityState={{ selected: focused }}
               onPress={onPress}
-              style={styles.dockItem}
+              className={`min-h-[52px] flex-1 items-center justify-center gap-[2px] rounded-pill px-[4px] py-[5px] ${focused ? "bg-accent-soft" : "bg-surface"}`}
             >
-              <View style={[styles.dockIcon, focused && styles.dockActive]}>
-                <item.Icon size={22} color={focused ? "#fff" : colors.primary} />
-              </View>
+              <item.Icon size={22} color={focused ? colors.accentStrong : colors.primary} />
+              <Text className={`text-caption font-semibold ${focused ? "text-accent-strong" : "text-primary"}`}>
+                {item.label}
+              </Text>
             </Pressable>
           );
         })}
@@ -57,39 +59,3 @@ export function FloatingNavBar({ state, navigation }: BottomTabBarProps) {
     </View>
   );
 }
-
-const SIZE = 52;
-
-const styles = StyleSheet.create({
-  wrap: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 20,
-  },
-  dock: {
-    borderRadius: 40,
-    backgroundColor: "#fff",
-    padding: 8,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    boxShadow: "0px 4px 14px #00000015",
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  dockItem: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dockIcon: {
-    width: SIZE,
-    height: SIZE,
-    borderRadius: SIZE / 2,
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dockActive: { backgroundColor: colors.primary },
-});

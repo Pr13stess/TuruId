@@ -89,7 +89,7 @@ function ConversationRow({
 }
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  list: { padding: 16, gap: 4 },
+  list: { padding: 16, paddingBottom: 120, gap: 4 },
   row: {
     flexDirection: "row",
     alignItems: "center",

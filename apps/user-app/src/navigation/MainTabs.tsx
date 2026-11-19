@@ -5,7 +5,7 @@ import { HomeScreen } from "../presentation/screens/HomeScreen";
 import { ChatListScreen } from "../presentation/screens/chat/ChatListScreen";
 import { ProfileScreen } from "../presentation/screens/profile/ProfileScreen";
 import { BookingsScreen } from "../presentation/screens/bookings/BookingScreens";
-import { colors } from "../presentation/theme";
+import { colors, typography } from "../presentation/theme";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -17,7 +17,9 @@ export function MainTabs() {
         headerTintColor: colors.primary,
         headerTitleAlign: "center",
         headerShadowVisible: false,
-        headerTitleStyle: { fontSize: 16, fontWeight: "700" },
+        headerTitleStyle: typography.headerTitle,
+        headerStyle: { backgroundColor: colors.surface },
+        sceneStyle: { backgroundColor: colors.background },
       }}
     >
       <Tab.Screen
