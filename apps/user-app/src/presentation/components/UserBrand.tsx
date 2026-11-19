@@ -1,5 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
-import { colors } from "../theme";
+import { Image, Text, View } from "react-native";
 
 export function UserBrand() {
   return (
@@ -7,19 +6,9 @@ export function UserBrand() {
       <Image
         source={require("../../../assets/turuid-logo.png")}
         resizeMode="contain"
-        style={styles.logo}
+        className="h-[23px] w-[23px]"
       />
-      <Text style={styles.name}>Turu.Id</Text>
+      <Text className="text-brand font-black tracking-[-0.7px] text-primary">Turu.Id</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  logo: { width: 48, height: 48 },
-  name: {
-    color: colors.primary,
-    fontSize: 23,
-    fontWeight: "900",
-    letterSpacing: -0.7,
-  },
-});
