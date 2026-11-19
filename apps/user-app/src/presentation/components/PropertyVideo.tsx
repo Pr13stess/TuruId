@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, AppState, Pressable, Text, View } from "react-native";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useIsFocused } from "@react-navigation/native";
+import { colors } from "../theme";
 
 export function PropertyVideo({ path, resolve, height = 240, enabled = true }: {
   path: string; resolve: (path: string) => Promise<string>; height?: number; enabled?: boolean;
@@ -12,7 +13,7 @@ export function PropertyVideo({ path, resolve, height = 240, enabled = true }: {
     const sub = AppState.addEventListener("change", state => setForeground(state === "active"));
     return () => sub.remove();
   }, []);
-  return <View style={{ height, backgroundColor: "#080808" }}>
+  return <View className="bg-media" style={{ height }}>
     {enabled && focused && foreground && <Video key={path} path={path} resolve={resolve} height={height} />}
   </View>;
 }
@@ -42,12 +43,12 @@ function Video({ path, resolve, height }: { path: string; resolve: (path: string
   }, [path, resolve, player, retry]);
   return <View style={{ height }}>
     <VideoView player={player} nativeControls contentFit="contain" fullscreenOptions={{ enable: false }}
-      style={{ width: "100%", height, backgroundColor: "#000" }} />
-    {loading && !error && <View pointerEvents="none" style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, alignItems: "center", justifyContent: "center" }}><ActivityIndicator color="#fff" accessibilityLabel="Memuat preview video" /></View>}
-    {!!error && <View style={{ position: "absolute", top: 20, left: 20, right: 20, padding: 12, backgroundColor: "#080808" }}>
-      <Text accessibilityRole="alert" style={{ color: "white" }}>{error}</Text>
-      <Pressable accessibilityRole="button" accessibilityLabel="Muat ulang video" onPress={() => { setError(""); setLoading(true); setRetry(n => n + 1); }} style={{ paddingVertical: 12 }}>
-        <Text style={{ color: "white" }}>Muat ulang video</Text>
+      style={{ width: "100%", height, backgroundColor: colors.mediaCanvas }} />
+    {loading && !error && <View pointerEvents="none" className="absolute inset-0 items-center justify-center"><ActivityIndicator color={colors.surface} accessibilityLabel="Memuat preview video" /></View>}
+    {!!error && <View className="absolute left-[20px] right-[20px] top-[20px] rounded-control bg-media p-[12px]">
+      <Text accessibilityRole="alert" className="text-body leading-body text-surface">{error}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel="Muat ulang video" onPress={() => { setError(""); setLoading(true); setRetry(n => n + 1); }} className="py-[12px]">
+        <Text className="text-body leading-body text-surface">Muat ulang video</Text>
       </Pressable>
     </View>}
   </View>;

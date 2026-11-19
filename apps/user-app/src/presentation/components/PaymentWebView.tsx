@@ -1,4 +1,4 @@
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { isAllowedPaymentUrl } from "../../domain/paymentUrl";
@@ -16,11 +16,11 @@ export function PaymentWebView({
 }) {
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Pembayaran (uji coba)</Text>
-          <Pressable accessibilityRole="button" hitSlop={12} onPress={onClose}>
-            <Text style={styles.done}>Selesai</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
+        <View className="flex-row items-center justify-between gap-[12px] border-b border-line bg-surface p-[16px]">
+          <Text className="flex-1 text-header font-bold text-primary">Pembayaran (uji coba)</Text>
+          <Pressable accessibilityRole="button" hitSlop={12} onPress={onClose} className="min-h-[44px] justify-center rounded-control bg-soft px-[12px]">
+            <Text className="text-body font-bold text-primary">Selesai</Text>
           </Pressable>
         </View>
         <WebView
@@ -35,16 +35,3 @@ export function PaymentWebView({
     </Modal>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  header: {
-    padding: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  title: { fontSize: 16, fontWeight: "700", color: colors.primary },
-  done: { fontSize: 14, fontWeight: "700", color: colors.primary },
-});

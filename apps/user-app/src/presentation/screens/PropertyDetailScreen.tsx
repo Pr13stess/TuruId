@@ -4,7 +4,6 @@ import {
   Pressable,
   ScrollView,
   Share,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -20,12 +19,12 @@ import {
   FeatureGrid,
   Section,
   Status,
-  s,
 } from "../components/Primitives";
 import { RoomCard } from "../components/RoomCard";
 import { Sheet } from "../components/Sheet";
 import { FavoriteButton } from '../components/FavoriteButton';
 import { propertyShareText } from '../../domain/propertyFeedback';
+import { LocationIcon } from "../Icons/Icons";
 import { ShareIcon } from '../Icons/ShareIcon';
 import { PropertyReviewsPreview } from '../components/PropertyReviewsPreview';
 import { useStartVoiceCall } from '../hooks/useStartVoiceCall';
@@ -76,20 +75,20 @@ export function PropertyDetailScreen({
     }
   };
   return (
-    <SafeAreaView edges={["bottom"]} style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.content}>
+    <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView contentContainerStyle={{ width: "100%", maxWidth: 600, alignSelf: "center" }}>
         <PropertyMediaGallery key={p.id} photos={p.images} video={p.video_path} resolve={videoUrl} />
-        <View style={styles.body}>
-          <View style={styles.titleRow}>
-            <Text style={styles.name}>{p.name}</Text>
-            <Text style={styles.gender}>{genderLabel(p.gender_type)}</Text>
+        <View className="p-[20px]">
+          <View className="mb-[8px] flex-row items-center gap-[10px]">
+            <Text className="flex-1 text-title font-bold text-ink">{p.name}</Text>
+            <Text className="rounded-chip bg-soft p-[8px] text-caption text-primary">{genderLabel(p.gender_type)}</Text>
           </View>
-          <Text style={s.muted}>{p.address}</Text>
-          <Text style={styles.rating}>
+          <Text className="text-label leading-muted text-muted">{p.address}</Text>
+          <Text className="mt-[10px] text-label font-semibold text-accent-strong">
             ★ {p.review_count ? p.rating.toFixed(1) : "Belum ada rating"}{" "}
-            <Text style={s.muted}>({p.review_count} ulasan)</Text>
+            <Text className="text-label leading-muted text-muted">({p.review_count} ulasan)</Text>
           </Text>
-          <Text style={styles.verified}>✓ Kos terverifikasi</Text>
+          <Text className="mt-[12px] self-start rounded-chip bg-accent-soft px-[10px] py-[6px] text-caption font-bold text-accent-strong">✓ Kos terverifikasi</Text>
           <Pressable
             accessibilityRole="link"
             accessibilityLabel="Lihat lokasi di OpenStreetMap"
@@ -102,29 +101,25 @@ export function PropertyDetailScreen({
                 `https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=17/${p.latitude}/${p.longitude}`,
               ).catch(() => setNotice("Peta tidak dapat dibuka."));
             }}
-            style={styles.map}
+            className="my-[20px] min-h-[128px] items-center justify-center gap-[8px] rounded-card border border-line bg-surface p-[16px]"
           >
-            <View style={styles.mapRoad} />
-            <View style={styles.mapRoad2} />
-            <Text style={styles.mapPin}>⌖</Text>
-            <Text style={styles.mapLabel}>Lihat lokasi di peta ↗</Text>
-            <Text style={styles.mapCredit}>OpenStreetMap · buka peta</Text>
+            <LocationIcon color={colors.accentStrong} size={32} />
+            <Text className="text-body font-bold text-primary">Lihat lokasi di peta ↗</Text>
+            <Text className="text-caption text-muted">OpenStreetMap · buka peta</Text>
           </Pressable>
-          <Text style={styles.description}>{p.description}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10, marginVertical: 12 }}>
+          <Text className="mb-[24px] text-body leading-body text-muted">{p.description}</Text>
+          <View className="my-[12px] flex-row flex-wrap items-start gap-[10px]">
             <FavoriteButton propertyId={propertyId} />
             <Pressable accessibilityRole="button" accessibilityLabel="Bagikan kos" onPress={() => {
               void Share.share({ message: propertyShareText(p) }).catch(() => setNotice('Kos belum bisa dibagikan. Coba lagi.'));
-            }} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44,
-              paddingHorizontal: 14, borderRadius: 22, borderWidth: 1, borderColor: colors.line,
-              backgroundColor: pressed ? colors.soft : colors.surface })}>
+            }} className="min-h-[44px] flex-row items-center gap-[8px] rounded-pill border border-line bg-surface px-[14px] active:bg-soft">
               <ShareIcon color={colors.primary} />
-              <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '600' }}>Bagikan</Text>
+              <Text className="text-label font-semibold text-primary">Bagikan</Text>
             </Pressable>
           </View>
           <PropertyReviewsPreview propertyId={propertyId} onViewAll={() => navigation.navigate('Reviews', { propertyId })} />
           <Section title="Fasilitas umum">
-            <View style={styles.facilityBox}>
+            <View className="rounded-card border border-line bg-surface p-[14px]">
               <FeatureGrid items={p.facilities} />
             </View>
           </Section>
@@ -140,29 +135,29 @@ export function PropertyDetailScreen({
             ))}
           </Section>
           <Section title="Peraturan kos">
-            <Text style={styles.description}>
+            <Text className="mb-[24px] text-body leading-body text-muted">
               {p.rules || "Hubungi pemilik untuk peraturan kos."}
             </Text>
           </Section>
-          <View style={styles.owner}>
-            <View style={styles.avatar}>
-              <Text style={{ color: colors.primary, fontSize: 22 }}>◎</Text>
+          <View className="flex-row items-center gap-[12px] pb-[12px]">
+            <View className="h-[44px] w-[44px] items-center justify-center rounded-pill bg-soft">
+              <Text className="text-symbol text-primary">◎</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.ownerName}>{p.owner_name}</Text>
-              <Text style={s.muted}>Owner terverifikasi · demo akademik</Text>
+              <Text className="text-body font-bold text-ink">{p.owner_name}</Text>
+              <Text className="text-label leading-muted text-muted">Owner terverifikasi · demo akademik</Text>
             </View>
           </View>
         </View>
       </ScrollView>
-      <View style={styles.actions}>
+      <View className="w-full max-w-[600px] self-center flex-row flex-wrap items-center gap-[8px] border-t border-line bg-surface px-[16px] py-[12px]">
         <Pressable
           accessibilityRole="button"
           onPress={openChat}
           disabled={openingChat}
-          style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
+          className="min-h-[48px] min-w-[64px] flex-1 items-center justify-center rounded-control bg-soft px-[8px] active:opacity-70"
         >
-          <Text style={styles.actionText} numberOfLines={1}>
+          <Text className="text-label font-bold text-ink" numberOfLines={1}>
             {openingChat ? "Membuka…" : "Chat"}
           </Text>
         </Pressable>
@@ -170,9 +165,9 @@ export function PropertyDetailScreen({
           accessibilityRole="button"
           disabled={voice.busy}
           onPress={() => { void voice.start(async () => (await chat.startConversation(propertyId, p.name)).id); }}
-          style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
+          className="min-h-[48px] min-w-[64px] flex-1 items-center justify-center rounded-control bg-soft px-[8px] active:opacity-70"
         >
-          <Text style={styles.actionText} numberOfLines={1}>
+          <Text className="text-label font-bold text-ink" numberOfLines={1}>
             Call
           </Text>
         </Pressable>
@@ -181,160 +176,28 @@ export function PropertyDetailScreen({
           onPress={() =>
             navigation.navigate("Note", { propertyId, propertyName: p.name })
           }
-          style={({ pressed }) => [styles.smallAction, pressed && styles.pressed]}
+          className="min-h-[48px] min-w-[64px] flex-1 items-center justify-center rounded-control bg-soft px-[8px] active:opacity-70"
         >
-          <Text style={styles.actionText} numberOfLines={1}>
+          <Text className="text-label font-bold text-ink" numberOfLines={1}>
             Catatan
           </Text>
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityState={{ disabled: !canChoose }}
-          disabled={!canChoose}
-          onPress={() => navigation.navigate("RoomSelection", { propertyId })}
-          style={({ pressed }) => [
-            styles.primaryAction,
-            !canChoose && styles.primaryDisabled,
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={styles.primaryText} numberOfLines={1}>
-            Lihat kamar
-          </Text>
-        </Pressable>
+        <View className="min-w-[140px] flex-[1.5]">
+          <Button
+            title="Lihat kamar"
+            disabled={!canChoose}
+            onPress={() => navigation.navigate("RoomSelection", { propertyId })}
+          />
+        </View>
       </View>
       <Sheet
         visible={notice !== null}
         title="Informasi"
         onClose={() => setNotice(null)}
       >
-        <Text style={styles.description}>{notice}</Text>
+        <Text className="mb-[24px] text-body leading-body text-muted">{notice}</Text>
         <Button title="Mengerti" onPress={() => setNotice(null)} />
       </Sheet>
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  content: { width: "100%", maxWidth: 600, alignSelf: "center" },
-  body: { padding: 20 },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 6,
-  },
-  name: { flex: 1, fontSize: 24, fontWeight: "700", color: colors.ink },
-  gender: {
-    backgroundColor: colors.soft,
-    padding: 7,
-    borderRadius: 5,
-    fontSize: 10,
-    color: colors.primary,
-  },
-  rating: { color: colors.orange, fontSize: 12, marginTop: 9 },
-  verified: {
-    alignSelf: "flex-start",
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#865305",
-    backgroundColor: colors.orangeSoft,
-    paddingVertical: 5,
-    paddingHorizontal: 9,
-    borderRadius: 5,
-    marginTop: 12,
-  },
-  map: {
-    height: 128,
-    backgroundColor: "#F1F0E8",
-    marginVertical: 20,
-    borderRadius: 10,
-    overflow: "hidden",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 3,
-  },
-  mapRoad: {
-    position: "absolute",
-    width: 600,
-    height: 20,
-    backgroundColor: "#fff",
-    transform: [{ rotate: "-18deg" }],
-  },
-  mapRoad2: {
-    position: "absolute",
-    width: 600,
-    height: 12,
-    backgroundColor: "#fff",
-    transform: [{ rotate: "63deg" }],
-  },
-  mapPin: { fontSize: 32, color: colors.primary },
-  mapLabel: { fontSize: 12, fontWeight: "700", color: colors.primary },
-  mapCredit: {
-    position: "absolute",
-    bottom: 5,
-    right: 7,
-    fontSize: 8,
-    color: colors.muted,
-  },
-  description: {
-    fontSize: 13,
-    lineHeight: 22,
-    color: colors.muted,
-    marginBottom: 24,
-  },
-  facilityBox: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 10,
-    padding: 14,
-  },
-  owner: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "center",
-    paddingBottom: 12,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.soft,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  ownerName: { fontSize: 13, fontWeight: "700", color: colors.ink },
-  actions: {
-  paddingHorizontal: 16,
-  paddingVertical: 12,
-  gap: 8,
-  flexDirection: "row",
-  alignItems: "center",
-  borderTopWidth: 1,
-  borderTopColor: colors.line,
-  backgroundColor: colors.surface,
-  width: "100%",
-  maxWidth: 600,
-  alignSelf: "center",
-  },
-  smallAction: {
-    flex: 1,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.soft,
-    borderRadius: 12,
-  },
-  actionText: { fontSize: 12, fontWeight: "700", color: colors.ink },
-  primaryAction: {
-    flex: 1.5,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-  },
-  primaryDisabled: { opacity: 0.45 },
-  primaryText: { fontSize: 13, fontWeight: "700", color: "#fff" },
-  pressed: { opacity: 0.7 },
-});

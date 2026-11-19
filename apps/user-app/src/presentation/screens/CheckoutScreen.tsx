@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ScreenProps } from "../../navigation/types";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -96,11 +96,11 @@ export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
       },
     ]);
   return (
-    <SafeAreaView edges={["bottom"]} style={styles.safe}>
-      <View style={styles.banner}>
-        <Text style={styles.bannerText}>DEMO / TEST MODE PAYMENT (XENDIT) · tanpa uang nyata</Text>
+    <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.background }}>
+      <View className="bg-accent-soft px-[16px] py-[10px]">
+        <Text className="text-center text-caption font-bold text-accent-strong">DEMO / TEST MODE PAYMENT (XENDIT) · tanpa uang nyata</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 14, maxWidth: 600, width: "100%", alignSelf: "center" }}>
         {!data ? (
           <Status
             loading={!error}
@@ -109,57 +109,57 @@ export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
           />
         ) : (
           <>
-            <Text style={styles.title}>{data.propertyName}</Text>
-            <Text style={styles.meta}>Status booking: {bookingLabels[data.status]}</Text>
-            <Text style={styles.meta}>
+            <Text className="text-header font-bold text-ink">{data.propertyName}</Text>
+            <Text className="shrink text-label leading-muted text-muted">Status booking: {bookingLabels[data.status]}</Text>
+            <Text className="shrink text-label leading-muted text-muted">
               {data.roomTypeName} · {data.planName} · {data.bookingCode}
             </Text>
             {open && remaining !== null && (
-              <View style={styles.timer}>
-                <Text style={styles.meta}>Kamar ditahan untukmu</Text>
-                <Text style={styles.time}>
+              <View className="items-center gap-[6px] rounded-card bg-soft p-[16px]">
+                <Text className="shrink text-label leading-muted text-muted">Kamar ditahan untukmu</Text>
+                <Text className="text-timer font-extrabold text-primary">
                   {pad(Math.floor(remaining / 60))}:{pad(remaining % 60)}
                 </Text>
               </View>
             )}
-            <View style={styles.cost}>
+            <View className="gap-[14px] rounded-card border border-line bg-surface p-[16px]">
               {[
                 ["Harga sewa", data.rent],
                 ["DP booking (bagian dari sewa)", data.downPayment],
                 ["Security deposit", data.securityDeposit],
                 ["Sisa sewa saat masuk", data.remainingRent],
               ].map(([label, value]) => (
-                <View key={String(label)} style={styles.row}>
-                  <Text style={styles.meta}>{label}</Text>
-                  <Text style={styles.value}>{rupiah(Number(value))}</Text>
+                <View key={String(label)} className="flex-row flex-wrap justify-between gap-[10px]">
+                  <Text className="shrink text-label leading-muted text-muted">{label}</Text>
+                  <Text className="text-body font-semibold text-accent-strong">{rupiah(Number(value))}</Text>
                 </View>
               ))}
-              <View style={styles.row}>
-                <Text style={styles.title}>Bayar sekarang</Text>
-                <Text style={styles.title}>{rupiah(data.payNow)}</Text>
+              <View className="flex-row flex-wrap justify-between gap-[10px]">
+                <Text className="text-header font-bold text-ink">Bayar sekarang</Text>
+                <Text className="text-price font-bold text-accent-strong">{rupiah(data.payNow)}</Text>
               </View>
             </View>
             {data.status === "CONFIRMED" && (
-              <Text style={styles.ok}>
+              <Text className="text-label leading-muted text-success">
                 Pembayaran diterima dan booking terkonfirmasi. Unit sudah dialokasikan untukmu.
               </Text>
             )}
             {data.status === "CANCELLED" && (
-              <Text style={styles.warn}>
+              <Text className="text-label leading-muted text-danger">
                 {cancelText[data.cancelReason ?? ""] ?? "Booking dibatalkan."}
               </Text>
             )}
             {open && data.paymentStatus === "PENDING" && (
-              <Text style={styles.meta}>
+              <Text className="shrink text-label leading-muted text-muted">
                 Menutup layar pembayaran tidak membatalkan checkout. Status diperbarui otomatis dari server.
               </Text>
             )}
-            {error && <Text style={styles.warn}>{error}</Text>}
+            {error && <Text className="text-label leading-muted text-danger">{error}</Text>}
           </>
         )}
       </ScrollView>
       {data && (
-        <View style={styles.footer}>
+        <View className="gap-[12px] border-t border-line bg-surface p-[20px]">
           {open && (
             <>
               {mode === "mock" ? (
@@ -195,19 +195,3 @@ export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  banner: { backgroundColor: colors.ink, paddingVertical: 8 },
-  bannerText: { color: "#fff", fontSize: 11, fontWeight: "700", textAlign: "center" },
-  content: { padding: 20, gap: 14, maxWidth: 600, width: "100%", alignSelf: "center" },
-  title: { fontSize: 14, fontWeight: "700", color: colors.ink },
-  meta: { fontSize: 11, color: colors.muted, lineHeight: 17 },
-  timer: { alignItems: "center", padding: 14, borderRadius: 12, backgroundColor: colors.soft, gap: 4 },
-  time: { fontSize: 30, fontWeight: "800", color: colors.primary },
-  cost: { gap: 12, padding: 16, borderRadius: 12, backgroundColor: colors.background },
-  row: { flexDirection: "row", justifyContent: "space-between", gap: 10 },
-  value: { fontSize: 11, fontWeight: "600", color: colors.primary },
-  ok: { fontSize: 12, color: colors.green, lineHeight: 18 },
-  warn: { fontSize: 12, color: colors.danger, lineHeight: 18 },
-  footer: { padding: 20, gap: 12, borderTopWidth: 1, borderTopColor: colors.line },
-});

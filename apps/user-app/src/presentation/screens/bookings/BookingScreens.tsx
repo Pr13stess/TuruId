@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ScreenProps, TabScreenProps } from '../../../navigation/types';
@@ -13,7 +13,7 @@ import { rupiah } from '../../format';
 
 const date = (value: string | null) => value ? new Date(value.length === 10 ? `${value}T12:00:00` : value).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Belum ditetapkan';
 function Badge({ status }: { status: BookingStatus }) {
-  return <Text style={[s.badge, status === 'CANCELLED' && s.cancelled]}>{bookingLabels[status]}</Text>;
+  return <Text className={`overflow-hidden rounded-chip px-[10px] py-[6px] text-caption ${status === "CANCELLED" ? "bg-soft text-danger" : "bg-accent-soft text-accent-strong"}`}>{bookingLabels[status]}</Text>;
 }
 
 export function BookingsScreen({ navigation }: TabScreenProps<'BookingTab'>) {
@@ -25,31 +25,31 @@ export function BookingsScreen({ navigation }: TabScreenProps<'BookingTab'>) {
   const state = useResource(load, focused ? 10000 : 0);
   const reload = state.retry;
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
-  return <SafeAreaView edges={['bottom']} style={s.safe}>
-    <View style={s.heading}><Text style={s.title}>Booking saya</Text><Text style={s.muted}>Pantau pesanan dan masa tinggalmu di sini.</Text>
-      <Text style={s.demo}>{mode === 'mock' ? 'DATA DEMO · tersimpan selama sesi aplikasi' : 'PEMBAYARAN SANDBOX · tanpa uang nyata'}</Text>
+  return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
+    <View className="gap-[8px] p-[20px]"><Text className="text-title font-bold text-ink">Booking saya</Text><Text className="shrink text-label leading-muted text-muted">Pantau pesanan dan masa tinggalmu di sini.</Text>
+      <Text className="text-caption leading-muted text-muted">{mode === 'mock' ? 'DATA DEMO · tersimpan selama sesi aplikasi' : 'PEMBAYARAN SANDBOX · tanpa uang nyata'}</Text>
     </View>
-    <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}>
+    <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 16, gap: 8 }}>
       {(Object.keys(bookingFilters) as BookingFilter[]).map(key => <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected: filter === key }}
-        style={[s.filter, filter === key && s.selected]} onPress={() => { setFilter(key); setPage(0); }}>
-        <Text style={[s.filterText, filter === key && { color: colors.surface }]}>{bookingFilters[key]}</Text>
+        className={`rounded-control border p-[11px] ${filter === key ? "border-accent-strong bg-accent-soft" : "border-line bg-surface"}`} onPress={() => { setFilter(key); setPage(0); }}>
+        <Text className={`text-label font-semibold ${filter === key ? "text-accent-strong" : "text-primary"}`}>{bookingFilters[key]}</Text>
       </Pressable>)}
     </ScrollView></View>
-    <FlatList style={{ flex: 1 }} contentContainerStyle={s.list} data={state.data?.items ?? []} keyExtractor={item => item.id}
+    <FlatList style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingBottom: 120, gap: 14 }} data={state.data?.items ?? []} keyExtractor={item => item.id}
       refreshing={state.loading} onRefresh={() => { if (!state.loading) reload(); }} alwaysBounceVertical
       ListEmptyComponent={<View style={{ gap: 16 }}><Status loading={state.loading} error={state.error} empty="Belum ada booking pada kategori ini" onRetry={state.error ? reload : undefined} />
         {!state.loading && !state.error && <Button title="Cari kos" onPress={() => navigation.navigate('HomeTab')} />}</View>}
-      renderItem={({ item }) => <Pressable accessibilityRole="button" accessibilityLabel={`Detail booking ${item.code}, ${bookingLabels[item.status]}`} style={s.card}
+      renderItem={({ item }) => <Pressable accessibilityRole="button" accessibilityLabel={`Detail booking ${item.code}, ${bookingLabels[item.status]}`} className="gap-[12px] rounded-card border border-line bg-surface p-[18px] shadow-card"
         onPress={() => navigation.navigate('BookingDetail', { bookingId: item.id })}>
-        <View style={s.row}><Text style={s.code}>{item.code}</Text><Badge status={item.status} /></View>
-        <Text style={s.name}>{item.propertyName}</Text><Text style={s.muted}>{item.roomName} · {item.planName}</Text>
-        <Text style={s.muted}>Dipesan {date(item.createdAt)}</Text>
-        <View style={s.row}><Text style={s.muted}>DP + deposit saat pesan</Text><Text style={s.value}>{rupiah(item.payNow)}</Text></View>
-        <Text style={s.link}>Lihat detail →</Text>
+        <View className="flex-row flex-wrap items-center justify-between gap-[10px]"><Text className="text-caption text-muted">{item.code}</Text><Badge status={item.status} /></View>
+        <Text className="text-header font-bold text-ink">{item.propertyName}</Text><Text className="shrink text-label leading-muted text-muted">{item.roomName} · {item.planName}</Text>
+        <Text className="shrink text-label leading-muted text-muted">Dipesan {date(item.createdAt)}</Text>
+        <View className="flex-row flex-wrap items-center justify-between gap-[10px]"><Text className="shrink text-label leading-muted text-muted">DP + deposit saat pesan</Text><Text className="text-body font-bold text-accent-strong">{rupiah(item.payNow)}</Text></View>
+        <Text className="text-label font-bold text-accent-strong">Lihat detail →</Text>
       </Pressable>}
-      ListFooterComponent={!state.loading && !state.error && (page > 0 || !!state.data?.items.length) ? <View style={s.paging}>
+      ListFooterComponent={!state.loading && !state.error && (page > 0 || !!state.data?.items.length) ? <View className="flex-row flex-wrap items-center justify-center gap-[10px] py-[15px]">
         <Button secondary title="Sebelumnya" disabled={page === 0} onPress={() => setPage(p => p - 1)} />
-        <Text style={s.muted}>{page + 1}</Text>
+        <Text className="shrink text-label leading-muted text-muted">{page + 1}</Text>
         <Button secondary title="Berikutnya" disabled={!state.data?.hasMore} onPress={() => setPage(p => p + 1)} />
       </View> : null} />
   </SafeAreaView>;
@@ -64,51 +64,37 @@ export function BookingDetailScreen({ route, navigation }: ScreenProps<'BookingD
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
   const b = state.data?.booking;
   const payable = b && ['HELD', 'PENDING_PAYMENT'].includes(b.status);
-  return <SafeAreaView edges={['bottom']} style={s.safe}>
-    <ScrollView contentContainerStyle={s.detail} alwaysBounceVertical refreshControl={<RefreshControl refreshing={state.loading} onRefresh={reload} tintColor={colors.primary} colors={[colors.primary]} />}>
+  return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20, paddingBottom: 40, gap: 18, maxWidth: 650, width: '100%', alignSelf: 'center' }} alwaysBounceVertical refreshControl={<RefreshControl refreshing={state.loading} onRefresh={reload} tintColor={colors.primary} colors={[colors.primary]} />}>
       {!b ? <Status loading={state.loading} error={state.error} onRetry={reload} /> : <>
-        <Text style={s.demo}>DEMO / SANDBOX PAYMENT · tanpa uang nyata</Text>
-        <View style={s.row}><Text style={s.code}>{b.code}</Text><Badge status={b.status} /></View>
-        <Text style={s.title}>{b.propertyName}</Text><Text style={s.muted}>{b.roomName} · {b.planName}</Text>
-        <View style={s.card}><Text style={s.name}>Rincian biaya saat pemesanan</Text>
+        <Text className="text-caption leading-muted text-muted">DEMO / SANDBOX PAYMENT · tanpa uang nyata</Text>
+        <View className="flex-row flex-wrap items-center justify-between gap-[10px]"><Text className="text-caption text-muted">{b.code}</Text><Badge status={b.status} /></View>
+        <Text className="text-title font-bold text-ink">{b.propertyName}</Text><Text className="shrink text-label leading-muted text-muted">{b.roomName} · {b.planName}</Text>
+        <View className="gap-[12px] rounded-card border border-line bg-surface p-[18px] shadow-card"><Text className="text-header font-bold text-ink">Rincian biaya saat pemesanan</Text>
           {([['Harga sewa', b.rent], ['DP (bagian dari sewa)', b.downPayment], ['Deposit jaminan', b.deposit], ['Bayar saat pemesanan', b.payNow], ['Sisa sewa saat masuk', b.remainingRent]] as const).map(([label, amount]) =>
-            <View key={label} style={s.row}><Text style={s.muted}>{label}</Text><Text style={s.value}>{rupiah(amount)}</Text></View>)}
-          <Text style={s.muted}>Nominal mengikuti catatan saat booking dibuat, meskipun harga kos kemudian berubah.</Text>
+            <View key={label} className="flex-row flex-wrap items-center justify-between gap-[10px]"><Text className="shrink text-label leading-muted text-muted">{label}</Text><Text className="text-body font-bold text-accent-strong">{rupiah(amount)}</Text></View>)}
+          <Text className="shrink text-label leading-muted text-muted">Nominal mengikuti catatan saat booking dibuat, meskipun harga kos kemudian berubah.</Text>
         </View>
-        <View style={s.card}><Text style={s.name}>Masa tinggal</Text>
-          <Text style={s.muted}>Rencana masuk: {date(b.moveIn)}</Text><Text style={s.muted}>Check-in: {date(b.checkedIn)}</Text><Text style={s.muted}>Checkout: {date(b.checkedOut)}</Text>
-          {b.status === 'CONFIRMED' && <Text style={s.muted}>Pesanan terkonfirmasi. Hubungi pemilik untuk mengatur kedatangan.</Text>}
-          {b.status === 'ACTIVE' && <Text style={s.muted}>Kamu sudah check-in. Checkout dicatat oleh pemilik kos.</Text>}
-          {b.status === 'COMPLETED' && <Text style={s.muted}>Masa tinggal selesai.</Text>}
-          {b.status === 'CANCELLED' && <Text style={s.muted}>{b.cancelNote || 'Booking dibatalkan. Periksa status pembayaran dan pengembalian dana di bawah.'}</Text>}
+        <View className="gap-[12px] rounded-card border border-line bg-surface p-[18px] shadow-card"><Text className="text-header font-bold text-ink">Masa tinggal</Text>
+          <Text className="shrink text-label leading-muted text-muted">Rencana masuk: {date(b.moveIn)}</Text><Text className="shrink text-label leading-muted text-muted">Check-in: {date(b.checkedIn)}</Text><Text className="shrink text-label leading-muted text-muted">Checkout: {date(b.checkedOut)}</Text>
+          {b.status === 'CONFIRMED' && <Text className="shrink text-label leading-muted text-muted">Pesanan terkonfirmasi. Hubungi pemilik untuk mengatur kedatangan.</Text>}
+          {b.status === 'ACTIVE' && <Text className="shrink text-label leading-muted text-muted">Kamu sudah check-in. Checkout dicatat oleh pemilik kos.</Text>}
+          {b.status === 'COMPLETED' && <Text className="shrink text-label leading-muted text-muted">Masa tinggal selesai.</Text>}
+          {b.status === 'CANCELLED' && <Text className="shrink text-label leading-muted text-muted">{b.cancelNote || 'Booking dibatalkan. Periksa status pembayaran dan pengembalian dana di bawah.'}</Text>}
         </View>
-        <View style={s.card}><Text style={s.name}>Pembayaran dan pengembalian dana</Text>
-          {!state.data?.payments.length && <Text style={s.muted}>Belum ada transaksi tercatat.</Text>}
+        <View className="gap-[12px] rounded-card border border-line bg-surface p-[18px] shadow-card"><Text className="text-header font-bold text-ink">Pembayaran dan pengembalian dana</Text>
+          {!state.data?.payments.length && <Text className="shrink text-label leading-muted text-muted">Belum ada transaksi tercatat.</Text>}
           {state.data?.payments.map(payment => <View key={payment.id} style={{ gap: 8 }}>
-            <View style={s.row}><Text style={s.muted}>{paymentLabels[payment.status] ?? payment.status}</Text><Text style={s.value}>{rupiah(payment.amount)}</Text></View>
-            <Text style={s.muted}>{date(payment.createdAt)}</Text>
-            {payment.refunds.map(refund => <Text key={refund.id} style={s.muted}>Pengembalian: {paymentLabels[refund.status] ?? refund.status} · {rupiah(refund.amount)}</Text>)}
+            <View className="flex-row flex-wrap items-center justify-between gap-[10px]"><Text className="shrink text-label leading-muted text-muted">{paymentLabels[payment.status] ?? payment.status}</Text><Text className="text-body font-bold text-accent-strong">{rupiah(payment.amount)}</Text></View>
+            <Text className="shrink text-label leading-muted text-muted">{date(payment.createdAt)}</Text>
+            {payment.refunds.map(refund => <Text key={refund.id} className="shrink text-label leading-muted text-muted">Pengembalian: {paymentLabels[refund.status] ?? refund.status} · {rupiah(refund.amount)}</Text>)}
           </View>)}
         </View>
         {payable && <Button title="Lanjutkan pembayaran / kelola checkout" onPress={() => navigation.navigate('Checkout', { bookingId: b.id, planId: b.planId })} />}
         {b.status === 'COMPLETED' && <Button title="Beri / lihat ulasan" onPress={() => navigation.navigate('WriteReview', { bookingId: b.id })} />}
-        {b.status === 'CONFIRMED' && <Text style={s.muted}>Pembatalan setelah pembayaran memerlukan proses refund oleh pengelola. Pengajuan langsung dari aplikasi belum tersedia.</Text>}
+        {b.status === 'CONFIRMED' && <Text className="shrink text-label leading-muted text-muted">Pembatalan setelah pembayaran memerlukan proses refund oleh pengelola. Pengajuan langsung dari aplikasi belum tersedia.</Text>}
         <Button secondary title="Kembali ke daftar booking" onPress={() => navigation.navigate('Main', { screen: 'BookingTab' })} />
       </>}
     </ScrollView>
   </SafeAreaView>;
 }
-const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background }, heading: { padding: 20, gap: 8 },
-  title: { fontSize: 24, fontWeight: '700', color: colors.primary }, name: { fontSize: 16, fontWeight: '700', color: colors.ink },
-  muted: { fontSize: 12, color: colors.muted, lineHeight: 19, flexShrink: 1 }, demo: { fontSize: 10, color: colors.muted, lineHeight: 16 },
-  filters: { paddingHorizontal: 20, paddingBottom: 16, gap: 8 }, filter: { padding: 11, borderRadius: 10, backgroundColor: colors.surface },
-  selected: { backgroundColor: colors.primary }, filterText: { fontSize: 12, color: colors.primary },
-  list: { flexGrow: 1, paddingHorizontal: 20, paddingBottom: 120, gap: 14 },
-  card: { backgroundColor: colors.surface, padding: 18, borderRadius: 12, borderWidth: 1, borderColor: colors.line, gap: 12 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' },
-  code: { fontSize: 11, color: colors.muted }, badge: { paddingHorizontal: 10, paddingVertical: 6, backgroundColor: colors.orangeSoft, color: colors.primary, fontSize: 11, borderRadius: 8, overflow: 'hidden' },
-  cancelled: { backgroundColor: colors.soft, color: colors.danger }, value: { fontSize: 13, color: colors.primary, fontWeight: '700' }, link: { color: colors.primary, fontSize: 12, fontWeight: '700' },
-  paging: { flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', paddingVertical: 15 },
-  detail: { flexGrow: 1, padding: 20, paddingBottom: 40, gap: 18, maxWidth: 650, width: '100%', alignSelf: 'center' },
-});

@@ -20,6 +20,9 @@ export const colors = {
   green: "#418263",
   danger: "#AA4141",
   overlay: "#15162777",
+  media: "#080808",
+  mediaControl: "#08080888",
+  mediaCanvas: "#000000",
 };
 export const radius = { chip: 8, control: 12, card: 16, button: 12 };
 

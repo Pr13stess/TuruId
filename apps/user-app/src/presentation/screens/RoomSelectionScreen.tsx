@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ScreenProps } from "../../navigation/types";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -23,10 +23,10 @@ export function RoomSelectionScreen({
     (r) => r.id === selected && r.available > 0 && r.plans.length > 0,
   );
   return (
-    <SafeAreaView edges={["bottom"]} style={styles.safe}>
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.hint}>Pilih ruang yang paling pas untukmu.</Text>
+    <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.background }}>
+      <View className="w-full max-w-[600px] flex-1 self-center">
+        <ScrollView contentContainerStyle={{ padding: 20 }}>
+          <Text className="mb-[20px] text-body leading-body text-muted">Pilih ruang yang paling pas untukmu.</Text>
           {state.loading || state.error ? (
             <Status
               loading={state.loading}
@@ -47,8 +47,8 @@ export function RoomSelectionScreen({
             <Status empty="Belum ada tipe kamar" />
           )}
         </ScrollView>
-        <View style={styles.footer}>
-          <Text style={styles.notice}>
+        <View className="gap-[12px] border-t border-line bg-surface p-[20px]">
+          <Text className="text-center text-caption leading-muted text-muted">
             Ketersediaan dapat berubah hingga proses checkout.
           </Text>
           <Button
@@ -67,16 +67,3 @@ export function RoomSelectionScreen({
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  container: { flex: 1, width: "100%", maxWidth: 600, alignSelf: "center" },
-  content: { padding: 20 },
-  hint: { fontSize: 12, color: colors.muted, marginBottom: 20 },
-  footer: {
-    padding: 20,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-  },
-  notice: { fontSize: 10, color: colors.muted, textAlign: "center" },
-});

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ScreenProps } from "../../navigation/types";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -32,9 +32,9 @@ export function PlanSelectionScreen({
   const plan = state.data?.plans.find((p) => p.id === selected);
   const cost = plan ? summarizeCost(plan) : null;
   return (
-    <SafeAreaView edges={["bottom"]} style={styles.safe}>
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content}>
+    <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.background }}>
+      <View className="w-full max-w-[600px] flex-1 self-center">
+        <ScrollView contentContainerStyle={{ padding: 20 }}>
           {state.loading || state.error ? (
             <Status
               loading={state.loading}
@@ -45,13 +45,13 @@ export function PlanSelectionScreen({
             <Status empty="Tipe kamar tidak tersedia" />
           ) : (
             <>
-              <View style={styles.room}>
-                <Text style={styles.roomName}>{room.name}</Text>
-                <Text style={styles.meta}>
+              <View className="mb-[24px] gap-[6px] rounded-card border border-line bg-surface p-[16px]">
+                <Text className="text-header font-bold text-ink">{room.name}</Text>
+                <Text className="shrink text-label leading-muted text-muted">
                   {room.room_size_m2} m² · {room.available} unit tersedia
                 </Text>
               </View>
-              <Text style={styles.hint}>Pilih durasi tinggalmu</Text>
+              <Text className="mb-[14px] text-label leading-muted text-muted">Pilih durasi tinggalmu</Text>
               {state.data?.plans.length ? (
                 state.data.plans.map((p) => (
                   <Pressable
@@ -64,24 +64,21 @@ export function PlanSelectionScreen({
                     accessibilityLabel={`Paket ${p.name}`}
                     disabled={room.available === 0}
                     onPress={() => setSelected(p.id)}
-                    style={[styles.plan, p.id === selected && styles.selected]}
+                    className={`mb-[12px] flex-row items-center gap-[12px] rounded-card ${p.id === selected ? "border-2 border-accent-strong bg-accent-soft p-[15px]" : "border border-line bg-surface p-[16px]"}`}
                   >
                     <View style={{ flex: 1, gap: 5 }}>
-                      <Text style={styles.roomName}>{p.name}</Text>
-                      <Text style={styles.meta}>
+                      <Text className="text-header font-bold text-ink">{p.name}</Text>
+                      <Text className="text-body font-bold text-accent-strong">
                         {rupiah(p.price)} /{" "}
                         {periodLabel(p.duration_unit, p.duration_value)}
                       </Text>
-                      <Text style={styles.meta}>
+                      <Text className="shrink text-label leading-muted text-muted">
                         DP {rupiah(p.down_payment)} · Deposit{" "}
                         {rupiah(p.security_deposit)}
                       </Text>
                     </View>
                     <View
-                      style={[
-                        styles.radio,
-                        p.id === selected && styles.radioSelected,
-                      ]}
+                      className={`h-[17px] w-[17px] rounded-pill ${p.id === selected ? "border-[5px] border-accent-strong" : "border border-muted"}`}
                     />
                   </Pressable>
                 ))
@@ -89,13 +86,13 @@ export function PlanSelectionScreen({
                 <Status empty="Belum ada paket sewa aktif" />
               )}
               {room.available === 0 && (
-                <Text style={styles.hint}>
+                <Text className="mb-[14px] text-label leading-muted text-muted">
                   Kamar sudah penuh. Silakan pilih tipe lain.
                 </Text>
               )}
               {plan && cost && (
-                <View style={styles.cost}>
-                  <Text style={styles.roomName}>Rincian biaya</Text>
+                <View className="mt-[16px] gap-[14px] rounded-card border border-line bg-surface p-[16px]">
+                  <Text className="text-header font-bold text-ink">Rincian biaya</Text>
                   {[
                     ["Harga sewa", cost.rent],
                     ["DP booking (bagian dari sewa)", cost.downPayment],
@@ -104,15 +101,15 @@ export function PlanSelectionScreen({
                     ["Sisa sewa saat masuk", cost.remainingRent],
                     ["Total sewa + deposit", cost.total],
                   ].map(([label, value]) => (
-                    <View key={String(label)} style={styles.costRow}>
-                      <Text style={styles.meta}>{label}</Text>
-                      <Text style={styles.costValue}>
+                    <View key={String(label)} className="flex-row flex-wrap justify-between gap-[10px]">
+                      <Text className="shrink text-label leading-muted text-muted">{label}</Text>
+                      <Text className="text-body font-semibold text-accent-strong">
                         {rupiah(Number(value))}
                       </Text>
                     </View>
                   ))}
-                  <Text style={styles.terms}>{plan.deposit_terms}</Text>
-                  <Text style={styles.terms}>
+                  <Text className="text-caption leading-muted text-muted">{plan.deposit_terms}</Text>
+                  <Text className="text-caption leading-muted text-muted">
                     Deposit{" "}
                     {plan.deposit_refundable
                       ? "dapat dikembalikan sesuai ketentuan"
@@ -125,15 +122,15 @@ export function PlanSelectionScreen({
             </>
           )}
         </ScrollView>
-        <View style={styles.footer}>
+        <View className="gap-[12px] border-t border-line bg-surface p-[20px]">
           {cost && cost.payNow <= 0 && (
-            <Text style={styles.preview}>
+            <Text className="text-center text-caption leading-muted text-muted">
               Paket ini tidak punya DP atau deposit, jadi belum bisa
               dibayar lewat checkout.
             </Text>
           )}
           {error && (
-            <Text style={[styles.preview, { color: colors.danger }]}>
+            <Text className="text-center text-caption leading-muted text-danger">
               {error}
             </Text>
           )}
@@ -161,59 +158,3 @@ export function PlanSelectionScreen({
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  container: { flex: 1, maxWidth: 600, width: "100%", alignSelf: "center" },
-  content: { padding: 20 },
-  room: {
-    backgroundColor: colors.soft,
-    padding: 16,
-    borderRadius: 10,
-    gap: 5,
-    marginBottom: 24,
-  },
-  roomName: { fontSize: 14, fontWeight: "700", color: colors.ink },
-  meta: { fontSize: 11, color: colors.muted, lineHeight: 17 },
-  hint: { fontSize: 12, color: colors.muted, marginBottom: 14 },
-  plan: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 9,
-    marginBottom: 12,
-  },
-  selected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.selected,
-    borderWidth: 2,
-    padding: 15,
-  },
-  radio: {
-    width: 17,
-    height: 17,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#AAA",
-  },
-  radioSelected: { borderWidth: 5, borderColor: colors.primary },
-  cost: {
-    marginTop: 15,
-    gap: 14,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.background,
-  },
-  costRow: { flexDirection: "row", justifyContent: "space-between", gap: 10 },
-  costValue: { fontSize: 11, color: colors.primary, fontWeight: "600" },
-  terms: { fontSize: 11, lineHeight: 18, color: colors.muted },
-  footer: {
-    padding: 20,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-  },
-  preview: { fontSize: 10, color: colors.muted, textAlign: "center" },
-});

@@ -30,15 +30,13 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
     </ScrollView>
     {items.length > 1 && <View accessible accessibilityRole="text" pointerEvents="none"
       accessibilityLabel={`Media ${index + 1} dari ${items.length}`} accessibilityLiveRegion="polite"
-      style={{ position: "absolute", bottom: 12, left: 0, right: 0, flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}>
-      {items.map((item, i) => <View key={item.id} style={{ width: 6, height: 6, borderRadius: 3,
-        borderWidth: 0.5, borderColor: colors.primary,
-        backgroundColor: index === i ? colors.orange : colors.surface }} />)}
+      className="absolute inset-x-0 bottom-[12px] flex-row items-center justify-center gap-[6px]">
+      {items.map((item, i) => <View key={item.id} className={`h-[6px] w-[6px] rounded-pill border border-primary ${index === i ? "bg-accent" : "bg-surface"}`} />)}
     </View>}
     <Pressable accessibilityRole="button" accessibilityLabel="Buka galeri layar penuh" onPress={() => setFullscreen(true)}
-      style={{ position: "absolute", top: 10, right: 10, width: 44, height: 44, borderRadius: 22, backgroundColor: "#08080888", alignItems: "center", justifyContent: "center" }}>
+      className="absolute right-[10px] top-[10px] h-[44px] w-[44px] items-center justify-center rounded-control bg-media-control">
       <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
-        <Path d="M9 3H3v6M15 3h6v6M21 15v6h-6M3 15v6h6" stroke="white" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+        <Path d="M9 3H3v6M15 3h6v6M21 15v6h-6M3 15v6h6" stroke={colors.surface} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       </Svg>
     </Pressable>
     {fullscreen && <PropertyPhotoViewer photos={photos} video={video} resolveVideo={resolve} initialIndex={index} onClose={() => setFullscreen(false)} />}

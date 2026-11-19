@@ -1,6 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import type { Room } from "../../domain/models";
-import { colors } from "../theme";
 import { rupiah, periodLabel } from "../format";
 import { FeatureGrid } from "./Primitives";
 export function RoomCard({
@@ -26,36 +25,32 @@ export function RoomCard({
       accessibilityState={{ disabled: !available, selected }}
       disabled={!available || !onPress}
       onPress={onPress}
-      style={[
-        styles.card,
-        selected && styles.selected,
-        !available && styles.full,
-      ]}
+      className={`mb-[12px] gap-[14px] rounded-card ${selected ? "border-2 border-accent-strong bg-accent-soft p-[13px]" : "border border-line bg-surface p-[14px]"} ${!available ? "opacity-[0.48]" : ""}`}
     >
-      <View style={styles.top}>
+      <View className="flex-row items-center gap-[12px]">
         {compact && (
-          <View style={styles.thumb}>
-            <Text style={styles.thumbText}>⌂</Text>
+          <View className="h-[62px] w-[62px] items-center justify-center rounded-control bg-soft">
+            <Text className="text-room-symbol text-muted">⌂</Text>
           </View>
         )}
         <View style={{ flex: 1, gap: 5 }}>
-          <Text style={styles.name}>{room.name}</Text>
-          <Text style={styles.meta}>
+          <Text className="text-header font-bold text-ink">{room.name}</Text>
+          <Text className="text-label leading-muted text-muted">
             {room.room_size_m2} m² ·{" "}
             {room.bathroom_type === "PRIVATE"
               ? "Kamar mandi dalam"
               : "Kamar mandi luar"}
           </Text>
-          <Text style={styles.price}>
+          <Text className="text-body font-bold text-accent-strong">
             {plan
               ? `${rupiah(plan.price)} / ${periodLabel(plan.duration_unit, plan.duration_value)}`
               : "Paket belum tersedia"}
           </Text>
         </View>
-        {selected && <Text style={styles.check}>●</Text>}
+        {selected && <Text className="text-section text-accent-strong">●</Text>}
       </View>
       {!compact && <FeatureGrid items={room.facilities} />}
-      <Text style={[styles.stock, !available && { color: colors.muted }]}>
+      <Text className={`text-right text-caption ${!available ? "text-muted" : "text-success"}`}>
         {available
           ? `Tersedia ${room.available} unit`
           : "Penuh · belum bisa dipilih"}
@@ -63,36 +58,3 @@ export function RoomCard({
     </Pressable>
   );
 }
-const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 10,
-    padding: 14,
-    gap: 14,
-    backgroundColor: "#fff",
-    marginBottom: 10,
-  },
-  selected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.selected,
-    borderWidth: 2,
-    padding: 13,
-  },
-  full: { opacity: 0.48 },
-  top: { flexDirection: "row", gap: 12, alignItems: "center" },
-  name: { fontWeight: "700", fontSize: 14, color: colors.ink },
-  meta: { fontSize: 10, color: colors.muted },
-  price: { fontSize: 12, fontWeight: "700", color: colors.primary },
-  stock: { fontSize: 10, color: colors.green, textAlign: "right" },
-  thumb: {
-    width: 62,
-    height: 62,
-    borderRadius: 9,
-    backgroundColor: colors.soft,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  thumbText: { fontSize: 36, color: colors.muted },
-  check: { fontSize: 17, color: colors.primary },
-});

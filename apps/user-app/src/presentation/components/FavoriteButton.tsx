@@ -21,19 +21,17 @@ export function FavoriteButton({ propertyId }: { propertyId: string }) {
     catch (e) { setError(e instanceof Error ? e.message : 'Favorit gagal diperbarui.'); }
     finally { lock.current = false; setBusy(false); }
   }
-  return <View style={{ gap: 8, flexShrink: 1 }}>
+  return <View className="shrink gap-[8px]">
     <Pressable accessibilityRole="button"
       accessibilityLabel={state.error ? 'Coba muat favorit' : state.data ? 'Hapus dari favorit' : 'Simpan kos ke favorit'}
       accessibilityState={{ selected: state.data === true, disabled: busy || state.loading, busy: busy || state.loading }}
       disabled={busy || state.loading} onPress={state.error ? reload : toggle}
-      style={({ pressed }) => ({ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 9,
-        minHeight: 44, paddingHorizontal: 14, borderRadius: 22, borderWidth: 1, borderColor: colors.danger,
-        backgroundColor: pressed ? colors.soft : colors.surface, opacity: busy || state.loading ? 0.6 : 1 })}>
+      className={`min-h-[44px] self-start flex-row items-center gap-[9px] rounded-pill border border-danger bg-surface px-[14px] active:bg-soft ${busy || state.loading ? "opacity-60" : ""}`}>
       {busy || state.loading ? <ActivityIndicator size="small" color={colors.danger} /> : <HeartIcon color={colors.danger} filled={state.data === true} />}
-      <Text style={{ color: colors.danger, fontSize: 13, fontWeight: '600' }}>
+      <Text className="text-label font-semibold text-danger">
         {state.error ? 'Coba lagi' : busy ? 'Menyimpan…' : state.loading ? 'Memuat…' : state.data ? 'Tersimpan' : 'Simpan kos'}
       </Text>
     </Pressable>
-    {!!(error || state.error) && <Text style={{ color: colors.danger }}>{error || state.error}</Text>}
+    {!!(error || state.error) && <Text className="text-label leading-muted text-danger">{error || state.error}</Text>}
   </View>;
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Animated, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated, Modal, PanResponder, Pressable, ScrollView, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { initialPhoto } from "../../domain/chatGallery";
 import { propertyPhotoZoom } from "../../domain/propertyPhotoZoom";
@@ -26,7 +26,7 @@ export function PropertyPhotoViewer({ photos, video, resolveVideo, initialIndex,
   const previous = () => go(index - 1);
   const next = () => go(index + 1);
   return <Modal visible animationType="fade" onRequestClose={onClose} statusBarTranslucent presentationStyle="overFullScreen">
-    <View style={styles.root} accessibilityViewIsModal>
+    <View className="flex-1 items-center justify-center bg-media" accessibilityViewIsModal>
       <ScrollView key={width} ref={pager} horizontal pagingEnabled directionalLockEnabled
         bounces={false} alwaysBounceVertical={false} alwaysBounceHorizontal={false} overScrollMode="never"
         showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}
@@ -42,13 +42,13 @@ export function PropertyPhotoViewer({ photos, video, resolveVideo, initialIndex,
             : <ZoomPhoto key={`${item.id}:${index}:${width}:${height}`} item={item} width={width} height={pageHeight} onZoom={setZoomed} />}
         </View>)}
       </ScrollView>
-      <View style={[styles.top, { top: insets.top + 8 }]}>
-        <Text accessibilityLiveRegion="polite" style={styles.text}>{items.length ? index + 1 : 0}/{items.length}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Tutup galeri" onPress={onClose} style={styles.button}><Text style={styles.text}>✕</Text></Pressable>
+      <View className="absolute left-[16px] right-[16px] flex-row items-center justify-between" style={{ top: insets.top + 8 }}>
+        <Text accessibilityLiveRegion="polite" className="text-price font-semibold text-surface">{items.length ? index + 1 : 0}/{items.length}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Tutup galeri" onPress={onClose} className="min-h-[48px] min-w-[48px] items-center justify-center rounded-control bg-media-control px-[12px]"><Text className="text-price font-semibold text-surface">✕</Text></Pressable>
       </View>
-      <View style={[styles.bottom, { bottom: insets.bottom + 8 }]}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Media sebelumnya" disabled={index === 0} onPress={previous} style={[styles.button, index === 0 && styles.disabled]}><Text style={styles.text}>‹</Text></Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Media berikutnya" disabled={index >= items.length - 1} onPress={next} style={[styles.button, index >= items.length - 1 && styles.disabled]}><Text style={styles.text}>›</Text></Pressable>
+      <View className="absolute left-[8px] right-[8px] flex-row items-center justify-between" style={{ bottom: insets.bottom + 8 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Media sebelumnya" disabled={index === 0} onPress={previous} className={`min-h-[48px] min-w-[48px] items-center justify-center rounded-control bg-media-control px-[12px] ${index === 0 ? "opacity-30" : ""}`}><Text className="text-price font-semibold text-surface">‹</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Media berikutnya" disabled={index >= items.length - 1} onPress={next} className={`min-h-[48px] min-w-[48px] items-center justify-center rounded-control bg-media-control px-[12px] ${index >= items.length - 1 ? "opacity-30" : ""}`}><Text className="text-price font-semibold text-surface">›</Text></Pressable>
       </View>
     </View>
   </Modal>;
@@ -86,12 +86,3 @@ function ZoomPhoto({ item, width, height, onZoom }: {
     </Animated.View>
   </View>;
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#080808", justifyContent: "center", alignItems: "center" },
-  top: { position: "absolute", left: 16, right: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  bottom: { position: "absolute", left: 8, right: 8, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  text: { color: "#fff", fontSize: 18, fontWeight: "600" },
-  button: { minWidth: 48, minHeight: 48, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
-  disabled: { opacity: 0.3 },
-});

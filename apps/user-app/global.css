@@ -19,6 +19,9 @@
   --color-success: #418263;
   --color-danger: #AA4141;
   --color-overlay: #15162777;
+  --color-media: #080808;
+  --color-media-control: #08080888;
+  --color-media-canvas: #000000;
 
   --radius-chip: 8px;
   --radius-control: 12px;
@@ -36,6 +39,10 @@
   --text-price: 18px;
   --text-close: 27px;
   --text-display: 42px;
+  --text-title: 24px;
+  --text-timer: 30px;
+  --text-symbol: 22px;
+  --text-room-symbol: 36px;
   --leading-muted: 19px;
   --leading-body: 22px;
 }
