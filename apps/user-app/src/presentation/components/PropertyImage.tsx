@@ -8,7 +8,6 @@ import {
   type ViewStyle,
   type ImageSourcePropType,
 } from "react-native";
-import { colors } from "../theme";
 const demoImages: Record<string, ImageSourcePropType> = {
   "demo://kos-1": require("../../../assets/kos-1.png"),
   "demo://kos-2": require("../../../assets/kos-2.png"),
@@ -26,7 +25,7 @@ export function PropertyImage({
   const [failed, setFailed] = useState(false);
   const source = uri ? (demoImages[uri] ?? { uri }) : undefined;
   return (
-    <View style={[styles.wrap, style]}>
+    <View className="overflow-hidden bg-soft" style={style}>
       {source && !failed ? (
         <Image
           source={source}
@@ -36,17 +35,11 @@ export function PropertyImage({
           accessibilityLabel="Foto kos"
         />
       ) : (
-        <View style={styles.placeholder}>
-          <Text style={styles.house}>⌂</Text>
-          <Text style={styles.label}>Foto belum tersedia</Text>
+        <View className="flex-1 items-center justify-center gap-[6px]">
+          <Text className="text-display text-primary">⌂</Text>
+          <Text className="text-caption text-muted">Foto belum tersedia</Text>
         </View>
       )}
     </View>
   );
 }
-const styles = StyleSheet.create({
-  wrap: { backgroundColor: colors.soft, overflow: "hidden" },
-  placeholder: { flex: 1, alignItems: "center", justifyContent: "center" },
-  house: { fontSize: 42, color: colors.primary },
-  label: { fontSize: 11, color: colors.muted },
-});

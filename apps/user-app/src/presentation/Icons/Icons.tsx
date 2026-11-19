@@ -1,6 +1,21 @@
-import Svg, { Path } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 
 type P = { color: string; size?: number };
+
+export const LocationIcon = ({ color, size = 20 }: P) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+    <Circle cx={12} cy={10} r={2.5} stroke={color} strokeWidth={1.8} />
+  </Svg>
+);
+
+export const TargetIcon = ({ color, size = 44 }: P) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Circle cx={12} cy={12} r={7} stroke={color} strokeWidth={1.8} />
+    <Circle cx={12} cy={12} r={2} fill={color} />
+    <Path d="M12 2v4m0 12v4M2 12h4m12 0h4" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+  </Svg>
+);
 
 export const FilterIcon = ({ color, size = 18 }: P) => (
   <Svg width={size} height={size} viewBox="0 0 13 14" fill="none">

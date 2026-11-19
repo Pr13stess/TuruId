@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import type { DurationUnit, SearchQuery } from "../../domain/models";
 import { defaultQuery } from "../../domain/models";
-import { colors } from "../theme";
 import { Chip, Button, Section } from "./Primitives";
 import { Sheet } from "./Sheet";
 const periods: { label: string; unit: DurationUnit; value: number }[] = [
@@ -63,8 +62,8 @@ export function FilterSheet({
   return (
     <Sheet visible title="Filter & urutkan" onClose={onClose}>
       <Section title="Filter">
-        <Text style={styles.label}>Paket sewa</Text>
-        <View style={styles.wrap}>
+        <Text className="mt-[6px] text-label font-semibold text-muted">Paket sewa</Text>
+        <View className="flex-row flex-wrap gap-[8px]">
           {periods.map((p) => (
             <Chip
               key={p.label}
@@ -82,11 +81,11 @@ export function FilterSheet({
             />
           ))}
         </View>
-        <Text style={styles.label}>Harga per paket (Rp)</Text>
-        <View style={styles.wrap}>
+        <Text className="mt-[6px] text-label font-semibold text-muted">Harga per paket (Rp)</Text>
+        <View className="flex-row flex-wrap gap-[8px]">
           <TextInput
             accessibilityLabel="Harga minimum"
-            style={styles.input}
+            className="min-h-[48px] min-w-[100px] flex-1 rounded-control border border-line bg-surface p-[13px] text-body text-ink"
             keyboardType="numeric"
             placeholder="Minimum"
             value={min}
@@ -94,15 +93,15 @@ export function FilterSheet({
           />
           <TextInput
             accessibilityLabel="Harga maksimum"
-            style={styles.input}
+            className="min-h-[48px] min-w-[100px] flex-1 rounded-control border border-line bg-surface p-[13px] text-body text-ink"
             keyboardType="numeric"
             placeholder="Maksimum"
             value={max}
             onChangeText={setMax}
           />
         </View>
-        <Text style={styles.label}>Tipe kos</Text>
-        <View style={styles.wrap}>
+        <Text className="mt-[6px] text-label font-semibold text-muted">Tipe kos</Text>
+        <View className="flex-row flex-wrap gap-[8px]">
           {(
             [
               { id: null, label: "Semua" },
@@ -119,8 +118,8 @@ export function FilterSheet({
             />
           ))}
         </View>
-        <Text style={styles.label}>Fasilitas kamar</Text>
-        <View style={styles.wrap}>
+        <Text className="mt-[6px] text-label font-semibold text-muted">Fasilitas kamar</Text>
+        <View className="flex-row flex-wrap gap-[8px]">
           {["AC", "Kamar mandi dalam", "Kasur", "Meja belajar"].map((x) => (
             <Chip
               key={x}
@@ -130,8 +129,8 @@ export function FilterSheet({
             />
           ))}
         </View>
-        <Text style={styles.label}>Fasilitas umum</Text>
-        <View style={styles.wrap}>
+        <Text className="mt-[6px] text-label font-semibold text-muted">Fasilitas umum</Text>
+        <View className="flex-row flex-wrap gap-[8px]">
           {["Wi-Fi", "Dapur bersama", "Parkir motor", "CCTV"].map((x) => (
             <Chip
               key={x}
@@ -141,8 +140,8 @@ export function FilterSheet({
             />
           ))}
         </View>
-        <Text style={styles.label}>Rating minimal</Text>
-        <View style={styles.wrap}>
+        <Text className="mt-[6px] text-label font-semibold text-muted">Rating minimal</Text>
+        <View className="flex-row flex-wrap gap-[8px]">
           {[0, 3, 4, 4.5].map((v) => (
             <Chip
               key={v}
@@ -152,11 +151,11 @@ export function FilterSheet({
             />
           ))}
         </View>
-        <Text style={styles.label}>Jarak maksimum (km, garis lurus)</Text>
+        <Text className="mt-[6px] text-label font-semibold text-muted">Jarak maksimum (km, garis lurus)</Text>
         <TextInput
           accessibilityLabel="Jarak maksimum"
           editable={!!draft.reference}
-          style={[styles.input, !draft.reference && { opacity: 0.4 }]}
+          className={`min-h-[48px] min-w-[100px] flex-1 rounded-control border border-line bg-surface p-[13px] text-body text-ink ${!draft.reference ? "opacity-40" : ""}`}
           keyboardType="decimal-pad"
           value={distance}
           onChangeText={setDistance}
@@ -166,7 +165,7 @@ export function FilterSheet({
         />
       </Section>
       <Section title="Urutkan">
-        <View style={styles.wrap}>
+        <View className="flex-row flex-wrap gap-[8px]">
           {(
             [
               { id: "recommended", label: "Rekomendasi" },
@@ -191,7 +190,7 @@ export function FilterSheet({
           ))}
         </View>
       </Section>
-      {!!error && <Text style={{ color: colors.danger }}>{error}</Text>}
+      {!!error && <Text className="text-label leading-muted text-danger">{error}</Text>}
       <Button title="Terapkan" onPress={apply} />
       <Button
         title="Reset filter"
@@ -211,16 +210,3 @@ export function FilterSheet({
     </Sheet>
   );
 }
-const styles = StyleSheet.create({
-  wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  label: { fontSize: 13, color: colors.muted, marginTop: 6 },
-  input: {
-    flex: 1,
-    minWidth: 100,
-    padding: 13,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 8,
-    color: colors.ink,
-  },
-});

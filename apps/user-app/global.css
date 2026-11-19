@@ -18,6 +18,7 @@
   --color-soft: #F3F1EE;
   --color-success: #418263;
   --color-danger: #AA4141;
+  --color-overlay: #15162777;
 
   --radius-chip: 8px;
   --radius-control: 12px;
@@ -25,11 +26,16 @@
   --radius-pill: 9999px;
 
   --shadow-dock: 0px 4px 14px #00000015;
+  --shadow-card: 0px 2px 8px #2021310A;
 
   --text-caption: 11px;
   --text-label: 12px;
   --text-body: 14px;
   --text-section: 17px;
   --text-header: 16px;
+  --text-price: 18px;
+  --text-close: 27px;
+  --text-display: 42px;
   --leading-muted: 19px;
+  --leading-body: 22px;
 }

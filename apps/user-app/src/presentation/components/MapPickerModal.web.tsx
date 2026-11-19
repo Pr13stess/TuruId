@@ -12,7 +12,7 @@ export function MapPickerModal({
 }) {
   return (
     <Sheet visible title="Peta" onClose={onClose}>
-      <Text>Pemilihan lewat peta tersedia di aplikasi Android.</Text>
+      <Text className="text-label leading-muted text-muted">Pemilihan lewat peta tersedia di aplikasi Android.</Text>
       <Button title="Tutup" onPress={onClose} secondary />
     </Sheet>
   );

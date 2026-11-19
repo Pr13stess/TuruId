@@ -3,12 +3,11 @@ import { useCallback, useState } from "react";
 import {
   FlatList,
   Pressable,
-  StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { FilterIcon, SortIcon, NotifIcon } from "../Icons/Icons";
+import { FilterIcon, SortIcon, NotifIcon, LocationIcon } from "../Icons/Icons";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { defaultQuery } from "../../domain/models";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -48,23 +47,23 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
     query.durationValue !== 1
   );
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.safe}>
-      <View style={styles.container}>
-        <View style={styles.header}>
+    <SafeAreaView edges={["top", "left", "right"]} style={{ flex: 1, backgroundColor: colors.background }}>
+      <View className="flex-1 w-full max-w-[600px] self-center">
+        <View className="flex-row items-center justify-between px-[20px] pt-[16px] pb-[20px]">
           <UserBrand />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Notifikasi"
             onPress={() => navigation.navigate("Notifications")}
-            style={styles.notification}
+            className="h-[44px] w-[44px] items-center justify-center rounded-control border border-line bg-surface"
           >
-            <NotifIcon color="#fff" />
+            <NotifIcon color={colors.primary} />
           </Pressable>
         </View>
-        <View style={styles.search}>
+        <View className="mx-[20px] flex-row items-center rounded-control border border-line bg-surface">
           <TextInput
             accessibilityLabel="Cari nama kos atau area"
-            style={styles.searchInput}
+            className="min-h-[48px] flex-1 p-[14px] text-body text-ink"
             placeholder="Cari nama kos atau area…"
             placeholderTextColor={colors.muted}
             value={text}
@@ -78,46 +77,45 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
             accessibilityRole="button"
             accessibilityLabel="Cari"
             onPress={() => setQuery({ ...query, text: text.trim(), page: 0 })}
-            style={styles.searchButton}
+            className="min-h-[48px] justify-center rounded-control bg-accent-soft px-[16px]"
           >
-            <Text style={styles.searchText}>Cari</Text>
+            <Text className="text-body font-bold text-accent-strong">Cari</Text>
           </Pressable>
         </View>
         <Pressable
           accessibilityRole="button"
           onPress={() => setSheet("location")}
-          style={styles.location}
+          className="flex-row items-center gap-[8px] px-[20px] py-[16px]"
         >
-          <Text style={styles.pin}>⌖</Text>
-          <Text numberOfLines={1} style={styles.locationText}>
+          <LocationIcon color={colors.primary} />
+          <Text numberOfLines={1} className="flex-1 text-label font-semibold text-muted">
             {query.reference?.label ?? "Pilih lokasi acuanmu"}
           </Text>
-          {/* <Text style={styles.chevron}>⌄</Text> */}
         </Pressable>
-        <View style={styles.toolbar}>
-          <View style={styles.tools}>
+        <View className="mb-[16px] flex-row items-center justify-between px-[20px]">
+          <View className="flex-row items-center gap-[8px]">
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Buka filter"
               onPress={() => setSheet("filter")}
-              style={styles.tool}
+              className="h-[44px] w-[44px] items-center justify-center rounded-control border border-line bg-surface"
             >
-              <FilterIcon color="#fff" />
-              {active && <View style={styles.activeDot} />}
+              <FilterIcon color={colors.primary} />
+              {active && <View className="absolute right-[4px] top-[4px] h-[7px] w-[7px] rounded-pill bg-accent" />}
             </Pressable>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Buka urutkan"
               onPress={() => setSheet("filter")}
-              style={styles.tool}
+              className="h-[44px] w-[44px] items-center justify-center rounded-control border border-line bg-surface"
             >
-              <SortIcon color="#fff" />
+              <SortIcon color={colors.primary} />
             </Pressable>
-            <Text style={styles.resultLabel}>
+            <Text className="text-caption text-muted">
               {/* {active ? "Filter aktif" : "Pilihan untukmu"} */}
             </Text>
           </View>
-          {mode === "mock" && <Text style={styles.demo}>DATA DEMO</Text>}
+          {mode === "mock" && <Text className="text-caption font-semibold tracking-wide text-muted">DATA DEMO</Text>}
         </View>
         <FlatList
           style={{ flex: 1 }}
@@ -125,10 +123,8 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           onRefresh={() => { if (!loading) retry(); }}
           alwaysBounceVertical
           data={data ?? []}
-          numColumns={2}
           keyExtractor={(item) => item.id}
-          columnWrapperStyle={styles.row}
-          contentContainerStyle={[styles.list, { paddingBottom: 120 + insets.bottom }]}
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingBottom: 120 + insets.bottom, gap: 16 }}
           renderItem={({ item }) => (
             <PropertyCard
               item={item}
@@ -151,7 +147,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
             />
           }
           ListFooterComponent={
-            !loading && !error ? <View style={styles.pagination}>
+            !loading && !error ? <View className="flex-row flex-wrap items-center justify-center gap-[12px] py-[18px]">
               {query.page > 0 && (
                 <Button
                   secondary
@@ -159,7 +155,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
                   onPress={() => setQuery({ ...query, page: query.page - 1 })}
                 />
               )}
-              <Text style={styles.resultLabel}>Halaman {query.page + 1}</Text>
+              <Text className="text-caption text-muted">Halaman {query.page + 1}</Text>
               {data?.length === 20 && (
                 <Button
                   secondary
@@ -205,7 +201,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           title="Akun"
           onClose={() => setSheet(null)}
         >
-          <Text style={styles.future}>
+          <Text className="text-body leading-body text-muted">
             Masuk sebagai {session?.user.email ?? "-"}.
           </Text>
           <Button
@@ -222,7 +218,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           title="Segera hadir"
           onClose={() => setSheet(null)}
         >
-          <Text style={styles.future}>
+          <Text className="text-body leading-body text-muted">
             Fitur ini tersedia pada tahap berikutnya. Saat ini kamu bisa
             menjelajahi kos, memilih tipe kamar, dan melihat paket sewa.
           </Text>
@@ -232,101 +228,3 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  container: { flex: 1, width: "100%", maxWidth: 600, alignSelf: "center" },
-  future: { fontSize: 14, lineHeight: 22, color: colors.muted },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 13,
-    paddingBottom: 20,
-  },
-  brand: { flexDirection: "row", gap: 8, alignItems: "center" },
-  logo: {
-    fontSize: 46,
-    fontWeight: "800",
-    color: colors.primary,
-    lineHeight: 47,
-  },
-  brandName: {
-    fontSize: 29,
-    fontWeight: "800",
-    letterSpacing: -1,
-    color: colors.primary,
-  },
-  notification: {
-    height: 36,
-    width: 36,
-    borderRadius: 8,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  search: {
-    marginHorizontal: 20,
-    borderRadius: 9,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  searchInput: { flex: 1, padding: 14, fontSize: 12, color: colors.ink },
-  searchButton: { padding: 13 },
-  searchText: { fontSize: 12, fontWeight: "700", color: colors.primary },
-  location: {
-    flexDirection: "row",
-    gap: 7,
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 22,
-  },
-  pin: { fontSize: 20, color: colors.primary },
-  locationText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.muted,
-    flex: 1,
-  },
-  chevron: { fontSize: 20, color: colors.muted },
-  toolbar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 13,
-  },
-  tools: { flexDirection: "row", gap: 8, alignItems: "center" },
-  tool: {
-    width: 31,
-    height: 31,
-    borderRadius: 6,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  toolText: { color: "#fff", fontSize: 23, lineHeight: 26 },
-  resultLabel: { fontSize: 10, color: colors.muted },
-  demo: { fontSize: 8, color: colors.muted, letterSpacing: 1 },
-  list: { flexGrow: 1, paddingHorizontal: 20, paddingBottom: 120, gap: 13 },
-  row: { gap: 12 },
-  pagination: {
-    paddingVertical: 18,
-    flexDirection: "row",
-    gap: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  activeDot: {
-  position: "absolute",
-  top: 4,
-  right: 4,
-  width: 7,
-  height: 7,
-  borderRadius: 4,
-  backgroundColor: "#F5A524",
-  },
-});

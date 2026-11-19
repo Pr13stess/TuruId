@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "../theme";
+import { colors, radius } from "../theme";
 export function Sheet({
   visible,
   title,
@@ -26,29 +26,30 @@ export function Sheet({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
+      <View className="flex-1 items-center justify-end bg-overlay">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Tutup panel"
           style={StyleSheet.absoluteFill}
           onPress={onClose}
         />
-        <SafeAreaView edges={["bottom"]} style={styles.sheet}>
-          <View style={styles.handle} />
-          <View style={styles.header}>
-            <Text style={styles.title}>{title}</Text>
+        <SafeAreaView edges={["bottom"]} style={{ width: "100%", maxWidth: 600, maxHeight: "90%", backgroundColor: colors.surface, borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card }}>
+          <View className="mt-[10px] h-[4px] w-[40px] self-center rounded-pill bg-muted" />
+          <View className="flex-row items-center justify-between gap-[12px] p-[20px]">
+            <Text className="flex-1 text-price font-bold text-primary">{title}</Text>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Tutup"
               onPress={onClose}
+              className="h-[44px] w-[44px] items-center justify-center rounded-control bg-soft"
               hitSlop={12}
             >
-              <Text style={styles.close}>×</Text>
+              <Text className="text-close text-primary">×</Text>
             </Pressable>
           </View>
           <ScrollView
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={styles.content}
+            contentContainerStyle={{ padding: 20, paddingTop: 0, gap: 14 }}
           >
             {children}
           </ScrollView>
@@ -57,36 +58,3 @@ export function Sheet({
     </Modal>
   );
 }
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "#15162777",
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  sheet: {
-    width: "100%",
-    maxWidth: 600,
-    maxHeight: "90%",
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  handle: {
-    height: 4,
-    width: 38,
-    borderRadius: 3,
-    backgroundColor: colors.line,
-    alignSelf: "center",
-    marginTop: 10,
-  },
-  header: {
-    padding: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: { fontSize: 18, fontWeight: "700", color: colors.primary },
-  close: { fontSize: 27, color: colors.primary },
-  content: { padding: 20, paddingTop: 0, gap: 14 },
-});

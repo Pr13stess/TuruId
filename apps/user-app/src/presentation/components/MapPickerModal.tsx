@@ -6,6 +6,7 @@ import type { ReferenceLocation } from "../../domain/models";
 import { describeCoordinates } from "../../data/device/DeviceLocation";
 import { Button } from "./Primitives";
 import { colors } from "../theme";
+import { TargetIcon } from "../Icons/Icons";
 const fallback = { latitude: -7.7714, longitude: 110.3775 };
 /**
  * OpenStreetMap through Leaflet inside a WebView: no Google Maps key and
@@ -72,19 +73,20 @@ export function MapPickerModal({
   }
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Geser peta ke lokasimu</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <View className="flex-row items-center justify-between gap-[12px] bg-surface p-[20px]">
+          <Text className="flex-1 text-price font-bold text-primary">Geser peta ke lokasimu</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Tutup peta"
+            className="h-[44px] w-[44px] items-center justify-center rounded-control bg-soft"
             hitSlop={12}
             onPress={onClose}
           >
-            <Text style={styles.close}>×</Text>
+            <Text className="text-close text-primary">×</Text>
           </Pressable>
         </View>
-        <View style={styles.mapWrap}>
+        <View className="flex-1">
           <WebView
             originWhitelist={["https://*", "about:*"]}
             source={{ html, baseUrl: "https://turuid.demo/" }}
@@ -92,12 +94,12 @@ export function MapPickerModal({
             javaScriptEnabled
             style={StyleSheet.absoluteFill}
           />
-          <View pointerEvents="none" style={styles.pinWrap}>
-            <Text style={styles.pin}>⌖</Text>
+          <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
+            <TargetIcon color={colors.accentStrong} />
           </View>
         </View>
-        <View style={styles.footer}>
-          <Text style={styles.hint}>
+        <View className="gap-[12px] rounded-t-card bg-surface p-[20px]">
+          <Text className="text-center text-label leading-muted text-muted">
             Titik acuan adalah bidik di tengah peta. Jarak dihitung sebagai
             garis lurus. Peta © kontributor OpenStreetMap.
           </Text>
@@ -111,27 +113,3 @@ export function MapPickerModal({
     </Modal>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  header: {
-    padding: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  title: { fontSize: 18, fontWeight: "700", color: colors.primary },
-  close: { fontSize: 27, color: colors.primary },
-  mapWrap: { flex: 1 },
-  pinWrap: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pin: { fontSize: 44, color: colors.danger },
-  footer: { padding: 20, gap: 12 },
-  hint: { fontSize: 12, color: colors.muted, textAlign: "center" },
-});

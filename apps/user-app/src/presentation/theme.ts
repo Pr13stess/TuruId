@@ -19,6 +19,7 @@ export const colors = {
   pink: "#EB4ACB",
   green: "#418263",
   danger: "#AA4141",
+  overlay: "#15162777",
 };
 export const radius = { chip: 8, control: 12, card: 16, button: 12 };
 

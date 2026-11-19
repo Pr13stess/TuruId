@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text } from "react-native";
 import type { ReferenceLocation } from "../../domain/models";
 import { Sheet } from "./Sheet";
 import { Button, Chip } from "./Primitives";
@@ -8,7 +8,6 @@ import {
   describeCoordinates,
   getCurrentCoordinates,
 } from "../../data/device/DeviceLocation";
-import { colors } from "../theme";
 const places: ReferenceLocation[] = [
   { label: "UGM · Sleman", latitude: -7.7714, longitude: 110.3775 },
   {
@@ -47,7 +46,7 @@ export function LocationSheet({
   return (
     <>
       <Sheet visible={!mapOpen} title="Lokasi acuan" onClose={onClose}>
-        <Text style={styles.help}>
+        <Text className="text-label leading-muted text-muted">
           Pilih titik acuan untuk menghitung jarak (garis lurus) ke kos.
         </Text>
         <Button
@@ -60,8 +59,8 @@ export function LocationSheet({
           title="Pilih di peta"
           onPress={() => setMapOpen(true)}
         />
-        {!!error && <Text style={{ color: colors.danger }}>{error}</Text>}
-        <Text style={styles.help}>Atau pilih titik populer</Text>
+        {!!error && <Text className="text-label leading-muted text-danger">{error}</Text>}
+        <Text className="text-label leading-muted text-muted">Atau pilih titik populer</Text>
         {places.map((p) => (
           <Chip key={p.label} label={p.label} onPress={() => onSelect(p)} />
         ))}
@@ -81,6 +80,3 @@ export function LocationSheet({
     </>
   );
 }
-const styles = StyleSheet.create({
-  help: { fontSize: 13, lineHeight: 20, color: colors.muted },
-});
