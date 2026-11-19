@@ -7,7 +7,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FilterIcon, SortIcon, NotifIcon, LocationIcon } from "../Icons/Icons";
+import { FilterIcon, NotifIcon, LocationIcon } from "../Icons/Icons";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { defaultQuery } from "../../domain/models";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -82,41 +82,28 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
             <Text className="text-body font-bold text-accent-strong">Cari</Text>
           </Pressable>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => setSheet("location")}
-          className="flex-row items-center gap-[8px] px-[20px] py-[16px]"
-        >
-          <LocationIcon color={colors.primary} />
-          <Text numberOfLines={1} className="flex-1 text-label font-semibold text-muted">
-            {query.reference?.label ?? "Pilih lokasi acuanmu"}
-          </Text>
-        </Pressable>
-        <View className="mb-[16px] flex-row items-center justify-between px-[20px]">
-          <View className="flex-row items-center gap-[8px]">
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Buka filter"
-              onPress={() => setSheet("filter")}
-              className="h-[44px] w-[44px] items-center justify-center rounded-control border border-line bg-surface"
-            >
-              <FilterIcon color={colors.primary} />
-              {active && <View className="absolute right-[4px] top-[4px] h-[7px] w-[7px] rounded-pill bg-accent" />}
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Buka urutkan"
-              onPress={() => setSheet("filter")}
-              className="h-[44px] w-[44px] items-center justify-center rounded-control border border-line bg-surface"
-            >
-              <SortIcon color={colors.primary} />
-            </Pressable>
-            <Text className="text-caption text-muted">
-              {/* {active ? "Filter aktif" : "Pilihan untukmu"} */}
+        <View className="flex-row items-center gap-[12px] px-[20px] py-[12px]">
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setSheet("location")}
+            className="min-h-[48px] flex-1 flex-row items-center gap-[8px]"
+          >
+            <LocationIcon color={colors.primary} />
+            <Text numberOfLines={1} className="flex-1 text-label font-semibold text-muted">
+              {query.reference?.label ?? "Pilih lokasi acuanmu"}
             </Text>
-          </View>
-          {mode === "mock" && <Text className="text-caption font-semibold tracking-wide text-muted">DATA DEMO</Text>}
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Buka filter"
+            onPress={() => setSheet("filter")}
+            className="h-[48px] w-[48px] shrink-0 items-center justify-center rounded-control border border-line bg-surface"
+          >
+            <FilterIcon color={colors.primary} />
+            {active && <View className="absolute right-[4px] top-[4px] h-[7px] w-[7px] rounded-pill bg-accent" />}
+          </Pressable>
         </View>
+        {mode === "mock" && <Text className="mb-[12px] px-[20px] text-right text-caption font-semibold tracking-wide text-muted">DATA DEMO</Text>}
         <FlatList
           key="home-single-column"
           style={{ flex: 1 }}
