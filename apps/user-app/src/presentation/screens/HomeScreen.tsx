@@ -118,6 +118,7 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
           {mode === "mock" && <Text className="text-caption font-semibold tracking-wide text-muted">DATA DEMO</Text>}
         </View>
         <FlatList
+          key="home-single-column"
           style={{ flex: 1 }}
           refreshing={loading}
           onRefresh={() => { if (!loading) retry(); }}
