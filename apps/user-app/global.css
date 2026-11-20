@@ -7,6 +7,11 @@
 
 /* Keep shared values in sync with src/presentation/theme.ts. */
 @theme {
+  --font-jakarta: "PlusJakartaSans-Regular";
+  --font-jakarta-medium: "PlusJakartaSans-Medium";
+  --font-jakarta-semibold: "PlusJakartaSans-SemiBold";
+  --font-jakarta-bold: "PlusJakartaSans-Bold";
+  --font-jakarta-extrabold: "PlusJakartaSans-ExtraBold";
   --color-background: #FAF7F1;
   --color-surface: #FFFFFF;
   --color-ink: #202131;

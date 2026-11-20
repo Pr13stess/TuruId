@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from "./Typography";
 import { colors } from '../theme';
 
 export function OwnerReviewReply({ text, preview = false }: { text?: string | null; preview?: boolean }) {

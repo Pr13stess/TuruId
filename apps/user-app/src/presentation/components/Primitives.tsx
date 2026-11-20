@@ -1,11 +1,6 @@
 import type { PropsWithChildren } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./Typography";
 import { colors } from "../theme";
 import { useMotionPreference } from "../motion";
 export function Button({

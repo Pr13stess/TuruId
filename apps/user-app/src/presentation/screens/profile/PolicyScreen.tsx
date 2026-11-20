@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "../../components/Typography";
 import type { ScreenProps } from "../../../navigation/types";
 import { ACADEMIC_NOTICE, LEGAL, POLICY_VERSION } from "../../content/legal";
 import { colors, radius } from "../../theme";

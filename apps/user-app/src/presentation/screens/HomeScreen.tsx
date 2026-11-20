@@ -1,12 +1,7 @@
 import { UserBrand } from "../components/UserBrand";
 import { useCallback, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { FlatList, Pressable, View } from "react-native";
+import { Text, TextInput } from "../components/Typography";
 import { FilterIcon, NotifIcon, LocationIcon } from "../Icons/Icons";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { defaultQuery } from "../../domain/models";

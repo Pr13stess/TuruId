@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Animated, Modal, PanResponder, Pressable, ScrollView, Text, View, useWindowDimensions } from "react-native";
+import { Animated, Modal, PanResponder, Pressable, ScrollView, View, useWindowDimensions } from "react-native";
+import { Text } from "./Typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { initialPhoto } from "../../domain/chatGallery";
 import { propertyPhotoZoom } from "../../domain/propertyPhotoZoom";

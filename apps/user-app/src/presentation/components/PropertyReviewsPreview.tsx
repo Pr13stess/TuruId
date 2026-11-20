@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { FlatList, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Pressable, View, useWindowDimensions } from 'react-native';
+import { Text } from "./Typography";
 import { useFocusEffect } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { useRepositories } from '../../providers/RepositoryProvider';

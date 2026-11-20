@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./Typography";
 import type { GalleryItem } from "../../domain/chatGallery";
 import { ChatImage } from "./ChatImage";
 

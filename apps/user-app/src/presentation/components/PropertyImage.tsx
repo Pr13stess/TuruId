@@ -1,13 +1,6 @@
 import { useState } from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  type StyleProp,
-  type ViewStyle,
-  type ImageSourcePropType,
-} from "react-native";
+import { Image, StyleSheet, View, type StyleProp, type ViewStyle, type ImageSourcePropType } from "react-native";
+import { Text } from "./Typography";
 const demoImages: Record<string, ImageSourcePropType> = {
   "demo://kos-1": require("../../../assets/kos-1.png"),
   "demo://kos-2": require("../../../assets/kos-2.png"),

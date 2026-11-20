@@ -1,13 +1,6 @@
 import { useCallback, useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { Text, TextInput } from "../../components/Typography";
 import type { ScreenProps } from "../../../navigation/types";
 import { useRepositories } from "../../../providers/RepositoryProvider";
 import { useResource } from "../../hooks/useResource";

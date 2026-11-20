@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { AppState, Image, Pressable, Text, View } from "react-native";
+import { AppState, Image, Pressable, View } from "react-native";
+import { Text } from "./Typography";
 import { useRepositories } from "../../providers/RepositoryProvider";
 import { imageRenewal } from "../../domain/chatImage";
 

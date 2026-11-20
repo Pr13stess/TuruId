@@ -1,7 +1,8 @@
 import { useCallback } from "react";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { orderChats } from "../../../domain/chatOrder";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "../../components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { TabScreenProps } from "../../../navigation/types";
 import { useRepositories } from "../../../providers/RepositoryProvider";

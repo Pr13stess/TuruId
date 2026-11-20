@@ -1,13 +1,6 @@
 import { useCallback, useState } from "react";
-import {
-  Animated,
-  Linking,
-  Platform,
-  Pressable,
-  Share,
-  Text,
-  View,
-} from "react-native";
+import { Animated, Linking, Platform, Pressable, Share, View } from "react-native";
+import { Text } from "../components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import type { ScreenProps } from "../../navigation/types";

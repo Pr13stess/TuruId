@@ -1,3 +1,4 @@
+import { fonts } from "./fonts";
 // Keep shared values in sync with the @theme block in global.css.
 export const colors = {
   primary: "#2A2D45",
@@ -27,5 +28,5 @@ export const colors = {
 export const radius = { chip: 8, control: 12, card: 16, button: 12 };
 
 export const typography = {
-  headerTitle: { fontSize: 16, fontWeight: "700" as const, color: colors.primary },
+  headerTitle: { fontFamily: fonts.bold, fontSize: 16, fontWeight: "normal" as const, color: colors.primary },
 };

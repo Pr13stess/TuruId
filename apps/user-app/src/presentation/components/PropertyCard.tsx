@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
+import { Text } from "./Typography";
 import type { Listing, DurationUnit } from "../../domain/models";
 import { PropertyImage } from "./PropertyImage";
 import { FavoriteButton } from "./FavoriteButton";

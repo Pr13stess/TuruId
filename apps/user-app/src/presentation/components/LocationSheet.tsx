@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Text } from "react-native";
+import { Text } from "./Typography";
 import type { ReferenceLocation } from "../../domain/models";
 import { Sheet } from "./Sheet";
 import { Button, Chip } from "./Primitives";

@@ -1,12 +1,6 @@
 import type { PropsWithChildren } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "./Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, radius } from "../theme";
 export function Sheet({

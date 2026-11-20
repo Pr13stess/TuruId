@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Animated, Modal, PanResponder, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated, Modal, PanResponder, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Text } from "./Typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { initialPhoto, type GalleryItem } from "../../domain/chatGallery";
 import { photoGesture } from "../../domain/chatGesture";

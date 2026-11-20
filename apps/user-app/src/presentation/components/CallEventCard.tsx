@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { Text } from "./Typography";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../theme";
 import { callEventDisplay } from "../../domain/callEventDisplay";

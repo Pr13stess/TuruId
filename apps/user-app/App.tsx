@@ -1,6 +1,9 @@
 import "./global.css";
 import { Component, type ErrorInfo, type PropsWithChildren } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { Text } from "./src/presentation/components/Typography";
+import { useFonts } from "expo-font";
+import { fontAssets } from "./src/presentation/fonts";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { RepositoryProvider } from "./src/providers/RepositoryProvider";
@@ -27,6 +30,8 @@ class AppBoundary extends Component<PropsWithChildren, { failed: boolean }> {
   }
 }
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+  if (!fontsLoaded && !fontError) return null;
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />

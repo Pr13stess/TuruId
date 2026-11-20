@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, AppState, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, AppState, Pressable, View } from "react-native";
+import { Text } from "./Typography";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useIsFocused } from "@react-navigation/native";
 import { colors } from "../theme";

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { PermissionsAndroid, Platform, Text, View } from 'react-native';
+import { PermissionsAndroid, Platform, View } from 'react-native';
+import { Text } from "./Typography";
 import { useRepositories } from '../../providers/RepositoryProvider';
 import { voiceSession } from '../../domain/voiceSession';
 import { CallButton, CallControls } from './CallUi';

@@ -1,13 +1,5 @@
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  type TextInputProps,
-} from "react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, View, type TextInputProps } from "react-native";
+import { Text, TextInput } from "./Typography";
 import { colors, radius } from "../theme";
 import { Ionicons } from "@expo/vector-icons";
 

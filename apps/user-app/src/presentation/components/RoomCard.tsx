@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "./Typography";
 import type { Room } from "../../domain/models";
 import { rupiah, periodLabel } from "../format";
 import { FeatureGrid } from "./Primitives";
