@@ -27,8 +27,8 @@ export function FavoriteButton({ propertyId, compact = false }: { propertyId: st
       accessibilityLabel={state.error ? 'Coba muat favorit' : state.data ? 'Hapus dari favorit' : 'Simpan kos ke favorit'}
       accessibilityState={{ selected: state.data === true, disabled: busy || state.loading, busy: busy || state.loading }}
       disabled={busy || state.loading} onPress={state.error ? reload : toggle}
-      className={`${compact ? "h-[48px] w-[48px] items-center justify-center rounded-pill border border-line bg-surface shadow-card" : "min-h-[44px] self-start flex-row items-center gap-[9px] rounded-pill border border-line bg-surface px-[14px]"} active:bg-soft ${busy || state.loading ? "opacity-60" : ""}`}>
-      {busy || state.loading ? <ActivityIndicator size="small" color={colors.primary} /> : <Ionicons name={state.data ? "bookmark" : "bookmark-outline"} size={22} color={state.data ? colors.accentStrong : colors.primary} />}
+      className={`${compact ? "h-[48px] w-[48px] items-center justify-center rounded-pill border border-line bg-surface shadow-card" : "min-h-[44px] self-start flex-row items-center gap-[9px] rounded-pill border bg-surface px-[14px]"} ${compact ? "" : state.data ? "border-accent-strong" : "border-primary"} active:bg-soft ${busy || state.loading ? "opacity-60" : ""}`}>
+      {busy || state.loading ? <ActivityIndicator size="small" color={state.data ? colors.accentStrong : colors.primary} /> : <Ionicons name={state.data ? "bookmark" : "bookmark-outline"} size={22} color={state.data ? colors.accentStrong : colors.primary} />}
       {!compact && <Text className={`text-label font-semibold ${state.data ? "text-accent-strong" : "text-primary"}`}>
         {state.error ? 'Coba lagi' : busy ? 'Menyimpan…' : state.loading ? 'Memuat…' : state.data ? 'Tersimpan' : 'Simpan kos'}
       </Text>}
