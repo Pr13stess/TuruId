@@ -34,7 +34,7 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
     {items.length > 1 && <View accessible accessibilityRole="text" pointerEvents="none"
       accessibilityLabel={`Media ${index + 1} dari ${items.length}`} accessibilityLiveRegion="polite"
       className="absolute inset-x-0 bottom-[44px] flex-row items-center justify-center gap-[6px]">
-      {items.map((item, i) => <View key={item.id} className={`h-[6px] w-[6px] rounded-pill border border-primary ${index === i ? "bg-accent" : "bg-surface"}`} />)}
+      {items.map((item, i) => <View key={item.id} className={`h-[6px] w-[6px] rounded-pill ${index === i ? "bg-accent" : "bg-surface"}`} />)}
     </View>}
     <Pressable accessibilityRole="button" accessibilityLabel="Buka galeri layar penuh" onPress={() => setFullscreen(true)}
       style={{ top: insets.top + 10 }}
