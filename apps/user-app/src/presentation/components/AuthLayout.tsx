@@ -1,5 +1,5 @@
-import type { PropsWithChildren, ReactNode } from "react";
-import { ScrollView, View } from "react-native";
+import { useCallback, useEffect, useRef, type PropsWithChildren, type ReactNode } from "react";
+import { Keyboard, Platform, ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from "react-native-svg";
 import { colors } from "../theme";
@@ -14,15 +14,27 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
 }>) {
   const insets = useSafeAreaInsets();
   const headerHeight = (compact ? 172 : 200) + insets.top;
+  const scroll = useRef<ScrollView>(null);
+  const revealFocusedInput = useCallback(() => {
+    if (Platform.OS === "web" || !Keyboard.isVisible()) return;
+    const input = TextInput.State.currentlyFocusedInput();
+    if (input) scroll.current?.scrollResponderScrollNativeHandleToKeyboard(input, 24, true);
+  }, []);
+  useEffect(() => {
+    const subscription = Keyboard.addListener("keyboardDidShow", revealFocusedInput);
+    return () => subscription.remove();
+  }, [revealFocusedInput]);
   return (
     <ScrollView
+      ref={scroll}
+      onLayout={revealFocusedInput}
       className="flex-1 bg-surface"
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
       contentInsetAdjustmentBehavior="never"
     >
-      <View className="w-full max-w-[480px] flex-1 self-center bg-surface">
+      <View className="w-full max-w-[480px] grow shrink-0 self-center bg-surface">
         <View className="shrink-0 bg-accent-soft" style={{ height: headerHeight }}>
           <Svg width="100%" height={headerHeight} viewBox="0 0 480 200" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0 }} accessible={false} pointerEvents="none">
             <Defs>
@@ -42,9 +54,9 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
             </View>
           </View>
         </View>
-        <View className="-mt-[32px] flex-1 overflow-hidden rounded-t-auth bg-surface">
-        <SafeAreaView edges={["bottom"]} style={{ flex: 1 }}>
-          <View className="flex-1 px-[24px] pt-[30px] pb-[20px]">
+        <View className="-mt-[32px] grow shrink-0 overflow-hidden rounded-t-auth bg-surface">
+        <SafeAreaView edges={["bottom"]} style={{ flexGrow: 1 }}>
+          <View className="grow shrink-0 px-[24px] pt-[30px] pb-[20px]">
             <View className="mb-[30px] items-center gap-[10px]">
               <Text className="text-center text-title font-semibold text-ink">{title}</Text>
               <Text className="max-w-[300px] text-center text-label leading-muted text-muted">{subtitle}</Text>

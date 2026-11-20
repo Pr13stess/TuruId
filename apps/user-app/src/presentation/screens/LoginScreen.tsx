@@ -30,7 +30,7 @@ export function LoginScreen({ navigation }: ScreenProps<"Login">) {
   return (
     <SafeAreaView edges={["left", "right"]} style={{ flex: 1, backgroundColor: colors.accentSoft }}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : Platform.OS === "android" ? "height" : undefined}
         className="flex-1"
       >
         <AuthLayout
