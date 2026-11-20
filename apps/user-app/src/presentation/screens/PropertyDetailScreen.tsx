@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
 import {
+  Animated,
   Linking,
+  Platform,
   Pressable,
-  ScrollView,
   Share,
   Text,
   View,
@@ -28,6 +29,7 @@ import { LocationIcon } from "../Icons/Icons";
 import { ShareIcon } from '../Icons/ShareIcon';
 import { PropertyReviewsPreview } from '../components/PropertyReviewsPreview';
 import { useStartVoiceCall } from '../hooks/useStartVoiceCall';
+import { useMotionPreference } from '../motion';
 export function PropertyDetailScreen({
   route,
   navigation,
@@ -37,6 +39,8 @@ export function PropertyDetailScreen({
   const voice = useStartVoiceCall(id => navigation.navigate('VoiceCall', { id }));
   const videoUrl = useCallback((path: string) => properties.videoUrl(path), [properties]);
   const [openingChat, setOpeningChat] = useState(false);
+  const [scrollY] = useState(() => new Animated.Value(0));
+  const reducedMotion = useMotionPreference();
   const loader = useCallback(
     async () => ({
       property: await properties.get(propertyId),
@@ -76,9 +80,23 @@ export function PropertyDetailScreen({
   };
   return (
     <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ width: "100%", maxWidth: 600, alignSelf: "center" }}>
-        <PropertyMediaGallery key={p.id} photos={p.images} video={p.video_path} resolve={videoUrl} />
-        <View className="relative z-10 -mt-[32px] mx-[12px] mb-[20px] rounded-card bg-surface p-[16px] shadow-card">
+      <Animated.ScrollView
+        contentContainerStyle={{ width: "100%", maxWidth: 600, alignSelf: "center" }}
+        removeClippedSubviews={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: Platform.OS !== "web",
+        })}
+      >
+        <Animated.View style={{ transform: [{ translateY: reducedMotion ? 0 : scrollY.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+          extrapolateLeft: "clamp",
+          extrapolateRight: "extend",
+        }) }] }}>
+          <PropertyMediaGallery key={p.id} photos={p.images} video={p.video_path} resolve={videoUrl} />
+        </Animated.View>
+        <View className="relative z-10 -mt-[32px] rounded-t-card bg-surface px-[16px] pt-[16px] pb-[28px]">
           <View className="rounded-control bg-soft p-[14px]">
           <View className="mb-[8px] flex-row items-center gap-[10px]">
             <Text className="flex-1 text-title font-bold text-ink">{p.name}</Text>
@@ -151,7 +169,7 @@ export function PropertyDetailScreen({
             </View>
           </View>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
       <View className="w-full max-w-[600px] self-center flex-row flex-wrap items-center gap-[8px] border-t border-line bg-surface px-[16px] py-[12px]">
         <Pressable
           accessibilityRole="button"
