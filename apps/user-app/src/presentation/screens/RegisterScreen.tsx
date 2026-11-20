@@ -1,7 +1,8 @@
-import { UserBrand } from "../components/UserBrand";
+import { Input } from "../components/Input";
+import { AuthLayout } from "../components/AuthLayout";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
-import { Text, TextInput } from "../components/Typography";
+import { KeyboardAvoidingView, Platform, Pressable, View } from "react-native";
+import { Text } from "../components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ScreenProps } from "../../navigation/types";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -51,95 +52,61 @@ export function RegisterScreen({ navigation }: ScreenProps<"Register">) {
     }
   };
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView edges={["top", "left", "right"]} style={{ flex: 1, backgroundColor: colors.accentSoft }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.flex}
+        className="flex-1"
       >
-        <View style={styles.container}>
-          <UserBrand />
-          <Text style={styles.title}>Buat akun Turu.Id</Text>
-          <Text style={styles.subtitle}>
-            Dipakai untuk menyimpan pilihan sewa dan riwayat booking.
-          </Text>
-          <View style={styles.field}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoComplete="email"
-              keyboardType="email-address"
-              placeholder="nama@email.com"
-              placeholderTextColor={colors.muted}
-            />
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>Kata sandi</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              placeholder="Minimal 6 karakter"
-              placeholderTextColor={colors.muted}
-            />
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>Ulangi kata sandi</Text>
-            <TextInput
-              style={styles.input}
-              value={confirm}
-              onChangeText={setConfirm}
-              secureTextEntry
-              placeholder="••••••••"
-              placeholderTextColor={colors.muted}
-            />
-          </View>
-          {error && <Text style={styles.error}>{error}</Text>}
-          {notice && <Text style={styles.notice}>{notice}</Text>}
-          <Button
-            title={submitting ? "Memproses…" : "Daftar"}
-            onPress={submit}
-            disabled={submitting || !email || !password || !confirm}
+        <AuthLayout
+          compact
+          title="Buat akun Turu.Id"
+          subtitle="Dipakai untuk menyimpan pilihan sewa dan riwayat booking."
+          footer={
+            <Pressable accessibilityRole="button" onPress={() => navigation.navigate("Login")} className="min-h-[48px] items-center justify-center px-[8px]">
+              <Text className="text-center text-label text-muted">Sudah punya akun? <Text className="font-semibold text-accent-strong">Masuk</Text></Text>
+            </Pressable>
+          }
+        >
+          <Input
+            appearance="pill"
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoComplete="email"
+            keyboardType="email-address"
+            placeholder="nama@email.com"
+            placeholderTextColor={colors.muted}
           />
-          <Button
-            title="Sudah punya akun? Masuk"
-            onPress={() => navigation.navigate("Login")}
-            secondary
+          <Input
+            appearance="pill"
+            label="Kata sandi"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder="Minimal 6 karakter"
+            placeholderTextColor={colors.muted}
           />
-        </View>
+          <Input
+            appearance="pill"
+            label="Ulangi kata sandi"
+            value={confirm}
+            onChangeText={setConfirm}
+            secureTextEntry
+            placeholder="••••••••"
+            placeholderTextColor={colors.muted}
+          />
+          {error && <Text className="text-label leading-muted text-danger">{error}</Text>}
+          {notice && <Text className="text-label leading-muted text-success">{notice}</Text>}
+          <View className="mt-[8px] overflow-hidden rounded-pill">
+            <Button
+              title={submitting ? "Memproses…" : "Daftar"}
+              onPress={submit}
+              disabled={submitting || !email || !password || !confirm}
+            />
+          </View>
+        </AuthLayout>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    gap: 14,
-    width: "100%",
-    maxWidth: 420,
-    alignSelf: "center",
-  },
-  title: { fontSize: 22, fontWeight: "800", color: colors.ink },
-  subtitle: { fontSize: 12, color: colors.muted, marginBottom: 8 },
-  field: { gap: 6 },
-  label: { fontSize: 12, color: colors.muted, fontWeight: "600" },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: colors.ink,
-    backgroundColor: colors.surface,
-  },
-  error: { fontSize: 12, color: colors.danger },
-  notice: { fontSize: 12, color: colors.green },
-});

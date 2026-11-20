@@ -1,7 +1,8 @@
-import { UserBrand } from "../components/UserBrand";
+import { Input } from "../components/Input";
+import { AuthLayout } from "../components/AuthLayout";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
-import { Text, TextInput } from "../components/Typography";
+import { KeyboardAvoidingView, Platform, Pressable, View } from "react-native";
+import { Text } from "../components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ScreenProps } from "../../navigation/types";
 import { useRepositories } from "../../providers/RepositoryProvider";
@@ -27,85 +28,53 @@ export function LoginScreen({ navigation }: ScreenProps<"Login">) {
     }
   };
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView edges={["top", "left", "right"]} style={{ flex: 1, backgroundColor: colors.accentSoft }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.flex}
+        className="flex-1"
       >
-        <View style={styles.container}>
-          <UserBrand />
-          <Text style={styles.title}>Masuk ke Turu.Id</Text>
-          <Text style={styles.subtitle}>
-            {mode === "mock"
-              ? "Mode demo: daftar akun baru dulu jika belum punya, data tidak tersimpan permanen."
-              : "Gunakan email dan kata sandi akunmu."}
-          </Text>
-          <View style={styles.field}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoComplete="email"
-              keyboardType="email-address"
-              placeholder="nama@email.com"
-              placeholderTextColor={colors.muted}
+        <AuthLayout
+          title="Masuk ke Turu.Id"
+          subtitle={mode === "mock"
+            ? "Mode demo: daftar akun baru dulu jika belum punya, data tidak tersimpan permanen."
+            : "Gunakan email dan kata sandi akunmu."}
+          footer={
+            <Pressable accessibilityRole="button" onPress={() => navigation.navigate("Register")} className="min-h-[48px] items-center justify-center px-[8px]">
+              <Text className="text-center text-label text-muted">Belum punya akun? <Text className="font-semibold text-accent-strong">Daftar</Text></Text>
+            </Pressable>
+          }
+        >
+          <Input
+            appearance="pill"
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoComplete="email"
+            keyboardType="email-address"
+            placeholder="nama@email.com"
+            placeholderTextColor={colors.muted}
+          />
+          <Input
+            appearance="pill"
+            label="Kata sandi"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoComplete="password"
+            placeholder="••••••••"
+            placeholderTextColor={colors.muted}
+          />
+          {error && <Text className="text-label leading-muted text-danger">{error}</Text>}
+          <View className="mt-[8px] overflow-hidden rounded-pill">
+            <Button
+              title={submitting ? "Memproses…" : "Masuk"}
+              onPress={submit}
+              disabled={submitting || !email || !password}
             />
           </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>Kata sandi</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete="password"
-              placeholder="••••••••"
-              placeholderTextColor={colors.muted}
-            />
-          </View>
-          {error && <Text style={styles.error}>{error}</Text>}
-          <Button
-            title={submitting ? "Memproses…" : "Masuk"}
-            onPress={submit}
-            disabled={submitting || !email || !password}
-          />
-          <Button
-            title="Belum punya akun? Daftar"
-            onPress={() => navigation.navigate("Register")}
-            secondary
-          />
-        </View>
+        </AuthLayout>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    gap: 14,
-    width: "100%",
-    maxWidth: 420,
-    alignSelf: "center",
-  },
-  title: { fontSize: 22, fontWeight: "800", color: colors.ink },
-  subtitle: { fontSize: 12, color: colors.muted, marginBottom: 8 },
-  field: { gap: 6 },
-  label: { fontSize: 12, color: colors.muted, fontWeight: "600" },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: colors.ink,
-    backgroundColor: colors.surface,
-  },
-  error: { fontSize: 12, color: colors.danger },
-});
