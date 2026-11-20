@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { ActivityIndicator, Alert, Pressable, ScrollView, View } from "react-native";
 import { Text } from "../../components/Typography";
 import type { TabScreenProps } from "../../../navigation/types";
 import { useRepositories } from "../../../providers/RepositoryProvider";
@@ -84,18 +83,6 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
           </View>
         </Pressable>
       </View>
-
-      <Pressable accessibilityRole="button" accessibilityLabel="Booking Saya" onPress={() => navigation.navigate("BookingTab")}
-        className="mt-[20px] overflow-hidden rounded-card bg-soft active:opacity-80">
-        <ImageBackground source={require("../../../../assets/kos-1.png")} resizeMode="cover"
-          style={{ height: 144 }} accessible={false}>
-          <View className="mt-auto flex-row items-center gap-[10px] bg-media-control px-[14px] py-[14px]">
-            <Ionicons name="calendar-outline" size={20} color={colors.surface} accessible={false} />
-            <Text className="flex-1 text-body font-semibold text-surface">Booking Saya</Text>
-            <Ionicons name="chevron-forward" size={18} color={colors.surface} accessible={false} />
-          </View>
-        </ImageBackground>
-      </Pressable>
 
       <MenuSection title="Akun">
         <MenuRow
