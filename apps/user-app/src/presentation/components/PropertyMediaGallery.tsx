@@ -13,24 +13,25 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
   const items = propertyGallery(photos, video);
   const dimensions = useWindowDimensions();
   const [width, setWidth] = useState(Math.min(600, dimensions.width));
+  const height = Math.min(400, Math.max(280, width * 0.85));
   const [index, setIndex] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   const scroll = useRef<ScrollView>(null);
   useEffect(() => { scroll.current?.scrollTo({ x: index * width, animated: false }); }, [width, index]);
-  if (!items.length) return <PropertyImage style={{ height: 240 }} />;
+  if (!items.length) return <PropertyImage style={{ height }} />;
   return <View onLayout={event => setWidth(event.nativeEvent.layout.width)}>
     <ScrollView ref={scroll} horizontal pagingEnabled showsHorizontalScrollIndicator={false}
       onMomentumScrollEnd={event => setIndex(Math.max(0, Math.min(items.length - 1, Math.round(event.nativeEvent.contentOffset.x / width))))}>
-      {items.map((item, i) => <View key={item.id} style={{ width, height: 240 }}>
-        {item.kind === "video" ? <PropertyVideo path={item.path} resolve={resolve} enabled={index === i && !fullscreen} /> :
+      {items.map((item, i) => <View key={item.id} style={{ width, height }}>
+        {item.kind === "video" ? <PropertyVideo path={item.path} resolve={resolve} height={height - 32} enabled={index === i && !fullscreen} /> :
           <Pressable accessibilityRole="button" accessibilityLabel={`Perbesar foto ${i + 1 - (video ? 1 : 0)}`} onPress={() => { setIndex(i); setFullscreen(true); }}>
-            <PropertyImage uri={item.path} style={{ width, height: 240 }} />
+            <PropertyImage uri={item.path} style={{ width, height }} />
           </Pressable>}
       </View>)}
     </ScrollView>
     {items.length > 1 && <View accessible accessibilityRole="text" pointerEvents="none"
       accessibilityLabel={`Media ${index + 1} dari ${items.length}`} accessibilityLiveRegion="polite"
-      className="absolute inset-x-0 bottom-[12px] flex-row items-center justify-center gap-[6px]">
+      className={`absolute inset-x-0 flex-row items-center justify-center gap-[6px] ${items[index]?.kind === "video" ? "top-[12px]" : "bottom-[44px]"}`}>
       {items.map((item, i) => <View key={item.id} className={`h-[6px] w-[6px] rounded-pill border border-primary ${index === i ? "bg-accent" : "bg-surface"}`} />)}
     </View>}
     <Pressable accessibilityRole="button" accessibilityLabel="Buka galeri layar penuh" onPress={() => setFullscreen(true)}

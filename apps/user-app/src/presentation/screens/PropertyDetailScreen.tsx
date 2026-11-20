@@ -78,10 +78,11 @@ export function PropertyDetailScreen({
     <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ width: "100%", maxWidth: 600, alignSelf: "center" }}>
         <PropertyMediaGallery key={p.id} photos={p.images} video={p.video_path} resolve={videoUrl} />
-        <View className="p-[20px]">
+        <View className="relative z-10 -mt-[32px] mx-[12px] mb-[20px] rounded-card bg-surface p-[16px] shadow-card">
+          <View className="rounded-control bg-soft p-[14px]">
           <View className="mb-[8px] flex-row items-center gap-[10px]">
             <Text className="flex-1 text-title font-bold text-ink">{p.name}</Text>
-            <Text className="rounded-chip bg-soft p-[8px] text-caption text-primary">{genderLabel(p.gender_type)}</Text>
+            <Text className="rounded-chip bg-surface p-[8px] text-caption text-primary">{genderLabel(p.gender_type)}</Text>
           </View>
           <Text className="text-label leading-muted text-muted">{p.address}</Text>
           <Text className="mt-[10px] text-label font-semibold text-accent-strong">
@@ -89,6 +90,7 @@ export function PropertyDetailScreen({
             <Text className="text-label leading-muted text-muted">({p.review_count} ulasan)</Text>
           </Text>
           <Text className="mt-[12px] self-start rounded-chip bg-accent-soft px-[10px] py-[6px] text-caption font-bold text-accent-strong">✓ Kos terverifikasi</Text>
+          </View>
           <Pressable
             accessibilityRole="link"
             accessibilityLabel="Lihat lokasi di OpenStreetMap"
@@ -101,13 +103,13 @@ export function PropertyDetailScreen({
                 `https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=17/${p.latitude}/${p.longitude}`,
               ).catch(() => setNotice("Peta tidak dapat dibuka."));
             }}
-            className="my-[20px] min-h-[128px] items-center justify-center gap-[8px] rounded-card border border-line bg-surface p-[16px]"
+            className="my-[16px] min-h-[112px] items-center justify-center gap-[8px] rounded-control border border-line bg-soft p-[16px]"
           >
             <LocationIcon color={colors.accentStrong} size={32} />
             <Text className="text-body font-bold text-primary">Lihat lokasi di peta ↗</Text>
             <Text className="text-caption text-muted">OpenStreetMap · buka peta</Text>
           </Pressable>
-          <Text className="mb-[24px] text-body leading-body text-muted">{p.description}</Text>
+          <Text className="mb-[16px] rounded-control bg-soft p-[14px] text-body leading-body text-muted">{p.description}</Text>
           <View className="my-[12px] flex-row flex-wrap items-start gap-[10px]">
             <FavoriteButton propertyId={propertyId} />
             <Pressable accessibilityRole="button" accessibilityLabel="Bagikan kos" onPress={() => {
@@ -119,7 +121,7 @@ export function PropertyDetailScreen({
           </View>
           <PropertyReviewsPreview propertyId={propertyId} onViewAll={() => navigation.navigate('Reviews', { propertyId })} />
           <Section title="Fasilitas umum">
-            <View className="rounded-card border border-line bg-surface p-[14px]">
+            <View className="rounded-control bg-soft p-[14px]">
               <FeatureGrid items={p.facilities} />
             </View>
           </Section>
