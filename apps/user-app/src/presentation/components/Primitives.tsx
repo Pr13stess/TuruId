@@ -28,9 +28,9 @@ export function Button({
       accessibilityState={{ disabled }}
       onPress={onPress}
       disabled={disabled}
-      className={`min-h-[48px] items-center justify-center rounded-control px-[18px] py-[13px] ${secondary ? "bg-soft" : tone === "primary" ? "bg-primary" : "bg-accent"} ${disabled ? "opacity-40" : "active:opacity-80"} ${reducedMotion || disabled ? "" : "transition-transform duration-[120ms] ease-out active:scale-[0.97]"}`}
+      className={`min-h-[48px] items-center justify-center rounded-control px-[18px] py-[13px] ${secondary ? "bg-soft" : tone === "primary" ? "bg-primary" : "bg-accent-strong"} ${disabled ? "opacity-40" : "active:opacity-80"} ${reducedMotion || disabled ? "" : "transition-transform duration-[120ms] ease-out active:scale-[0.97]"}`}
     >
-      <Text className={`text-body font-bold ${secondary ? "text-primary" : tone === "primary" ? "text-surface" : "text-ink"}`}>
+      <Text className={`text-body font-bold ${secondary ? "text-primary" : "text-surface"}`}>
         {title}
       </Text>
     </Pressable>

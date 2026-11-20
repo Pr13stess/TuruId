@@ -84,12 +84,12 @@ export function ActionButton({
       accessibilityState={{ disabled: off, busy: loading }}
       disabled={off}
       onPress={onPress}
-      style={[s.button, outline ? s.buttonOutline : null, off ? s.buttonOff : null]}
+      className={`min-h-[48px] items-center justify-center rounded-control px-[14px] py-[14px] ${outline ? "border border-line bg-soft" : "bg-accent-strong"} ${off ? "opacity-50" : ""}`}
     >
       {loading ? (
-        <ActivityIndicator color={outline ? colors.primary : "#fff"} />
+        <ActivityIndicator color={outline ? colors.primary : colors.surface} />
       ) : (
-        <Text style={[s.buttonText, outline ? s.buttonTextOutline : null]}>
+        <Text className={`text-body font-bold ${outline ? "text-primary" : "text-surface"}`}>
           {title}
         </Text>
       )}
