@@ -24,6 +24,7 @@ export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>
   const lock = useRef(false), focused = useIsFocused();
   const load = useCallback(() => notifications.list(page), [notifications, page]);
   const state = useResource(load, focused ? 15000 : 0), reload = state.retry;
+  const hasHeader = mode === 'mock' || !!feedback;
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
   async function open(item: UserNotification) {
     if (lock.current) return;
@@ -45,19 +46,18 @@ export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>
   return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
     <FlatList data={state.data?.slice(0, 20) ?? []} keyExtractor={item => item.id}
       contentContainerStyle={{ flexGrow: 1, padding: 20, paddingBottom: 40, width: "100%", maxWidth: 600, alignSelf: "center" }} refreshing={state.loading} onRefresh={reload}
-      ListHeaderComponent={<View className="gap-[8px] rounded-t-card border border-line bg-surface px-[16px] py-[14px]">
-        <Text className="text-body font-semibold text-ink">Notifikasi</Text>
+      ListHeaderComponent={hasHeader ? <View className="gap-[8px] rounded-t-card border border-line bg-surface px-[16px] py-[14px]">
         {mode === 'mock' && <Text className="text-label leading-muted text-muted">Mode demo: belum ada notifikasi dari server.</Text>}
         {!!feedback && <Text accessibilityRole="alert" className="text-label leading-muted text-danger">{feedback}</Text>}
-      </View>}
-      ListEmptyComponent={<View className="rounded-b-card border-x border-b border-line bg-surface"><Status loading={state.loading} error={state.error} empty="Belum ada notifikasi di halaman ini." onRetry={state.error ? reload : undefined} /></View>}
+      </View> : null}
+      ListEmptyComponent={<View className={`rounded-b-card border-x border-b border-line bg-surface ${hasHeader ? '' : 'rounded-t-card border-t'}`}><Status loading={state.loading} error={state.error} empty="Belum ada notifikasi di halaman ini." onRetry={state.error ? reload : undefined} /></View>}
       renderItem={({ item, index }) => {
         const icon = notificationIcons[item.target_type ?? ''] ?? { name: 'notifications-outline' as const, color: colors.muted };
         const last = index === Math.min(state.data?.length ?? 0, 20) - 1;
         return <Pressable accessibilityRole="button" disabled={busy}
         accessibilityLabel={`${item.read_at ? '' : 'Belum dibaca: '}${item.title}`}
         accessibilityState={{ disabled: busy }} onPress={() => open(item)}
-        className={`min-h-[72px] flex-row items-start gap-[12px] border-x border-b border-line bg-surface px-[16px] py-[16px] active:bg-soft ${last ? 'rounded-b-card' : ''}`}>
+        className={`min-h-[72px] flex-row items-start gap-[12px] border-x border-b border-line bg-surface px-[16px] py-[16px] active:bg-soft ${index === 0 && !hasHeader ? 'rounded-t-card border-t' : ''} ${last ? 'rounded-b-card' : ''}`}>
         <View className="pt-[2px]" accessible={false} importantForAccessibility="no-hide-descendants">
           <Ionicons name={icon.name} size={20} color={icon.color} />
         </View>
@@ -65,7 +65,7 @@ export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>
           <View className="flex-row flex-wrap items-start justify-between gap-x-[12px] gap-y-[4px]">
             <Text className={`shrink text-body leading-body text-ink ${item.read_at ? "font-medium" : "font-bold"}`}>{item.title}</Text>
             <View className="ml-auto flex-row items-center gap-[8px]">
-              <Text className="text-caption leading-muted text-muted">{new Date(item.created_at).toLocaleString('id-ID')}</Text>
+              <Text className="text-caption leading-muted text-muted">{new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>
               {!item.read_at && <View className="h-[6px] w-[6px] rounded-pill bg-success" />}
             </View>
           </View>
