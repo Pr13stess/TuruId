@@ -4,8 +4,8 @@ import { useVideoPlayer, VideoView } from "expo-video";
 import { useIsFocused } from "@react-navigation/native";
 import { colors } from "../theme";
 
-export function PropertyVideo({ path, resolve, height = 240, enabled = true }: {
-  path: string; resolve: (path: string) => Promise<string>; height?: number; enabled?: boolean;
+export function PropertyVideo({ path, resolve, height = 240, enabled = true, contentFit = "contain" }: {
+  path: string; resolve: (path: string) => Promise<string>; height?: number; enabled?: boolean; contentFit?: "contain" | "cover";
 }) {
   const focused = useIsFocused();
   const [foreground, setForeground] = useState(AppState.currentState === "active");
@@ -13,12 +13,12 @@ export function PropertyVideo({ path, resolve, height = 240, enabled = true }: {
     const sub = AppState.addEventListener("change", state => setForeground(state === "active"));
     return () => sub.remove();
   }, []);
-  return <View className="bg-media" style={{ height }}>
-    {enabled && focused && foreground && <Video key={path} path={path} resolve={resolve} height={height} />}
+  return <View className="overflow-hidden bg-media" style={{ height }}>
+    {enabled && focused && foreground && <Video key={path} path={path} resolve={resolve} height={height} contentFit={contentFit} />}
   </View>;
 }
 
-function Video({ path, resolve, height }: { path: string; resolve: (path: string) => Promise<string>; height: number }) {
+function Video({ path, resolve, height, contentFit }: { path: string; resolve: (path: string) => Promise<string>; height: number; contentFit: "contain" | "cover" }) {
   const player = useVideoPlayer(null);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
@@ -42,7 +42,7 @@ function Video({ path, resolve, height }: { path: string; resolve: (path: string
     return () => { active = false; status.remove(); };
   }, [path, resolve, player, retry]);
   return <View style={{ height }}>
-    <VideoView player={player} nativeControls contentFit="contain" fullscreenOptions={{ enable: false }}
+    <VideoView player={player} nativeControls contentFit={contentFit} surfaceType={contentFit === "cover" ? "textureView" : "surfaceView"} fullscreenOptions={{ enable: false }}
       style={{ width: "100%", height, backgroundColor: colors.mediaCanvas }} />
     {loading && !error && <View pointerEvents="none" className="absolute inset-0 items-center justify-center"><ActivityIndicator color={colors.surface} accessibilityLabel="Memuat preview video" /></View>}
     {!!error && <View className="absolute left-[20px] right-[20px] top-[20px] rounded-control bg-media p-[12px]">

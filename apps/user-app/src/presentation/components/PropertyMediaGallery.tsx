@@ -23,7 +23,7 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
     <ScrollView ref={scroll} horizontal pagingEnabled showsHorizontalScrollIndicator={false}
       onMomentumScrollEnd={event => setIndex(Math.max(0, Math.min(items.length - 1, Math.round(event.nativeEvent.contentOffset.x / width))))}>
       {items.map((item, i) => <View key={item.id} style={{ width, height }}>
-        {item.kind === "video" ? <PropertyVideo path={item.path} resolve={resolve} height={height - 32} enabled={index === i && !fullscreen} /> :
+        {item.kind === "video" ? <PropertyVideo path={item.path} resolve={resolve} height={height - 32} contentFit="cover" enabled={index === i && !fullscreen} /> :
           <Pressable accessibilityRole="button" accessibilityLabel={`Perbesar foto ${i + 1 - (video ? 1 : 0)}`} onPress={() => { setIndex(i); setFullscreen(true); }}>
             <PropertyImage uri={item.path} style={{ width, height }} />
           </Pressable>}
