@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import { colors } from "../theme";
+import { useMotionPreference } from "../motion";
 export function Button({
   title,
   onPress,
@@ -20,13 +21,14 @@ export function Button({
   secondary?: boolean;
   tone?: "accent" | "primary";
 }) {
+  const reducedMotion = useMotionPreference();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       onPress={onPress}
       disabled={disabled}
-      className={`min-h-[48px] items-center justify-center rounded-control px-[18px] py-[13px] ${secondary ? "bg-soft" : tone === "primary" ? "bg-primary" : "bg-accent"} ${disabled ? "opacity-40" : "active:opacity-80"}`}
+      className={`min-h-[48px] items-center justify-center rounded-control px-[18px] py-[13px] ${secondary ? "bg-soft" : tone === "primary" ? "bg-primary" : "bg-accent"} ${disabled ? "opacity-40" : "active:opacity-80"} ${reducedMotion || disabled ? "" : "transition-transform duration-[120ms] ease-out active:scale-[0.97]"}`}
     >
       <Text className={`text-body font-bold ${secondary ? "text-primary" : tone === "primary" ? "text-surface" : "text-ink"}`}>
         {title}
