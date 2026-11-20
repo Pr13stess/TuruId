@@ -63,14 +63,14 @@ export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>
           <Ionicons name={icon.name} size={20} color={icon.color} />
         </View>
         <View className="flex-1 gap-[6px]">
-          <View className="flex-row flex-wrap items-start justify-between gap-x-[12px] gap-y-[4px]">
-            <Text className={`shrink text-body leading-body text-ink ${item.read_at ? "font-medium" : "font-bold"}`}>{item.title}</Text>
-            <View className="ml-auto flex-row items-center gap-[8px]">
-              <Text className="text-caption leading-muted text-muted">{new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>
+          <View className="flex-row items-start gap-[12px]">
+            <Text numberOfLines={2} className={`flex-1 text-body leading-body text-ink ${item.read_at ? "font-medium" : "font-semibold"}`}>{item.title}</Text>
+            <View className="w-[6px] shrink-0 pt-[8px]" accessible={false}>
               {!item.read_at && <View className="h-[6px] w-[6px] rounded-pill bg-success" />}
             </View>
           </View>
           <Text className="text-label leading-muted text-muted">{item.body}</Text>
+          <Text className="mt-[2px] text-caption leading-muted text-muted">{new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>
         </View>
       </Pressable>;
       }}
