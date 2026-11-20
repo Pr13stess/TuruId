@@ -25,24 +25,38 @@ function Video({ path, resolve, height, contentFit }: { path: string; resolve: (
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let active = true;
+    let sourceRequested = false;
+    const updateStatus = (status: typeof player.status) => {
+      if (!active || !sourceRequested) return;
+      if (status === "error") {
+        setLoading(false);
+        setError("Video belum bisa diputar. Coba muat ulang.");
+      } else if (status === "readyToPlay") {
+        setLoading(false);
+        setError("");
+      } else {
+        setLoading(true);
+      }
+    };
+    const status = player.addListener("statusChange", event => updateStatus(event.status));
     const load = async () => {
       try {
         const uri = await resolve(path);
         if (!active) return;
+        // Pause before loading, never after the user can start playback.
+        player.pause();
+        sourceRequested = true;
         await player.replaceAsync({ uri });
-        // Loading never starts playback automatically.
-        if (active) { player.pause(); setError(""); setLoading(false); }
+        // Android replacement can finish before the media is ready.
+        if (active) updateStatus(player.status);
       } catch { if (active) { setLoading(false); setError("Video belum bisa diputar. Coba muat ulang."); } }
     };
     void load();
-    const status = player.addListener("statusChange", event => {
-      if (active && event.status === "error") setError("Video belum bisa diputar. Coba muat ulang.");
-    });
     // Expo releases the player on unmount; cleanup must not call pause().
     return () => { active = false; status.remove(); };
   }, [path, resolve, player, retry]);
   return <View style={{ height }}>
-    <VideoView player={player} nativeControls contentFit={contentFit} surfaceType={contentFit === "cover" ? "textureView" : "surfaceView"} fullscreenOptions={{ enable: false }}
+    <VideoView player={player} nativeControls contentFit={contentFit} fullscreenOptions={{ enable: false }}
       style={{ width: "100%", height, backgroundColor: colors.mediaCanvas }} />
     {loading && !error && <View pointerEvents="none" className="absolute inset-0 items-center justify-center"><ActivityIndicator color={colors.surface} accessibilityLabel="Memuat preview video" /></View>}
     {!!error && <View className="absolute left-[20px] right-[20px] top-[20px] rounded-control bg-media p-[12px]">
