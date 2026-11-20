@@ -46,6 +46,12 @@ export class SupabasePropertyRepository implements PropertyRepository {
     ]);
     const { data: video, error: videoError } = await this.client.from("property_videos").select("storage_path").eq("property_id", id).maybeSingle();
     if (videoError && videoError.code !== "PGRST205" && videoError.code !== "42P01") throw new Error("Video kos gagal dimuat. Coba lagi.");
-    return video ? { ...resolved, video_path: video.storage_path as string } : resolved;
+    const property = {
+      ...resolved,
+      owner_avatar_url: resolved.owner_avatar_path
+        ? this.client.storage.from("avatars").getPublicUrl(resolved.owner_avatar_path).data.publicUrl
+        : null,
+    };
+    return video ? { ...property, video_path: video.storage_path as string } : property;
   }
 }

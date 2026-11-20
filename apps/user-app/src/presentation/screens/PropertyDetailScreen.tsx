@@ -15,6 +15,7 @@ import {
   Section,
   Status,
 } from "../components/Primitives";
+import { Avatar } from "../components/ProfileUi";
 import { RoomCard } from "../components/RoomCard";
 import { Sheet } from "../components/Sheet";
 import { FavoriteButton } from '../components/FavoriteButton';
@@ -177,9 +178,7 @@ export function PropertyDetailScreen({
             </Text>
           </Section>
           <View className="flex-row items-center gap-[12px] pb-[12px]">
-            <View className="h-[44px] w-[44px] items-center justify-center rounded-pill bg-soft">
-              <Text className="text-symbol text-primary">◎</Text>
-            </View>
+            <Avatar key={p.id} uri={p.owner_avatar_url ?? null} name={p.owner_name} size={44} />
             <View style={{ flex: 1 }}>
               <Text className="text-body font-bold text-ink">{p.owner_name}</Text>
               <Text className="text-label leading-muted text-muted">Owner terverifikasi · demo akademik</Text>

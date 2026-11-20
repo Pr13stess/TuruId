@@ -36,6 +36,8 @@ export interface Property {
   gender_type: Gender;
   rules: string;
   owner_name: string;
+  owner_avatar_path?: string | null;
+  owner_avatar_url?: string | null;
   images: string[];
   video_path?: string;
   facilities: string[];

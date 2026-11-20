@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ActivityIndicator, Image, Pressable, StyleSheet, View, type TextInputProps } from "react-native";
 import { Text, TextInput } from "./Typography";
 import { colors, radius } from "../theme";
@@ -12,6 +13,7 @@ export function Avatar({
   name: string | null;
   size?: number;
 }) {
+  const [failedUri, setFailedUri] = useState<string | null>(null);
   const initials =
     (name ?? "")
       .trim()
@@ -20,10 +22,11 @@ export function Avatar({
       .map((w) => w[0]?.toUpperCase() ?? "")
       .join("") || "?";
   const box = { width: size, height: size, borderRadius: size / 2 };
-  if (uri)
+  if (uri && uri !== failedUri)
     return (
       <Image
         source={{ uri }}
+        onError={() => setFailedUri(uri)}
         style={[box, { backgroundColor: colors.soft }]}
         accessibilityLabel="Foto profil"
       />

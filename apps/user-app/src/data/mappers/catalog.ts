@@ -86,6 +86,7 @@ export function parseProperty(x: unknown): Property {
     gender_type: gender as Gender,
     rules: optional(p.rules) ?? "",
     owner_name: optional(p.owner_name) ?? "Pemilik kos",
+    owner_avatar_path: optional(p.owner_avatar_path),
     images: strings(p.images),
     facilities: strings(p.facilities),
     rating: num(p.rating),
