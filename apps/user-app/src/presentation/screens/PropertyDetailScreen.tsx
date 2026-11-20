@@ -8,7 +8,8 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import type { ScreenProps } from "../../navigation/types";
 import { useRepositories } from "../../providers/RepositoryProvider";
 import { useResource } from "../hooks/useResource";
@@ -35,6 +36,21 @@ export function PropertyDetailScreen({
   navigation,
 }: ScreenProps<"PropertyDetail">) {
   const { propertyId } = route.params;
+  const insets = useSafeAreaInsets();
+  const backButton = (
+    <View pointerEvents="box-none" style={{ position: "absolute", top: insets.top + 10, left: 0, right: 0, zIndex: 20 }}>
+      <View pointerEvents="box-none" className="w-full max-w-[600px] self-center px-[16px]">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Kembali"
+          onPress={() => navigation.goBack()}
+          className="h-[48px] w-[48px] items-center justify-center self-start rounded-pill border border-line bg-surface shadow-card active:bg-soft"
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+        </Pressable>
+      </View>
+    </View>
+  );
   const { properties, rooms, chat } = useRepositories();
   const voice = useStartVoiceCall(id => navigation.navigate('VoiceCall', { id }));
   const videoUrl = useCallback((path: string) => properties.videoUrl(path), [properties]);
@@ -52,14 +68,22 @@ export function PropertyDetailScreen({
   const [notice, setNotice] = useState<string | null>(null);
   if (state.loading || state.error)
     return (
+      <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
+      <View className="flex-1 justify-center">
       <Status
         loading={state.loading}
         error={state.error}
         onRetry={state.error ? state.retry : undefined}
       />
+      </View>
+      {backButton}
+      </SafeAreaView>
     );
   const p = state.data?.property;
-  if (!p) return <Status empty="Kos tidak tersedia atau sudah diarsipkan" />;
+  if (!p) return <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-background">
+    <View className="flex-1 justify-center"><Status empty="Kos tidak tersedia atau sudah diarsipkan" /></View>
+    {backButton}
+  </SafeAreaView>;
   const roomList = state.data?.rooms ?? [];
   const canChoose = roomList.some((r) => r.available > 0 && r.plans.length > 0);
   const openChat = async () => {
@@ -210,6 +234,7 @@ export function PropertyDetailScreen({
           />
         </View>
       </View>
+      {backButton}
       <Sheet
         visible={notice !== null}
         title="Informasi"

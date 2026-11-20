@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, View, useWindowDimensions } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { propertyGallery } from "../../domain/propertyGallery";
 import { colors } from "../theme";
 import { PropertyImage } from "./PropertyImage";
@@ -11,6 +12,7 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
   photos: string[]; video?: string; resolve: (path: string) => Promise<string>;
 }) {
   const items = propertyGallery(photos, video);
+  const insets = useSafeAreaInsets();
   const dimensions = useWindowDimensions();
   const [width, setWidth] = useState(Math.min(600, dimensions.width));
   const height = Math.min(400, Math.max(280, width * 0.85));
@@ -31,11 +33,13 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
     </ScrollView>
     {items.length > 1 && <View accessible accessibilityRole="text" pointerEvents="none"
       accessibilityLabel={`Media ${index + 1} dari ${items.length}`} accessibilityLiveRegion="polite"
-      className={`absolute inset-x-0 flex-row items-center justify-center gap-[6px] ${items[index]?.kind === "video" ? "top-[12px]" : "bottom-[44px]"}`}>
+      style={items[index]?.kind === "video" ? { top: insets.top + 12 } : undefined}
+      className={`absolute inset-x-0 flex-row items-center justify-center gap-[6px] ${items[index]?.kind === "video" ? "" : "bottom-[44px]"}`}>
       {items.map((item, i) => <View key={item.id} className={`h-[6px] w-[6px] rounded-pill border border-primary ${index === i ? "bg-accent" : "bg-surface"}`} />)}
     </View>}
     <Pressable accessibilityRole="button" accessibilityLabel="Buka galeri layar penuh" onPress={() => setFullscreen(true)}
-      className="absolute right-[10px] top-[10px] h-[44px] w-[44px] items-center justify-center rounded-control bg-media-control">
+      style={{ top: insets.top + 10 }}
+      className="absolute right-[10px] h-[44px] w-[44px] items-center justify-center rounded-control bg-media-control">
       <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
         <Path d="M9 3H3v6M15 3h6v6M21 15v6h-6M3 15v6h6" stroke={colors.surface} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       </Svg>

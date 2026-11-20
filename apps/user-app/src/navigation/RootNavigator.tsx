@@ -45,14 +45,15 @@ export function RootNavigator() {
         if (navigationRef.isReady()) navigationRef.navigate('VoiceCall', { id });
       }} />}
       <Stack.Navigator
-        screenOptions={{
+        screenOptions={({ route }) => ({
+          headerShown: route.name !== "PropertyDetail",
           headerTintColor: colors.primary,
           headerTitleAlign: "center",
           headerShadowVisible: false,
           headerTitleStyle: typography.headerTitle,
           headerStyle: { backgroundColor: colors.surface },
           contentStyle: { backgroundColor: colors.background },
-        }}
+        })}
       >
         {loading ? (
           <Stack.Screen
