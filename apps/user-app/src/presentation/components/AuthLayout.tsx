@@ -13,7 +13,7 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
   footer: ReactNode;
 }>) {
   const insets = useSafeAreaInsets();
-  const headerHeight = (compact ? 124 : 200) + insets.top;
+  const headerHeight = (compact ? 172 : 200) + insets.top;
   return (
     <ScrollView
       className="flex-1 bg-surface"
