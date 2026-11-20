@@ -8,6 +8,14 @@ import { useRepositories } from '../../../providers/RepositoryProvider';
 import { useResource } from '../../hooks/useResource';
 import { Button, Status } from '../../components/Primitives';
 import { colors } from '../../theme';
+import { Ionicons } from '@expo/vector-icons';
+
+const notificationIcons: Record<string, { name: React.ComponentProps<typeof Ionicons>['name']; color: string }> = {
+  BOOKING: { name: 'calendar-outline', color: colors.success },
+  PROPERTY: { name: 'home-outline', color: colors.accentStrong },
+  CHAT: { name: 'chatbubble-outline', color: colors.primary },
+  CALL: { name: 'call-outline', color: colors.success },
+};
 
 export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>) {
   const { notifications, chat, mode } = useRepositories();
@@ -36,22 +44,36 @@ export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>
   }
   return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
     <FlatList data={state.data?.slice(0, 20) ?? []} keyExtractor={item => item.id}
-      contentContainerStyle={{ flexGrow: 1, padding: 20, gap: 12 }} refreshing={state.loading} onRefresh={reload}
-      ListHeaderComponent={<View style={{ gap: 10 }}>
-        {mode === 'mock' && <Text style={{ color: colors.muted }}>Mode demo: belum ada notifikasi dari server.</Text>}
-        {!!feedback && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{feedback}</Text>}
+      contentContainerStyle={{ flexGrow: 1, padding: 20, paddingBottom: 40, width: "100%", maxWidth: 600, alignSelf: "center" }} refreshing={state.loading} onRefresh={reload}
+      ListHeaderComponent={<View className="gap-[8px] rounded-t-card border border-line bg-surface px-[16px] py-[14px]">
+        <Text className="text-body font-semibold text-ink">Notifikasi</Text>
+        {mode === 'mock' && <Text className="text-label leading-muted text-muted">Mode demo: belum ada notifikasi dari server.</Text>}
+        {!!feedback && <Text accessibilityRole="alert" className="text-label leading-muted text-danger">{feedback}</Text>}
       </View>}
-      ListEmptyComponent={<Status loading={state.loading} error={state.error} empty="Belum ada notifikasi di halaman ini." onRetry={state.error ? reload : undefined} />}
-      renderItem={({ item }) => <Pressable accessibilityRole="button" disabled={busy}
+      ListEmptyComponent={<View className="rounded-b-card border-x border-b border-line bg-surface"><Status loading={state.loading} error={state.error} empty="Belum ada notifikasi di halaman ini." onRetry={state.error ? reload : undefined} /></View>}
+      renderItem={({ item, index }) => {
+        const icon = notificationIcons[item.target_type ?? ''] ?? { name: 'notifications-outline' as const, color: colors.muted };
+        const last = index === Math.min(state.data?.length ?? 0, 20) - 1;
+        return <Pressable accessibilityRole="button" disabled={busy}
         accessibilityLabel={`${item.read_at ? '' : 'Belum dibaca: '}${item.title}`}
         accessibilityState={{ disabled: busy }} onPress={() => open(item)}
-        style={{ padding: 18, gap: 8, backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1,
-          borderColor: item.read_at ? colors.line : colors.primary }}>
-        <Text style={{ color: colors.primary, fontWeight: item.read_at ? '500' : '700', fontSize: 16 }}>{item.title}</Text>
-        <Text style={{ color: colors.ink, lineHeight: 21 }}>{item.body}</Text>
-        <Text style={{ color: colors.muted, fontSize: 12 }}>{new Date(item.created_at).toLocaleString('id-ID')}</Text>
-      </Pressable>}
-      ListFooterComponent={!state.loading && !state.error && (page > 0 || !!state.data?.length) ? <View style={{ gap: 10 }}>
+        className={`min-h-[72px] flex-row items-start gap-[12px] border-x border-b border-line bg-surface px-[16px] py-[16px] active:bg-soft ${last ? 'rounded-b-card' : ''}`}>
+        <View className="pt-[2px]" accessible={false} importantForAccessibility="no-hide-descendants">
+          <Ionicons name={icon.name} size={20} color={icon.color} />
+        </View>
+        <View className="flex-1 gap-[6px]">
+          <View className="flex-row flex-wrap items-start justify-between gap-x-[12px] gap-y-[4px]">
+            <Text className={`shrink text-body leading-body text-ink ${item.read_at ? "font-medium" : "font-bold"}`}>{item.title}</Text>
+            <View className="ml-auto flex-row items-center gap-[8px]">
+              <Text className="text-caption leading-muted text-muted">{new Date(item.created_at).toLocaleString('id-ID')}</Text>
+              {!item.read_at && <View className="h-[6px] w-[6px] rounded-pill bg-success" />}
+            </View>
+          </View>
+          <Text className="text-label leading-muted text-muted">{item.body}</Text>
+        </View>
+      </Pressable>;
+      }}
+      ListFooterComponent={!state.loading && !state.error && (page > 0 || !!state.data?.length) ? <View className="mt-[16px] gap-[12px]">
         <Button secondary title="Sebelumnya" disabled={page === 0 || busy} onPress={() => setPage(p => p - 1)} />
         <Button secondary title="Berikutnya" disabled={busy || (state.data?.length ?? 0) <= 20} onPress={() => setPage(p => p + 1)} />
       </View> : null} />
