@@ -1,6 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from "react-native-svg";
 import { colors } from "../theme";
 import { Text } from "./Typography";
@@ -12,16 +12,18 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
   compact?: boolean;
   footer: ReactNode;
 }>) {
+  const insets = useSafeAreaInsets();
   return (
     <ScrollView
       className="flex-1 bg-surface"
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
+      contentInsetAdjustmentBehavior="never"
     >
       <View className="w-full max-w-[480px] flex-1 self-center bg-surface">
-        <View className={`items-center justify-center pb-[24px] ${compact ? "h-[124px]" : "h-[200px]"}`}>
-          <Svg width="100%" height="100%" viewBox="0 0 480 200" preserveAspectRatio="none" style={{ position: "absolute" }} accessible={false} pointerEvents="none">
+        <View className="items-center justify-center bg-accent-soft pb-[24px]" style={{ height: (compact ? 124 : 200) + insets.top, paddingTop: insets.top }}>
+          <Svg width="100%" height="100%" viewBox="0 0 480 200" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0 }} accessible={false} pointerEvents="none">
             <Defs>
               <LinearGradient id="auth-background" x1="0" y1="0" x2="0" y2="1">
                 <Stop offset="0" stopColor={colors.accentSoft} />

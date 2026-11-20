@@ -28,7 +28,7 @@ export function LoginScreen({ navigation }: ScreenProps<"Login">) {
     }
   };
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={{ flex: 1, backgroundColor: colors.accentSoft }}>
+    <SafeAreaView edges={["left", "right"]} style={{ flex: 1, backgroundColor: colors.accentSoft }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"
