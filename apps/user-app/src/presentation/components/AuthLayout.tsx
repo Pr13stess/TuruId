@@ -1,7 +1,7 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
+import Svg, { Defs, LinearGradient, Path, Rect, Stop } from "react-native-svg";
 import { colors } from "../theme";
 import { Text } from "./Typography";
 import { UserBrand } from "./UserBrand";
@@ -21,7 +21,7 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
     >
       <View className="w-full max-w-[480px] flex-1 self-center bg-surface">
         <View className={`items-center justify-center pb-[24px] ${compact ? "h-[124px]" : "h-[200px]"}`}>
-          <Svg width="100%" height="100%" style={{ position: "absolute" }} accessible={false}>
+          <Svg width="100%" height="100%" viewBox="0 0 480 200" preserveAspectRatio="none" style={{ position: "absolute" }} accessible={false} pointerEvents="none">
             <Defs>
               <LinearGradient id="auth-background" x1="0" y1="0" x2="0" y2="1">
                 <Stop offset="0" stopColor={colors.accentSoft} />
@@ -29,12 +29,16 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
               </LinearGradient>
             </Defs>
             <Rect width="100%" height="100%" fill="url(#auth-background)" />
+            <Path d="M-40 12C20-42 105-12 130 35C158 89 89 92 78 143C65 199-13 185-40 149Z" fill={colors.surface} opacity={0.32} />
+            <Path d="M365-32C422-51 518-4 514 63C509 124 452 139 413 109C379 82 319 76 328 28C332 4 346-18 365-32Z" fill={colors.accent} opacity={0.2} />
+            <Path d="M372 145C405 108 460 117 502 145L510 215H302C302 180 343 177 372 145Z" fill={colors.accentSoft} opacity={0.45} />
           </Svg>
           <View className="rounded-pill bg-surface px-[18px] py-[10px]">
             <UserBrand />
           </View>
         </View>
-        <SafeAreaView edges={["bottom"]} className="-mt-[24px] flex-1 rounded-t-card bg-surface">
+        <View className="-mt-[32px] flex-1 overflow-hidden rounded-t-auth bg-surface">
+        <SafeAreaView edges={["bottom"]} style={{ flex: 1 }}>
           <View className="flex-1 px-[24px] pt-[30px] pb-[20px]">
             <View className="mb-[30px] items-center gap-[10px]">
               <Text className="text-center text-title font-semibold text-ink">{title}</Text>
@@ -44,6 +48,7 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
             <View className="mt-auto items-center pt-[32px]">{footer}</View>
           </View>
         </SafeAreaView>
+        </View>
       </View>
     </ScrollView>
   );

@@ -9,16 +9,25 @@ export function Input({
   appearance = "default",
   ...input
 }: TextInputProps & { label: string; error?: string; appearance?: "default" | "pill" }) {
+  const field = (
+    <TextInput
+      accessibilityLabel={label}
+      placeholderTextColor={colors.muted}
+      className={appearance === "pill"
+        ? "min-h-[48px] flex-1 px-0 py-[13px] text-body text-ink"
+        : `min-h-[48px] rounded-control border bg-surface px-[14px] py-[12px] text-body text-ink ${error ? "border-danger" : "border-line"}`}
+      style={style}
+      {...input}
+    />
+  );
   return (
     <View className="gap-[6px]">
       <Text className={appearance === "pill" ? "ml-[2px] text-label font-medium text-ink" : "text-body font-semibold text-ink"}>{label}</Text>
-      <TextInput
-        accessibilityLabel={label}
-        placeholderTextColor={colors.muted}
-        className={`min-h-[48px] border text-body text-ink ${appearance === "pill" ? "rounded-pill bg-soft px-[16px] py-[13px]" : "rounded-control bg-surface px-[14px] py-[12px]"} ${error ? "border-danger" : appearance === "pill" ? "border-soft" : "border-line"}`}
-        style={style}
-        {...input}
-      />
+      {appearance === "pill" ? (
+        <View className={`flex-row items-center rounded-pill border bg-soft px-[20px] ${error ? "border-danger" : "border-soft"}`}>
+          {field}
+        </View>
+      ) : field}
       {error ? <Text className="text-label leading-muted text-danger">{error}</Text> : null}
     </View>
   );

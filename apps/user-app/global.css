@@ -32,6 +32,7 @@
   --radius-chip: 8px;
   --radius-control: 12px;
   --radius-card: 16px;
+  --radius-auth: 32px;
   --radius-pill: 9999px;
 
   --shadow-dock: 0px 4px 14px #00000015;

@@ -25,7 +25,7 @@ export const colors = {
   mediaControl: "#08080888",
   mediaCanvas: "#000000",
 };
-export const radius = { chip: 8, control: 12, card: 16, button: 12 };
+export const radius = { chip: 8, control: 12, card: 16, auth: 32, button: 12 };
 
 export const typography = {
   headerTitle: { fontFamily: fonts.bold, fontSize: 16, fontWeight: "normal" as const, color: colors.primary },
