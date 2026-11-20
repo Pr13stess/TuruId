@@ -97,9 +97,9 @@ export function MenuSection({
   children: React.ReactNode;
 }) {
   return (
-    <View style={s.section}>
-      <Text style={s.sectionTitle}>{title}</Text>
-      <View style={s.sectionCard}>{children}</View>
+    <View className="mt-[24px]">
+      <Text className="mb-[6px] text-body font-bold text-ink">{title}</Text>
+      <View>{children}</View>
     </View>
   );
 }
@@ -115,16 +115,32 @@ export function MenuRow({
   danger?: boolean;
   last?: boolean;
 }) {
+  const icons: Record<string, IconName> = {
+    "Ubah profil": "person-outline",
+    "Ubah password": "lock-closed-outline",
+    "Favorit": "heart-outline",
+    "Catatan Saya": "document-text-outline",
+    "Booking Saya": "calendar-outline",
+    "Riwayat pembayaran": "card-outline",
+    "Notifikasi": "notifications-outline",
+    "Bantuan dan FAQ": "help-circle-outline",
+    "Tentang aplikasi": "information-circle-outline",
+    "Privacy Policy": "shield-checkmark-outline",
+    "Terms and Conditions": "reader-outline",
+  };
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={[s.row, last ? null : s.rowDivider]}
+      className={`min-h-[52px] flex-row items-center gap-[12px] py-[12px] active:opacity-60 ${last ? "" : "border-b border-line"}`}
     >
-      <Text style={[s.rowText, danger ? { color: colors.danger } : null]}>
+      <View className="w-[24px] items-center" accessible={false}>
+        <Ionicons name={icons[label] ?? "ellipse-outline"} size={20} color={danger ? colors.danger : colors.primary} />
+      </View>
+      <Text className={`flex-1 text-body ${danger ? "text-danger" : "text-ink"}`}>
         {label}
       </Text>
-      <Text style={s.chevron}>›</Text>
+      <Ionicons name="chevron-forward" size={16} color={colors.muted} accessible={false} />
     </Pressable>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Text } from "../../components/Typography";
 import type { TabScreenProps } from "../../../navigation/types";
 import { useRepositories } from "../../../providers/RepositoryProvider";
@@ -51,7 +52,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
 
   if (loading && !profile)
     return (
-      <View style={s.center}>
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator color={colors.primary} />
       </View>
     );
@@ -60,26 +61,43 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
 
   return (
     <ScrollView
-      style={{ backgroundColor: colors.background }}
-      contentContainerStyle={[s.content, { paddingBottom: 130 + insets.bottom }]}
+      style={{ backgroundColor: colors.surface }}
+      contentContainerStyle={{ padding: 20, paddingBottom: 130 + insets.bottom, width: "100%", maxWidth: 600, alignSelf: "center" }}
     >
-      <View style={s.header}>
-        <Avatar uri={profile.avatar_url} name={profile.full_name} size={76} />
-        <View style={s.headerText}>
-          <Text style={s.name}>{profile.full_name || "Nama belum diisi"}</Text>
-          {profile.email ? <Text style={s.email}>{profile.email}</Text> : null}
-          <View style={s.badges}>
+      <View className="flex-row items-start gap-[12px] py-[8px]">
+        <Avatar uri={profile.avatar_url} name={profile.full_name} size={48} />
+        <View className="flex-1">
+          <Text className="text-header font-semibold text-ink">{profile.full_name || "Nama belum diisi"}</Text>
+          {profile.email ? <Text className="mt-[3px] text-label leading-muted text-muted">{profile.email}</Text> : null}
+          <View className="mt-[8px] flex-row flex-wrap gap-[6px]">
             {profile.roles.map((r) => (
-              <Text key={r} style={s.badge}>
+              <Text key={r} className="overflow-hidden rounded-chip bg-soft px-[8px] py-[3px] text-caption text-muted">
                 {ROLE_LABEL[r]}
               </Text>
             ))}
           </View>
         </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Ubah profil" onPress={() => navigation.navigate("EditProfile")}
+          className="min-h-[48px] justify-center active:opacity-60">
+          <View className="rounded-chip bg-accent-soft px-[10px] py-[6px]">
+            <Text className="text-caption font-semibold text-accent-strong">Ubah profil</Text>
+          </View>
+        </Pressable>
       </View>
 
+      <Pressable accessibilityRole="button" accessibilityLabel="Booking Saya" onPress={() => navigation.navigate("BookingTab")}
+        className="mt-[20px] overflow-hidden rounded-card bg-soft active:opacity-80">
+        <ImageBackground source={require("../../../../assets/kos-1.png")} resizeMode="cover"
+          style={{ height: 144 }} accessible={false}>
+          <View className="mt-auto flex-row items-center gap-[10px] bg-media-control px-[14px] py-[14px]">
+            <Ionicons name="calendar-outline" size={20} color={colors.surface} accessible={false} />
+            <Text className="flex-1 text-body font-semibold text-surface">Booking Saya</Text>
+            <Ionicons name="chevron-forward" size={18} color={colors.surface} accessible={false} />
+          </View>
+        </ImageBackground>
+      </Pressable>
+
       <MenuSection title="Akun">
-        <MenuRow label="Ubah profil" onPress={() => navigation.navigate("EditProfile")} />
         <MenuRow
           label="Ubah password"
           last
@@ -96,7 +114,6 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
           label="Catatan Saya"
           onPress={() => navigation.navigate("Notes")}
         />
-        <MenuRow label="Booking Saya" onPress={() => navigation.navigate("BookingTab")} />
         <MenuRow
           label="Riwayat pembayaran"
           onPress={() => navigation.navigate("PaymentHistory")}
@@ -120,7 +137,7 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
       </MenuSection>
 
 
-      <View style={s.logout}>
+      <View className="mt-[28px]">
         <DangerButton
           title="Keluar"
           icon="log-out-outline"
@@ -145,24 +162,3 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
     </ScrollView>
   );
 }
-
-const s = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  content: { padding: 16, paddingBottom: 130 },
-  header: { flexDirection: "row", alignItems: "center", gap: 16 },
-  headerText: { flex: 1 },
-  name: { color: colors.ink, fontSize: 20, fontWeight: "700" },
-  email: { color: colors.muted, fontSize: 14, marginTop: 2 },
-  badges: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 8 },
-  badge: {
-    backgroundColor: colors.orangeSoft,
-    color: colors.ink,
-    fontSize: 12,
-    fontWeight: "600",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    overflow: "hidden",
-  },
-  logout: { marginTop: 28 },
-});
