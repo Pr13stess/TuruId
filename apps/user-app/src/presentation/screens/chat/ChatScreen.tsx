@@ -51,7 +51,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
   );
   const meta = useResource(metaLoader);
   const ownerName = meta.data?.owner_name ?? "";
-  const avatarUri = meta.data?.images?.[0] ?? null;
+  const avatarUri = meta.data?.owner_avatar_url ?? null;
 
   const [liveMessages, setLiveMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
