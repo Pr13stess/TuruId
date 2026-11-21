@@ -15,7 +15,7 @@ export function Input({
       placeholderTextColor={colors.muted}
       className={appearance === "pill"
         ? "min-h-[48px] flex-1 px-0 py-[13px] text-body text-ink"
-        : `min-h-[48px] rounded-control border bg-surface px-[14px] py-[12px] text-body text-ink ${error ? "border-danger" : "border-line"}`}
+        : "min-h-[48px] flex-1 px-0 py-[12px] text-body text-ink"}
       style={style}
       {...input}
     />
@@ -27,7 +27,11 @@ export function Input({
         <View className={`flex-row items-center rounded-pill border bg-soft px-[20px] ${error ? "border-danger" : "border-soft"}`}>
           {field}
         </View>
-      ) : field}
+      ) : (
+        <View className={`flex-row items-center rounded-control border bg-surface px-[16px] ${error ? "border-danger" : "border-line"}`}>
+          {field}
+        </View>
+      )}
       {error ? <Text className="text-label leading-muted text-danger">{error}</Text> : null}
     </View>
   );
