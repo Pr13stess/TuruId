@@ -1,5 +1,7 @@
 import { useCallback } from "react";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { callEventDisplay } from "../../../domain/callEventDisplay";
 import { orderChats } from "../../../domain/chatOrder";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "../../components/Typography";
@@ -63,7 +65,12 @@ function ConversationRow({
   const { properties } = useRepositories();
   const loadOwner = useCallback(() => properties.get(item.property_id), [properties, item.property_id]);
   const owner = useResource(loadOwner);
-  const preview = item.last_message
+  const call = item.last_message?.message_type === "CALL_EVENT"
+    ? callEventDisplay(item.last_message.text_content)
+    : null;
+  const preview = call
+    ? (call.title === "Panggilan" ? "Riwayat panggilan" : `${call.title} · ${call.detail}`)
+    : item.last_message
     ? item.last_message.message_type === "IMAGE"
       ? "📷 Gambar"
       : (item.last_message.text_content ?? "")
@@ -84,9 +91,13 @@ function ConversationRow({
         <Text style={styles.name} numberOfLines={1}>
           {item.property_name}
         </Text>
-        <Text style={styles.preview} numberOfLines={1}>
-          {preview}
-        </Text>
+        <View className="flex-row items-center gap-[5px]">
+          {call && <Ionicons name={call.video ? "videocam-outline" : "call-outline"} size={14}
+            color={call.unsuccessful ? colors.danger : colors.muted} accessible={false} />}
+          <Text className="flex-1" style={styles.preview} numberOfLines={1}>
+            {preview}
+          </Text>
+        </View>
       </View>
       <View style={{ alignItems: "flex-end", gap: 6 }}>
         <Text style={styles.time}>{timeLabel(item.updated_at)}</Text>
