@@ -18,7 +18,7 @@ function Badge({ status }: { status: BookingStatus }) {
 }
 
 export function BookingsScreen({ navigation }: TabScreenProps<'BookingTab'>) {
-  const { checkout, mode } = useRepositories();
+  const { checkout } = useRepositories();
   const [filter, setFilter] = useState<BookingFilter>('ALL');
   const [page, setPage] = useState(0);
   const focused = useIsFocused();
@@ -27,10 +27,7 @@ export function BookingsScreen({ navigation }: TabScreenProps<'BookingTab'>) {
   const reload = state.retry;
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
   return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
-    <View className="gap-[8px] p-[20px]"><Text className="text-title font-bold text-ink">Booking saya</Text><Text className="shrink text-label leading-muted text-muted">Pantau pesanan dan masa tinggalmu di sini.</Text>
-      <Text className="text-caption leading-muted text-muted">{mode === 'mock' ? 'DATA DEMO · tersimpan selama sesi aplikasi' : 'PEMBAYARAN SANDBOX · tanpa uang nyata'}</Text>
-    </View>
-    <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 16, gap: 8 }}>
+    <View><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, gap: 8 }}>
       {(Object.keys(bookingFilters) as BookingFilter[]).map(key => <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected: filter === key }}
         className={`rounded-control border p-[11px] ${filter === key ? "border-accent-strong bg-accent-soft" : "border-line bg-surface"}`} onPress={() => { setFilter(key); setPage(0); }}>
         <Text className={`text-label font-semibold ${filter === key ? "text-accent-strong" : "text-primary"}`}>{bookingFilters[key]}</Text>
