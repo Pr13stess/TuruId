@@ -7,8 +7,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
   ViewStyle,
   StyleProp,
@@ -18,18 +16,21 @@ import { useRepositories } from "../../application/RepositoriesProvider";
 import { useNav } from "../navigation";
 import { Icon, IconName } from "./Icon";
 import { OwnerBrand } from "./OwnerBrand";
+import { Text, TextInput } from "./Typography";
+import { colors } from "../theme";
+
 export const C = {
-  navy: "#20212B",
-  orange: "#F58A07",
-  cream: "#FFFFFF",
-  white: "#FFFFFF",
-  peach: "#FFEBD2",
-  orangeDark: "#A85100",
-  muted: "#77798B",
-  line: "#E1E2E8",
-  soft: "#F6F6F8",
-  green: "#34705B",
-  red: "#B54838",
+  navy: colors.primary,
+  orange: colors.accent,
+  cream: colors.background,
+  white: colors.surface,
+  peach: colors.accentSoft,
+  orangeDark: colors.accentStrong,
+  muted: colors.muted,
+  line: colors.line,
+  soft: colors.soft,
+  green: colors.success,
+  red: colors.danger,
 };
 export const money = (n: number) =>
   new Intl.NumberFormat("id-ID", {
@@ -55,16 +56,14 @@ export function T({
   muted?: boolean;
 }) {
   return (
-    <Text style={[styles.text, muted && { color: C.muted }, style]}>
+    <Text className={muted ? "text-body leading-body text-muted" : "text-body leading-body text-ink"} style={style}>
       {children}
     </Text>
   );
 }
 export function Title({ children }: { children: React.ReactNode }) {
   return (
-    <T style={{ fontSize: 21, fontWeight: "800", letterSpacing: -0.6 }}>
-      {children}
-    </T>
+    <Text className="text-title font-extrabold text-ink">{children}</Text>
   );
 }
 export function Row({
@@ -83,7 +82,7 @@ export function Card({
   children: React.ReactNode;
   style?: ViewStyle;
 }) {
-  return <View style={[styles.card, style]}>{children}</View>;
+  return <View className="rounded-card border border-line bg-surface p-4 gap-3" style={style}>{children}</View>;
 }
 export function Badge({
   children,
@@ -93,26 +92,12 @@ export function Badge({
   tone?: "orange" | "green" | "navy";
 }) {
   return (
-    <View
-      style={{
-        alignSelf: "flex-start",
-        borderRadius: 999,
-        paddingHorizontal: 14,
-        paddingVertical: 4,
-        backgroundColor:
-          tone === "orange"
-            ? "#FFF0DA"
-            : tone === "green"
-              ? "#E8F4EE"
-              : "#ECECF2",
-      }}
-    >
-      <T style={{ fontSize: 12, fontWeight: "600", color: C.navy }}>
-        {children}
-      </T>
+    <View className={tone === "orange" ? "self-start rounded-pill px-3.5 py-1 bg-accent-soft" : "self-start rounded-pill px-3.5 py-1 bg-soft"}>
+      <Text className={tone === "orange" ? "text-label font-semibold text-accent-strong" : tone === "green" ? "text-label font-semibold text-success" : "text-label font-semibold text-primary"}>{children}</Text>
     </View>
   );
 }
+
 export function Button({
   title,
   onPress,
@@ -132,30 +117,10 @@ export function Button({
       accessibilityLabel={title}
       onPress={onPress}
       disabled={disabled}
-      style={({ pressed }) => [
-        styles.button,
-        {
-          backgroundColor: secondary
-            ? "transparent"
-            : danger
-              ? C.red
-              : C.orange,
-          borderWidth: secondary ? 1 : 0,
-          borderColor: C.line,
-          opacity: disabled ? 0.45 : pressed ? 0.7 : 1,
-        },
-      ]}
+      className={"min-h-12 justify-center rounded-control px-4 py-3 " + (secondary ? "bg-soft border border-line" : danger ? "bg-danger" : "bg-accent")}
+      style={({ pressed }) => ({ opacity: disabled ? 0.45 : pressed ? 0.7 : 1 })}
     >
-      <T
-        style={{
-          fontWeight: "800",
-          fontSize: 13,
-          color: secondary ? C.navy : C.white,
-          textAlign: "center",
-        }}
-      >
-        {title}
-      </T>
+      <Text className={secondary ? "text-body font-extrabold text-center text-primary" : "text-body font-extrabold text-center text-surface"}>{title}</Text>
     </Pressable>
   );
 }
@@ -171,7 +136,7 @@ export function Section({
       <T muted style={{ fontSize: 13, fontWeight: "600", marginLeft: 4 }}>
         {title}
       </T>
-      <View style={styles.sectionCard}>{children}</View>
+      <View className="rounded-card border border-line bg-surface overflow-hidden">{children}</View>
     </View>
   );
 }
@@ -245,10 +210,8 @@ export function Field({
         autoCapitalize={
           secure || label.toLowerCase().includes("email") ? "none" : "sentences"
         }
-        style={[
-          styles.input,
-          multiline && { minHeight: 90, textAlignVertical: "top" },
-        ]}
+        className="min-h-12 rounded-control border border-line bg-soft px-4 py-3 text-body text-ink"
+        style={multiline ? { minHeight: 90, textAlignVertical: "top" } : undefined}
       />
     </View>
   );
@@ -860,6 +823,7 @@ export function Dock({
     </View>
   );
 }
+/** @deprecated Legacy styles remain available until screen consumers are migrated. */
 export const styles = StyleSheet.create({
   text: { fontSize: 14, color: C.navy, lineHeight: 20 },
   row: {

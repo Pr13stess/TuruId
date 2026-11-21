@@ -1,3 +1,6 @@
+import "./global.css";
+import { useFonts } from "expo-font";
+import { fontAssets } from "./src/presentation/fonts";
 import React, { useCallback, useEffect, useState } from "react";
 import { AppState, Platform, View } from "react-native";
 import {
@@ -213,10 +216,12 @@ function Root() {
   );
 }
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+  if (!fontsLoaded && !fontError) return <View className="flex-1 bg-background" />;
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <View style={{ flex: 1, backgroundColor: "#F2F3F5" }}>
+      <View className="flex-1 bg-background">
         <RepositoriesProvider>
           <Root />
         </RepositoriesProvider>

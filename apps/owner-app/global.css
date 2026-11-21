@@ -1,0 +1,59 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@import "nativewind/theme";
+
+/* Keep shared values in sync with src/presentation/theme.ts. */
+@theme {
+  --font-jakarta: "PlusJakartaSans-Regular";
+  --font-jakarta-medium: "PlusJakartaSans-Medium";
+  --font-jakarta-semibold: "PlusJakartaSans-SemiBold";
+  --font-jakarta-bold: "PlusJakartaSans-Bold";
+  --font-jakarta-extrabold: "PlusJakartaSans-ExtraBold";
+  --color-background: #FAF7F1;
+  --color-surface: #FFFFFF;
+  --color-ink: #202131;
+  --color-primary: #2A2D45;
+  --color-accent: #F58A00;
+  --color-accent-strong: #9E5400;
+  --color-accent-soft: #FFF0D9;
+  --color-muted: #6B6B76;
+  --color-line: #E9E6E1;
+  --color-selected: #EEEDF5;
+  --color-soft: #F3F1EE;
+  --color-success: #418263;
+  --color-danger: #AA4141;
+  --color-danger-soft: #FBEDED;
+  --color-danger-line: #EBCACA;
+  --color-danger-surface: #FFF5F5;
+  --color-overlay: #15162777;
+  --color-media: #080808;
+  --color-media-control: #08080888;
+  --color-media-canvas: #000000;
+
+  --radius-chip: 8px;
+  --radius-control: 12px;
+  --radius-card: 16px;
+  --radius-auth: 32px;
+  --radius-pill: 9999px;
+
+  --shadow-dock: 0px 4px 14px #00000015;
+  --shadow-card: 0px 2px 8px #2021310A;
+
+  --text-caption: 11px;
+  --text-label: 12px;
+  --text-body: 14px;
+  --text-section: 17px;
+  --text-header: 16px;
+  --text-price: 18px;
+  --text-close: 27px;
+  --text-display: 42px;
+  --text-title: 24px;
+  --text-timer: 30px;
+  --text-symbol: 22px;
+  --text-room-symbol: 36px;
+  --text-brand: 23px;
+  --leading-muted: 19px;
+  --leading-body: 22px;
+}

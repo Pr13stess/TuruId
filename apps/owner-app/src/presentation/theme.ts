@@ -1,13 +1,16 @@
-// Tokens matched to user-app/src/presentation/theme.ts and ProfileUi.tsx.
-// Used by Profile and opt-in read/management screens; other screens keep their existing UI.
+// Shared visual tokens. Keep color and radius values in sync with global.css.
 export const colors = {
   primary: "#2A2D45",
   ink: "#202131",
-  muted: "#767680",
+  muted: "#6B6B76",
   background: "#FAF7F1",
   surface: "#FFFFFF",
   line: "#E9E6E1",
   soft: "#F3F1EE",
+  accent: "#F58A00",
+  accentStrong: "#9E5400",
+  accentSoft: "#FFF0D9",
+  success: "#418263",
   orange: "#F58A00",
   orangeSoft: "#FFF0D9",
   selected: "#EEEDF5",
@@ -16,7 +19,7 @@ export const colors = {
   dangerSoft: "#FBEDED",
   dangerLine: "#EBCACA",
 };
-export const radius = { card: 12, button: 10, badge: 999 };
+export const radius = { chip: 8, control: 12, card: 16, button: 12, badge: 9999, pill: 9999 };
 export const spacing = { xs: 4, sm: 8, md: 12, page: 16, section: 20 };
 export const typography = {
   name: { fontSize: 20, fontWeight: "700" as const },
