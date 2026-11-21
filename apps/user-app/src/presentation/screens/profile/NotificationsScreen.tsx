@@ -19,13 +19,13 @@ const notificationIcons: Record<string, { name: React.ComponentProps<typeof Ioni
 };
 
 export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>) {
-  const { notifications, chat, mode } = useRepositories();
+  const { notifications, chat } = useRepositories();
   const [page, setPage] = useState(0), [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const lock = useRef(false), focused = useIsFocused();
   const load = useCallback(() => notifications.list(page), [notifications, page]);
   const state = useResource(load, focused ? 15000 : 0), reload = state.retry;
-  const hasHeader = mode === 'mock' || !!feedback;
+  const hasHeader = !!feedback;
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
   async function open(item: UserNotification) {
     if (lock.current) return;
@@ -48,7 +48,6 @@ export function NotificationsScreen({ navigation }: ScreenProps<'Notifications'>
     <FlatList data={state.data?.slice(0, 20) ?? []} keyExtractor={item => item.id}
       contentContainerStyle={{ flexGrow: 1, padding: 20, paddingBottom: 40, width: "100%", maxWidth: 600, alignSelf: "center" }} refreshing={state.loading} onRefresh={reload}
       ListHeaderComponent={hasHeader ? <View className="gap-[8px] rounded-t-card border border-line bg-surface px-[16px] py-[14px]">
-        {mode === 'mock' && <Text className="text-label leading-muted text-muted">Mode demo: belum ada notifikasi dari server.</Text>}
         {!!feedback && <Text accessibilityRole="alert" className="text-label leading-muted text-danger">{feedback}</Text>}
       </View> : null}
       ListEmptyComponent={<View className={`rounded-b-card border-x border-b border-line bg-surface ${hasHeader ? '' : 'rounded-t-card border-t'}`}><Status loading={state.loading} error={state.error} empty="Belum ada notifikasi di halaman ini." onRetry={state.error ? reload : undefined} /></View>}

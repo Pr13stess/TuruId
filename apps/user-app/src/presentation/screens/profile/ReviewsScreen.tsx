@@ -12,7 +12,7 @@ import { colors } from '../../theme';
 import { OwnerReviewReply } from '../../components/OwnerReviewReply';
 
 export function ReviewsScreen({ route }: ScreenProps<'Reviews'>) {
-  const { properties, mode } = useRepositories();
+  const { properties } = useRepositories();
   const [page, setPage] = useState(0);
   const load = useCallback(() => properties.listReviews(route.params.propertyId, page), [properties, route.params.propertyId, page]);
   const state = useResource(load), reload = state.retry;
@@ -20,7 +20,6 @@ export function ReviewsScreen({ route }: ScreenProps<'Reviews'>) {
   return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
     <FlatList data={state.data?.slice(0, 20) ?? []} keyExtractor={item => item.id}
       contentContainerStyle={{ flexGrow: 1, padding: 20, gap: 14 }} refreshing={state.loading} onRefresh={reload}
-      ListHeaderComponent={mode === 'mock' ? <Text style={{ color: colors.muted }}>Mode demo belum memiliki isi ulasan.</Text> : null}
       ListEmptyComponent={<Status loading={state.loading} error={state.error} empty="Belum ada ulasan ditayangkan di halaman ini." onRetry={state.error ? reload : undefined} />}
       renderItem={({ item }) => <View style={{ padding: 18, gap: 10, borderRadius: 12, backgroundColor: colors.surface }}>
         <Text style={{ color: colors.primary, fontWeight: '700' }}>Penyewa terverifikasi</Text>

@@ -13,7 +13,7 @@ import { colors } from '../../theme';
 
 const labels = { PENDING: 'Menunggu moderasi', APPROVED: 'Ditayangkan', HIDDEN: 'Disembunyikan', REJECTED: 'Tidak disetujui' };
 export function WriteReviewScreen({ route, navigation }: ScreenProps<'WriteReview'>) {
-  const { reviews, checkout, mode } = useRepositories();
+  const { reviews, checkout } = useRepositories();
   const id = route.params.bookingId;
   const load = useCallback(async () => ({ detail: await checkout.getBookingDetail(id), review: await reviews.get(id) }), [checkout, reviews, id]);
   const state = useResource(load);
@@ -47,7 +47,6 @@ export function WriteReviewScreen({ route, navigation }: ScreenProps<'WriteRevie
   return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={90}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 18 }}>
-        {mode === 'mock' && <Text style={{ color: colors.muted }}>Mode demo · ulasan tidak dikirim ke server</Text>}
         {sent && <Text accessibilityRole="alert" style={{ color: colors.green }}>Ulasan terkirim. Menunggu moderasi sebelum ditayangkan.</Text>}
         {!state.data ? <Status loading={state.loading} error={state.error} onRetry={state.retry} /> : <>
           <Text style={{ fontSize: 20, fontWeight: '700', color: colors.primary }}>{state.data.detail.booking.propertyName}</Text>

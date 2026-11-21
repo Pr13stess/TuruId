@@ -12,7 +12,7 @@ import { colors } from '../../theme';
 import { rupiah } from '../../format';
 
 export function PaymentHistoryScreen({ navigation }: ScreenProps<'PaymentHistory'>) {
-  const { checkout, mode } = useRepositories();
+  const { checkout } = useRepositories();
   const [page, setPage] = useState(0);
   const focused = useIsFocused();
   const load = useCallback(() => checkout.listPayments(page), [checkout, page]);
@@ -21,7 +21,6 @@ export function PaymentHistoryScreen({ navigation }: ScreenProps<'PaymentHistory
   return <SafeAreaView edges={['bottom']} style={s.safe}>
     <FlatList data={state.data?.items ?? []} keyExtractor={item => item.id}
       contentContainerStyle={s.list} refreshing={state.loading} onRefresh={reload}
-      ListHeaderComponent={<Text style={s.muted}>{mode === 'mock' ? 'Data demo · selama sesi aplikasi' : 'Pembayaran sandbox · tanpa uang nyata'}</Text>}
       ListEmptyComponent={<Status loading={state.loading} error={state.error}
         empty="Belum ada transaksi di halaman ini." onRetry={state.error ? reload : undefined} />}
       renderItem={({ item }) => <Pressable accessibilityRole="button"

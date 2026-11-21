@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "../../components/Typography";
 import type { ScreenProps } from "../../../navigation/types";
-import { ACADEMIC_NOTICE, LEGAL, POLICY_VERSION } from "../../content/legal";
+import { LEGAL, POLICY_VERSION } from "../../content/legal";
 import { colors, radius } from "../../theme";
 
 export function PolicyScreen({ route }: ScreenProps<"Policy">) {
@@ -11,9 +11,6 @@ export function PolicyScreen({ route }: ScreenProps<"Policy">) {
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={s.content}
     >
-      <View style={s.notice}>
-        <Text style={s.noticeText}>{ACADEMIC_NOTICE}</Text>
-      </View>
       <Text style={s.title}>{doc.title}</Text>
       <Text style={s.version}>Versi {POLICY_VERSION}</Text>
       {doc.sections.map((sec) => (

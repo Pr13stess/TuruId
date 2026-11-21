@@ -1,7 +1,4 @@
-export const POLICY_VERSION = "2026-09-28-mockup-1";
-
-export const ACADEMIC_NOTICE =
-  "MOCKUP AKADEMIK. Dokumen ini dibuat untuk prototipe aplikasi pencarian kos dalam proyek kuliah. Lingkungan ini memakai data uji dan pembayaran sandbox. Dokumen ini bukan kebijakan layanan komersial.";
+export const POLICY_VERSION = "2026-09-28-1";
 
 export interface LegalSection {
   title: string;
@@ -17,15 +14,15 @@ export const LEGAL: Record<
     sections: [
       {
         title: "Tujuan pemrosesan",
-        body: "Aplikasi menggunakan data akun untuk autentikasi, profil untuk komunikasi, lokasi pilihan untuk pencarian kos, serta data booking dan pembayaran uji untuk menjalankan demonstrasi. Catatan pribadi digunakan hanya untuk membantu pengguna mencatat pertimbangan kos.",
+        body: "Aplikasi menggunakan data akun untuk autentikasi, profil untuk komunikasi, lokasi pilihan untuk pencarian kos, serta data booking dan pembayaran untuk mengelola pemesanan. Catatan pribadi digunakan hanya untuk membantu pengguna mencatat pertimbangan kos.",
       },
       {
         title: "Data yang diproses",
-        body: "Data dapat meliputi nama, email, nomor HP, foto profil, lokasi yang dipilih atau diizinkan, chat dan gambar, catatan pribadi, favorit, metadata panggilan, booking, transaksi sandbox, laporan, dan bukti verifikasi uji. Gunakan data dummy untuk dokumen identitas selama demonstrasi.",
+        body: "Data dapat meliputi nama, email, nomor HP, foto profil, lokasi yang dipilih atau diizinkan, chat dan gambar, catatan pribadi, favorit, metadata panggilan, booking, transaksi pembayaran, laporan, dan bukti verifikasi.",
       },
       {
         title: "Akses dan layanan pendukung",
-        body: "Owner menerima data yang diperlukan untuk percakapan dan booking terkait. Catatan hanya tersedia bagi pembuat melalui aplikasi. Supabase memproses penyimpanan dan autentikasi, Agora memproses media panggilan, Midtrans memproses transaksi uji, dan layanan notifikasi mengirim pemberitahuan. Audio dan video panggilan tidak direkam oleh fitur aplikasi.",
+        body: "Owner menerima data yang diperlukan untuk percakapan dan booking terkait. Catatan hanya tersedia bagi pembuat melalui aplikasi. Supabase memproses penyimpanan dan autentikasi, Agora memproses media panggilan, Penyedia pembayaran memproses transaksi, dan layanan notifikasi mengirim pemberitahuan. Audio dan video panggilan tidak direkam oleh fitur aplikasi.",
       },
       {
         title: "Izin perangkat",
@@ -41,8 +38,8 @@ export const LEGAL: Record<
     title: "Terms and Conditions",
     sections: [
       {
-        title: "Penggunaan demo",
-        body: "Layanan dipakai untuk pembelajaran dan pengujian terbatas. Listing serta identitas uji tidak menjadi penawaran sewa nyata. Pengguna harus menjaga kredensial, memberikan data uji yang sesuai, dan tidak menggunakan layanan untuk spam, penipuan, atau perilaku mengganggu.",
+        title: "Penggunaan layanan",
+        body: "Pengguna harus menjaga kredensial, memberikan informasi yang sesuai, dan tidak menggunakan layanan untuk spam, penipuan, atau perilaku mengganggu.",
       },
       {
         title: "Booking dan biaya",
@@ -50,7 +47,7 @@ export const LEGAL: Record<
       },
       {
         title: "Pembayaran dan verifikasi",
-        body: "Semua pembayaran memakai simulator sandbox, tanpa dana nyata. Badge verifikasi menunjukkan pemeriksaan administratif pada demo. Pengelola dapat meninjau laporan dan membatasi akun atau listing dengan alasan yang dicatat. Jika prototipe dikembangkan menjadi layanan publik, kebijakan operasional dan dokumen legal harus ditinjau kembali sebelum peluncuran.",
+        body: "Badge verifikasi menunjukkan pemeriksaan administratif. Pengelola dapat meninjau laporan dan membatasi akun atau listing dengan alasan yang dicatat.",
       },
     ],
   },
@@ -62,12 +59,12 @@ export const FAQ: LegalSection[] = [
     body: "Di Home, pilih lokasi acuan (misalnya kampus), lalu urutkan berdasarkan Terdekat. Jarak yang tampil adalah jarak garis lurus, bukan jarak rute.",
   },
   {
-    title: "Apakah pembayaran di aplikasi ini nyata?",
-    body: "Tidak. Semua pembayaran adalah simulasi sandbox dan tidak ada uang nyata yang berpindah.",
+    title: "Bagaimana memeriksa status pembayaran?",
+    body: "Buka detail booking atau Riwayat pembayaran untuk melihat status transaksi.",
   },
   {
     title: "Apa arti badge terverifikasi?",
-    body: "Badge menunjukkan pemeriksaan administratif pada demo, bukan jaminan kualitas kos.",
+    body: "Badge menunjukkan pemeriksaan administratif, bukan jaminan kualitas kos.",
   },
   {
     title: "Kenapa harga di kartu berbeda dengan harga di detail?",
@@ -80,4 +77,4 @@ export const FAQ: LegalSection[] = [
 ];
 
 export const ABOUT_TEXT =
-  "Turu.Id adalah aplikasi pencarian kos untuk proyek kuliah. Semua data listing, akun, dan transaksi adalah data uji.";
+  "Turu.Id membantu kamu mencari kos, membandingkan fasilitas, menghubungi pemilik, dan mengelola booking.";
