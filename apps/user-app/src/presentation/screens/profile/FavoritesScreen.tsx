@@ -72,9 +72,9 @@ export function FavoritesScreen({ navigation }: ScreenProps<'Favorites'>) {
         {item.available && <Button title="Lihat kos" onPress={() => navigation.navigate('PropertyDetail', { propertyId: item.propertyId })} />}
         </View>
       </View>}
-      ListFooterComponent={!state.loading && !state.error && (page > 0 || matches.length > 0) ? <View className="gap-[12px]">
-        <Button secondary title="Sebelumnya" disabled={page === 0 || busy} onPress={() => setPage(p => p - 1)} />
-        <Button secondary title="Berikutnya" disabled={busy || !hasNext} onPress={() => setPage(p => p + 1)} />
+      ListFooterComponent={!state.loading && !state.error && (page > 0 || hasNext) ? <View className="gap-[12px]">
+        {page > 0 && <Button secondary title="Sebelumnya" disabled={busy} onPress={() => setPage(p => p - 1)} />}
+        {hasNext && <Button secondary title="Berikutnya" disabled={busy} onPress={() => setPage(p => p + 1)} />}
       </View> : null} />
   </SafeAreaView>;
 }
