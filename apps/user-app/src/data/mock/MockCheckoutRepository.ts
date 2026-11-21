@@ -21,6 +21,7 @@ export class MockCheckoutRepository implements CheckoutRepository {
   private summary(id: string): BookingItem {
     const b = this.find(id), info = this.bookingInfo.get(id)!;
     return { id, code: b.bookingCode, planId: info.planId, status: b.status, createdAt: info.createdAt,
+      propertyId: mockRooms.find(room => room.id === b.roomId)?.property_id ?? null,
       propertyName: b.propertyName, roomName: b.roomTypeName, planName: b.planName,
       moveIn: null, checkedIn: null, checkedOut: null, rent: b.rent, downPayment: b.downPayment,
       deposit: b.securityDeposit, payNow: b.payNow, remainingRent: b.remainingRent, cancelNote: null };

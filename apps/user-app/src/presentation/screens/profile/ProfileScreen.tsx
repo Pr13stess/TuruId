@@ -13,6 +13,7 @@ import {
   MenuSection,
 } from "../../components/ProfileUi";
 import type { UserRole } from "../../../domain/profile";
+import { CurrentStaysSection } from "../../components/CurrentStaysSection";
 import { colors } from "../../theme";
 
 const ROLE_LABEL: Record<UserRole, string> = {
@@ -79,6 +80,8 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
           </View>
         </Pressable>
       </View>
+
+      <CurrentStaysSection onOpen={bookingId => navigation.navigate("BookingDetail", { bookingId })} />
 
       <MenuSection title="Akun">
         <MenuRow

@@ -19,6 +19,7 @@ export const paymentLabels: Record<string, string> = {
 };
 export interface BookingItem {
   id: string; code: string; planId: string; status: BookingStatus; createdAt: string;
+  propertyId?: string | null;
   propertyName: string; roomName: string; planName: string;
   moveIn: string | null; checkedIn: string | null; checkedOut: string | null;
   rent: number; downPayment: number; deposit: number; payNow: number; remainingRent: number;
@@ -40,7 +41,10 @@ export function parseBooking(raw: unknown): BookingItem {
   if (!Object.hasOwn(bookingLabels, status)) throw new Error('Status booking tidak dikenal.');
   const createdAt = text('created_at');
   if (!Number.isFinite(Date.parse(createdAt))) throw new Error('Tanggal booking tidak valid.');
+  const room = r.room && typeof r.room === "object" && !Array.isArray(r.room)
+    ? r.room as Record<string, unknown> : null;
   return {
+    propertyId: typeof room?.property_id === "string" ? room.property_id : null,
     id: text('id'), code: text('booking_code'), planId: text('pricing_plan_id'), status, createdAt,
     propertyName: optional('property_name_snapshot') || 'Kos', roomName: optional('room_type_name_snapshot') || 'Kamar', planName: optional('pricing_plan_name_snapshot') || 'Paket sewa',
     moveIn: optional('planned_move_in_date'), checkedIn: optional('checked_in_at'), checkedOut: optional('checked_out_at'),

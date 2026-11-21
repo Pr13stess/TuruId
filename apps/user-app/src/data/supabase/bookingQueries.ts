@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { filterStatuses, parseBooking, type BookingFilter, type BookingPage, type BookingDetail } from '../../domain/bookings';
 
-const columns = 'id,booking_code,pricing_plan_id,status,created_at,property_name_snapshot,room_type_name_snapshot,pricing_plan_name_snapshot,planned_move_in_date,checked_in_at,checked_out_at,rent_price_snapshot,down_payment_snapshot,security_deposit_snapshot,pay_now_snapshot,remaining_rent_snapshot,cancel_note';
+const columns = 'id,booking_code,pricing_plan_id,status,created_at,property_name_snapshot,room_type_name_snapshot,pricing_plan_name_snapshot,planned_move_in_date,checked_in_at,checked_out_at,rent_price_snapshot,down_payment_snapshot,security_deposit_snapshot,pay_now_snapshot,remaining_rent_snapshot,cancel_note,room:room_types(property_id)';
 async function actor(client: SupabaseClient) {
   const { data, error } = await client.auth.getUser();
   if (error || !data.user) throw new Error('Sesi berakhir. Silakan masuk kembali.');
