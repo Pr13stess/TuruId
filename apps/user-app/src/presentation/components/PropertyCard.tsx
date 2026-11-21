@@ -1,6 +1,7 @@
 import { Pressable, View } from "react-native";
 import { Text } from "./Typography";
 import type { Listing, DurationUnit } from "../../domain/models";
+import { propertyDisplayDescription } from "../catalogDisplay";
 import { PropertyCardPhotos } from "./PropertyCardPhotos";
 import { FavoriteButton } from "./FavoriteButton";
 import { rupiah, genderLabel, periodLabel, distanceLabel } from "../format";
@@ -56,7 +57,7 @@ export function PropertyCard({
             </Text>
           </View>
           <Text numberOfLines={2} className="text-label leading-muted text-muted">
-            {item.description}
+            {propertyDisplayDescription(item.description)}
           </Text>
           <View className="flex-row flex-wrap items-center gap-[6px]">
             {item.facilities.slice(0, 2).map((x) => (

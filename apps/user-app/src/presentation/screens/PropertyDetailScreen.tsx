@@ -7,6 +7,7 @@ import type { ScreenProps } from "../../navigation/types";
 import { useRepositories } from "../../providers/RepositoryProvider";
 import { useResource } from "../hooks/useResource";
 import { colors } from "../theme";
+import { ownerDisplayName, propertyDisplayDescription } from "../catalogDisplay";
 import { genderLabel } from "../format";
 import { PropertyMediaGallery } from "../components/PropertyMediaGallery";
 import {
@@ -145,7 +146,7 @@ export function PropertyDetailScreen({
             <Text className="text-body font-bold text-primary">Lihat lokasi di peta ↗</Text>
             <Text className="text-caption text-muted">OpenStreetMap · buka peta</Text>
           </Pressable>
-          <Text className="mb-[16px] rounded-control bg-soft p-[14px] text-body leading-body text-muted">{p.description}</Text>
+          <Text className="mb-[16px] rounded-control bg-soft p-[14px] text-body leading-body text-muted">{propertyDisplayDescription(p.description)}</Text>
           <View className="my-[12px] flex-row flex-wrap items-start gap-[10px]">
             <FavoriteButton propertyId={propertyId} />
             <Pressable accessibilityRole="button" accessibilityLabel="Bagikan kos" onPress={() => {
@@ -178,9 +179,9 @@ export function PropertyDetailScreen({
             </Text>
           </Section>
           <View className="flex-row items-center gap-[12px] pb-[12px]">
-            <Avatar key={p.id} uri={p.owner_avatar_url ?? null} name={p.owner_name} size={44} />
+            <Avatar key={p.id} uri={p.owner_avatar_url ?? null} name={ownerDisplayName(p.owner_name)} size={44} />
             <View style={{ flex: 1 }}>
-              <Text className="text-body font-bold text-ink">{p.owner_name}</Text>
+              <Text className="text-body font-bold text-ink">{ownerDisplayName(p.owner_name)}</Text>
               <Text className="text-label leading-muted text-muted">Owner terverifikasi</Text>
             </View>
           </View>

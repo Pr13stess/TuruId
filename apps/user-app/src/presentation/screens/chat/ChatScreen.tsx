@@ -1,3 +1,4 @@
+import { ownerDisplayName } from "../../catalogDisplay";
 import { CallEventCard } from "../../components/CallEventCard";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from "react-native";
@@ -50,7 +51,7 @@ export function ChatScreen({ route, navigation }: ScreenProps<"Chat">) {
     [properties, propertyId],
   );
   const meta = useResource(metaLoader);
-  const ownerName = meta.data?.owner_name ?? "";
+  const ownerName = ownerDisplayName(meta.data?.owner_name ?? "");
   const avatarUri = meta.data?.owner_avatar_url ?? null;
 
   const [liveMessages, setLiveMessages] = useState<Message[]>([]);

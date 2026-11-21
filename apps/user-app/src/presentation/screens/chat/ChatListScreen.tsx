@@ -66,7 +66,7 @@ function ConversationRow({
   const loadOwner = useCallback(() => properties.get(item.property_id), [properties, item.property_id]);
   const owner = useResource(loadOwner);
   const call = item.last_message?.message_type === "CALL_EVENT"
-    ? callEventDisplay(item.last_message.text_content)
+    ? callEventDisplay(item.last_message.text_content?.replace(/\s*\(demo\)\s*$/i, "") ?? null)
     : null;
   const preview = call
     ? (call.title === "Panggilan" ? "Riwayat panggilan" : `${call.title} · ${call.detail}`)

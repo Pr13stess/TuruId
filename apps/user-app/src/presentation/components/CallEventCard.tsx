@@ -5,7 +5,7 @@ import { colors } from "../theme";
 import { callEventDisplay } from "../../domain/callEventDisplay";
 
 export function CallEventCard({ text, mine, time }: { text: string | null; mine: boolean; time: string }) {
-  const call = callEventDisplay(text);
+  const call = callEventDisplay(text?.replace(/\s*\(demo\)\s*$/i, "") ?? null);
   const foreground = mine ? colors.surface : colors.primary;
   return <View style={[s.row, { justifyContent: mine ? "flex-end" : "flex-start" }]}>
     <View style={[s.card, { backgroundColor: mine ? colors.primary : colors.surface, borderColor: mine ? colors.primary : colors.line }]}>
