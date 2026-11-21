@@ -8,6 +8,7 @@ import type { TabScreenProps } from "../../../navigation/types";
 import { useRepositories } from "../../../providers/RepositoryProvider";
 import { useResource } from "../../hooks/useResource";
 import { Status } from "../../components/Primitives";
+import { Avatar } from "../../components/ProfileUi";
 import { colors } from "../../theme";
 import { timeLabel } from "../../format";
 import type { Conversation } from "../../../domain/models";
@@ -59,6 +60,9 @@ function ConversationRow({
   item: Conversation;
   onPress: () => void;
 }) {
+  const { properties } = useRepositories();
+  const loadOwner = useCallback(() => properties.get(item.property_id), [properties, item.property_id]);
+  const owner = useResource(loadOwner);
   const preview = item.last_message
     ? item.last_message.message_type === "IMAGE"
       ? "📷 Gambar"
@@ -70,9 +74,12 @@ function ConversationRow({
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
     >
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{item.property_name[0] ?? "K"}</Text>
-      </View>
+      <Avatar
+        key={item.property_id}
+        uri={owner.data?.owner_avatar_url ?? null}
+        name={owner.data?.owner_name ?? item.property_name}
+        size={44}
+      />
       <View style={styles.body}>
         <Text style={styles.name} numberOfLines={1}>
           {item.property_name}
@@ -99,15 +106,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.selected,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: { color: colors.primary, fontWeight: "700", fontSize: 16 },
   body: { flex: 1, gap: 2 },
   name: { fontWeight: "700", color: colors.ink, fontSize: 15 },
   preview: { color: colors.muted, fontSize: 13 },
