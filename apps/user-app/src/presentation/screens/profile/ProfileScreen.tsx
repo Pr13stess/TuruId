@@ -7,7 +7,6 @@ import { useRepositories } from "../../../providers/RepositoryProvider";
 import { useProfile } from "../../hooks/useProfile";
 import {
   DangerButton,
-  DangerZone,
   Avatar,
   ErrorState,
   MenuRow,
@@ -27,9 +26,6 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
   const { auth } = useRepositories();
   const { profile, loading, error, reload } = useProfile();
   const [signingOut, setSigningOut] = useState(false);
-
-  const soon = (title: string, description: string) =>
-    navigation.navigate("ComingSoon", { title, description });
 
   const confirmLogout = () =>
     Alert.alert("Keluar dari akun?", "Kamu perlu masuk lagi untuk melanjutkan.", [
@@ -133,19 +129,6 @@ export function ProfileScreen({ navigation }: TabScreenProps<"ProfileTab">) {
         />
       </View>
 
-      <DangerZone description="Catatan, favorit, dan foto profilmu akan ikut dihapus secara permanen.">
-        <DangerButton
-          title="Hapus akun"
-          icon="trash-outline"
-          variant="solid"
-          onPress={() =>
-            soon(
-              "Hapus akun",
-              "Penghapusan akun akan tersedia di versi berikutnya. Catatan, favorit, dan foto profilmu akan ikut dihapus, sedangkan riwayat transaksi dianonimkan.",
-            )
-          }
-        />
-      </DangerZone>
     </ScrollView>
   );
 }
