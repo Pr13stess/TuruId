@@ -116,7 +116,7 @@ export function PlanSelectionScreen({
                       ? "dapat dikembalikan sesuai ketentuan"
                       : "tidak dapat dikembalikan"}
                     . Pembatalan sebelum masuk: pengembalian penuh atas jumlah
-                    yang dibayar saat booking pada simulasi demo.
+                    yang dibayar saat booking.
                   </Text>
                 </View>
               )}

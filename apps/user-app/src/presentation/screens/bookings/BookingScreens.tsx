@@ -65,7 +65,6 @@ export function BookingDetailScreen({ route, navigation }: ScreenProps<'BookingD
   return <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.background }}>
     <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20, paddingBottom: 40, gap: 18, maxWidth: 650, width: '100%', alignSelf: 'center' }} alwaysBounceVertical refreshControl={<RefreshControl refreshing={state.loading} onRefresh={reload} tintColor={colors.primary} colors={[colors.primary]} />}>
       {!b ? <Status loading={state.loading} error={state.error} onRetry={reload} /> : <>
-        <Text className="text-caption leading-muted text-muted">DEMO / SANDBOX PAYMENT · tanpa uang nyata</Text>
         <View className="flex-row flex-wrap items-center justify-between gap-[10px]"><Text className="text-caption text-muted">{b.code}</Text><Badge status={b.status} /></View>
         <Text className="text-title font-bold text-ink">{b.propertyName}</Text><Text className="shrink text-label leading-muted text-muted">{b.roomName} · {b.planName}</Text>
         <View className="gap-[12px] rounded-card border border-line bg-surface p-[18px] shadow-card"><Text className="text-header font-bold text-ink">Rincian biaya saat pemesanan</Text>

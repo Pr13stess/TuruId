@@ -181,7 +181,7 @@ export function PropertyDetailScreen({
             <Avatar key={p.id} uri={p.owner_avatar_url ?? null} name={p.owner_name} size={44} />
             <View style={{ flex: 1 }}>
               <Text className="text-body font-bold text-ink">{p.owner_name}</Text>
-              <Text className="text-label leading-muted text-muted">Owner terverifikasi · demo akademik</Text>
+              <Text className="text-label leading-muted text-muted">Owner terverifikasi</Text>
             </View>
           </View>
         </View>

@@ -18,7 +18,7 @@ import { Sheet } from "../components/Sheet";
 
 export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
   const insets = useSafeAreaInsets();
-  const { properties, auth, mode } = useRepositories();
+  const { properties, auth } = useRepositories();
   const { session } = useAuthSession();
   const [query, setQuery] = useState(defaultQuery),
     [text, setText] = useState(""),
@@ -98,7 +98,6 @@ export function HomeScreen({ navigation }: TabScreenProps<"HomeTab">) {
             {active && <View className="absolute right-[4px] top-[4px] h-[7px] w-[7px] rounded-pill bg-accent" />}
           </Pressable>
         </View>
-        {mode === "mock" && <Text className="mb-[12px] px-[20px] text-right text-caption font-semibold tracking-wide text-muted">DATA DEMO</Text>}
         <FlatList
           key="home-single-column"
           style={{ flex: 1 }}

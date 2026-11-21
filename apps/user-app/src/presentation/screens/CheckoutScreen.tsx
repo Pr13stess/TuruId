@@ -16,7 +16,7 @@ const cancelText: Record<string, string> = {
   USER_CANCELLED: "Checkout dibatalkan. Tidak ada pembayaran yang diproses.",
   PAYMENT_EXPIRED: "Batas pembayaran berakhir, kamar dilepas kembali.",
   LATE_PAYMENT:
-    "Pembayaran masuk setelah waktu habis. Kamar tidak diambil, dan dananya masuk proses pengembalian (simulasi).",
+    "Pembayaran masuk setelah waktu habis. Kamar tidak diambil, dan dananya masuk proses pengembalian.",
 };
 const pad = (n: number) => String(n).padStart(2, "0");
 export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
@@ -98,9 +98,6 @@ export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
     ]);
   return (
     <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: colors.background }}>
-      <View className="bg-accent-soft px-[16px] py-[10px]">
-        <Text className="text-center text-caption font-bold text-accent-strong">DEMO / TEST MODE PAYMENT (XENDIT) · tanpa uang nyata</Text>
-      </View>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14, maxWidth: 600, width: "100%", alignSelf: "center" }}>
         {!data ? (
           <Status
@@ -165,7 +162,7 @@ export function CheckoutScreen({ route, navigation }: ScreenProps<"Checkout">) {
             <>
               {mode === "mock" ? (
                 <Button
-                  title="Simulasikan pembayaran berhasil"
+                  title="Konfirmasi pembayaran"
                   disabled={busy}
                   onPress={() => void run(async () => checkout.simulatePayment?.(bookingId))}
                 />

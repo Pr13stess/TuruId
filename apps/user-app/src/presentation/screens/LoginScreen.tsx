@@ -9,7 +9,7 @@ import { useRepositories } from "../../providers/RepositoryProvider";
 import { Button } from "../components/Primitives";
 import { colors } from "../theme";
 export function LoginScreen({ navigation }: ScreenProps<"Login">) {
-  const { auth, mode } = useRepositories();
+  const { auth } = useRepositories();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +35,7 @@ export function LoginScreen({ navigation }: ScreenProps<"Login">) {
       >
         <AuthLayout
           title="Masuk ke Turu.Id"
-          subtitle={mode === "mock"
-            ? "Mode demo: daftar akun baru dulu jika belum punya, data tidak tersimpan permanen."
-            : "Gunakan email dan kata sandi akunmu."}
+          subtitle="Gunakan email dan kata sandi akunmu."
           footer={
             <Pressable accessibilityRole="button" onPress={() => navigation.navigate("Register")} className="min-h-[48px] items-center justify-center px-[8px]">
               <Text className="text-center text-label text-muted">Belum punya akun? <Text className="font-semibold text-accent-strong">Daftar</Text></Text>
