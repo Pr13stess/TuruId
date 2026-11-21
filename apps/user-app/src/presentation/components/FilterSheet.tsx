@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { View } from "react-native";
 import { Text, TextInput } from "./Typography";
 import type { DurationUnit, SearchQuery } from "../../domain/models";
@@ -31,6 +31,18 @@ export function FilterSheet({
       query.maxDistance ? String(query.maxDistance) : "",
     ),
     [error, setError] = useState("");
+  const [closing, setClosing] = useState(false);
+  const afterClose = useRef<(() => void) | null>(null);
+  function closeThen(action: () => void) {
+    if (afterClose.current) return;
+    afterClose.current = action;
+    setClosing(true);
+  }
+  function finishClose() {
+    const action = afterClose.current;
+    afterClose.current = null;
+    action?.();
+  }
   const toggle = (key: "roomFacilities" | "propertyFacilities", name: string) =>
     setDraft((d) => ({
       ...d,
@@ -52,16 +64,17 @@ export function FilterSheet({
       setError("Periksa rentang harga dan jarak.");
       return;
     }
-    onApply({
+    closeThen(() => onApply({
       ...draft,
       minPrice: lo,
       maxPrice: hi,
       maxDistance: draft.reference ? dist : null,
       page: 0,
-    });
+    }));
   }
   return (
-    <Sheet visible title="Filter & urutkan" onClose={onClose}>
+    <Sheet visible={!closing} title="Filter & urutkan" onClose={() => closeThen(onClose)}
+      separateBackdropAnimation onAfterClose={finishClose} interactive={!closing}>
       <Section title="Filter">
         <Text className="mt-[6px] text-label font-semibold text-muted">Paket sewa</Text>
         <View className="flex-row flex-wrap gap-[8px]">

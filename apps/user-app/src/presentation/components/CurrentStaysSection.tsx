@@ -70,7 +70,7 @@ export function CurrentStaysSection({ onOpen }: { onOpen: (bookingId: string) =>
         </View>)}
       </ScrollView>
     ) : <Text className="rounded-card bg-soft p-[16px] text-label leading-muted text-muted">Belum ada kos yang sedang dihuni.</Text>}
-    <Sheet visible={showAll} title="Kos yang sedang dihuni" onClose={() => setShowAll(false)}>
+    <Sheet separateBackdropAnimation visible={showAll} title="Kos yang sedang dihuni" onClose={() => setShowAll(false)}>
       {(state.loading || state.error || !stays.length) && <Status loading={state.loading} error={state.error} onRetry={state.error ? reload : undefined}
         empty="Belum ada kos yang sedang dihuni." />}
       {stays.map(booking => <StayCard key={booking.id} booking={booking} onPress={() => open(booking.id)} />)}

@@ -40,17 +40,12 @@ export function LocationSheet({
     mounted.current = true;
     return () => { mounted.current = false; };
   }, []);
-  useEffect(() => {
-    if (!closing) return;
-    // Keep mounted until the 200ms NativeWind exit keyframe has finished.
-    const timer = setTimeout(() => {
-      const action = afterClose.current;
-      afterClose.current = null;
-      setClosing(false);
-      action?.();
-    }, 220);
-    return () => clearTimeout(timer);
-  }, [closing]);
+  function finishClose() {
+    const action = afterClose.current;
+    afterClose.current = null;
+    setClosing(false);
+    action?.();
+  }
   function closeThen(action: () => void) {
     if (!mounted.current || afterClose.current) return;
     afterClose.current = action;
@@ -88,11 +83,11 @@ export function LocationSheet({
   return (
     <>
       <Sheet
-        visible={!mapOpen}
+        visible={!mapOpen && !closing}
         title="Lokasi acuan"
         onClose={() => closeThen(onClose)}
-        animationType="none"
-        panelClassName={closing ? "animate-location-sheet-out" : "animate-location-sheet-in"}
+        separateBackdropAnimation
+        onAfterClose={finishClose}
         interactive={!closing}
       >
         <Text className="text-label leading-muted text-muted">
