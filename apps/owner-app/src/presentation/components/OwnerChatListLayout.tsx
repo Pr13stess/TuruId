@@ -1,16 +1,17 @@
 import { type ReactNode } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Text } from "./Typography";
 import { colors } from "../theme";
 import { Dock, IconButton } from "./UI";
 
 export function OwnerChatListLayout({ children, onHistory }: { children: ReactNode; onHistory: () => void }) {
   return <SafeAreaView style={s.root}>
     <View style={s.body}>
-    <View style={s.header}>
-      <View style={{ width: 44 }} />
-      <Text style={s.title}>Chat</Text>
-      <IconButton name="more" color={colors.primary} label="Tampilkan atau tutup riwayat panggilan" onPress={onHistory} />
+    <View className="min-h-16 flex-row items-center bg-surface px-4 py-2 border-b border-line">
+      <View className="w-12" />
+      <Text className="flex-1 px-3 text-center text-header font-bold text-primary">Chat</Text>
+      <View className="w-12 items-center"><IconButton name="more" color={colors.primary} label="Tampilkan atau tutup riwayat panggilan" onPress={onHistory} /></View>
     </View>
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.content}>
       {children}

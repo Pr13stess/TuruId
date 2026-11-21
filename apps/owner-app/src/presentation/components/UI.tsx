@@ -697,13 +697,13 @@ export function Page({
 }) {
   const nav = useNav();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: C.white }}>
+    <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         {header && (
-          <View style={styles.header}>
+          <View className="min-h-16 flex-row items-center justify-between bg-surface px-4 py-2 border-b border-line">
             {brand ? (
               <Brand />
             ) : (
@@ -715,27 +715,19 @@ export function Page({
                     onPress={() =>
                       nav.canGoBack() ? nav.goBack() : nav.navigate("Home")
                     }
-                    style={{ width: 44, height: 44, justifyContent: "center" }}
+                    className="h-12 w-12 items-center justify-center rounded-pill bg-soft"
                   >
                     <Icon name="back" color={C.navy} />
                   </Pressable>
                 ) : (
-                  <View style={{ width: 44 }} />
+                  <View className="w-12" />
                 )}
-                <T
-                  style={{
-                    flex: 1,
-                    textAlign: "center",
-                    fontWeight: "800",
-                    fontSize: 20,
-                    lineHeight: 26,
-                  }}
-                >
+                <Text className="flex-1 px-3 text-center text-header font-bold text-primary">
                   {title}
-                </T>
+                </Text>
               </>
             )}
-            <View style={{ minWidth: 44, alignItems: "flex-end" }}>
+            <View className="min-w-12 items-end">
               {action}
             </View>
           </View>
@@ -775,7 +767,7 @@ export function Dock({
     ["Profile", "user", "Profil"],
   ] as const;
   return (
-    <View style={styles.dock}>
+    <View className="absolute bottom-3 left-4 right-4 flex-row items-center rounded-pill border border-line bg-surface p-2 shadow-dock">
       {items
         .filter(([route]) => route !== "add" || role === "owner")
         .map(([route, icon, label]) => (
@@ -789,33 +781,17 @@ export function Dock({
                 ? nav.navigate("PropertyForm", {})
                 : nav.navigate(route)
             }
-            style={({ pressed }) => ({
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: 48,
-              opacity: pressed ? 0.7 : 1,
-            })}
+            className="min-h-14 flex-1 items-center justify-center"
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
             <View
-              style={{
-                width: route === "add" ? 62 : 44,
-                height: route === "add" ? 62 : 44,
-                borderRadius: 32,
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: route === "add" ? -26 : 0,
-                backgroundColor:
-                  route === "add" || active === route ? C.white : "transparent",
-                ...(route === "add"
-                  ? { boxShadow: "0 3px 12px #57330030" }
-                  : {}),
-              }}
+              className={"h-12 w-12 items-center justify-center rounded-pill " +
+                (route === "add" ? "bg-accent" : active === route ? "bg-primary" : "bg-surface")}
             >
               <Icon
                 name={icon}
-                size={route === "add" ? 32 : 23}
-                color={route === "add" || active === route ? C.orange : C.white}
+                size={route === "add" ? 28 : 23}
+                color={route === "add" || active === route ? C.white : C.navy}
               />
             </View>
           </Pressable>
