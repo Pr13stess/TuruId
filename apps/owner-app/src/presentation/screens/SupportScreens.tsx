@@ -1,5 +1,7 @@
+import { colors, textSize } from "../theme";
+import { Icon } from "../components/Icon";
 import React, { useCallback, useState } from "react";
-import { Platform, Pressable } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import Constants from "expo-constants";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Props, useNav } from "../navigation";
@@ -34,9 +36,11 @@ export function NotificationsScreen() {
   return (
     <Page title="Notifikasi">
       <Load {...q} />
-      {q.data?.map((n) => (
+      {!!q.data?.length && <View className="overflow-hidden rounded-card border border-line bg-surface">
+      {q.data.map((n) => (
         <Pressable
           key={n.id}
+          className="border-b border-line p-4"
           accessibilityRole="button"
           accessibilityLabel={`${n.read_at ? "" : "Belum dibaca: "}${n.title}`}
           accessibilityState={{ disabled: a.busy }}
@@ -64,18 +68,22 @@ export function NotificationsScreen() {
             )
           }
         >
-          <Card>
-            <Row style={{ alignItems: "flex-start" }}>
-              <T style={{ fontWeight: n.read_at ? "600" : "700", fontSize: 15, flex: 1 }}>{n.title}</T>
+          <View className="flex-row items-start gap-3">
+            <View className="h-10 w-10 items-center justify-center rounded-control bg-accent-soft"><Icon name="bell" size={20} color={colors.accentStrong} /></View>
+            <View className="flex-1 gap-2">
+            <Row style={{ alignItems: "flex-start", flexWrap: "wrap" }}>
+              <T style={{ fontWeight: n.read_at ? "600" : "700", fontSize: textSize.header, flex: 1 }}>{n.title}</T>
               {!n.read_at && <Badge>BARU</Badge>}
             </Row>
             <T muted>{n.body}</T>
-            <T muted style={{ fontSize: 12 }}>
+            <T muted style={{ fontSize: textSize.label }}>
               {date(n.created_at)}
             </T>
-          </Card>
+            </View>
+          </View>
         </Pressable>
       ))}
+      </View>}
       {q.data?.length === 0 && (
         <Empty
           title="Belum ada notifikasi"
@@ -93,8 +101,8 @@ export function ReportsScreen() {
     <Page title="Laporan & permintaan">
       <Load {...q} />
       {q.data?.map((r) => (
-        <Card key={r.id}>
-          <Row>
+        <Card key={r.id} style={{ borderLeftWidth: 3, borderLeftColor: colors.accentSoft }}>
+          <Row style={{ flexWrap: "wrap" }}>
             <T style={{ fontWeight: "800", flex: 1 }}>
               {r.category.replaceAll("_", " ")}
             </T>
@@ -102,7 +110,7 @@ export function ReportsScreen() {
           </Row>
           <T>{r.description}</T>
           <T muted>{r.resolution_note || "Menunggu penanganan admin."}</T>
-          <T muted style={{ fontSize: 11 }}>
+          <T muted style={{ fontSize: textSize.caption }}>
             {date(r.created_at)}
           </T>
         </Card>
@@ -162,7 +170,7 @@ export function ReportScreen({ route, navigation }: Props<"Report">) {
             )
           }
         />
-        <T muted style={{ fontSize: 11 }}>
+        <T muted style={{ fontSize: textSize.caption }}>
           Bukti hanya digunakan untuk penanganan laporan. Jelaskan kejadian
           secara faktual.
         </T>
@@ -243,11 +251,11 @@ export function SettingsScreen() {
               })
             }
           />
-          <T muted style={{ fontSize: 12 }}>
+          <T muted style={{ fontSize: textSize.label }}>
             Izin sistem operasi:{" "}
             {mode === "demo" ? "Simulasi, tidak meminta izin" : permission}
           </T>
-          <T muted style={{ fontSize: 11 }}>
+          <T muted style={{ fontSize: textSize.caption }}>
             Push biasa tidak menjamin layar panggilan muncul saat aplikasi
             ditutup. Panggilan yang terlewat dicatat pada riwayat.
           </T>
