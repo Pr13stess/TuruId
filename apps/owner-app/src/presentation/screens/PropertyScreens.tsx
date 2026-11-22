@@ -409,17 +409,7 @@ export function PropertyScreen({ route }: Props<"Property">) {
           onPress={() =>
             nav.canGoBack() ? nav.goBack() : nav.navigate("Home")
           }
-          style={{
-            position: "absolute",
-            top: 18,
-            left: 20,
-            width: 44,
-            height: 44,
-            backgroundColor: C.white,
-            borderRadius: 12,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          className="absolute top-4 left-5 h-12 w-12 items-center justify-center rounded-pill bg-surface shadow-card"
         >
           <Icon name="back" color={C.navy} size={20} />
         </Pressable>
@@ -427,8 +417,8 @@ export function PropertyScreen({ route }: Props<"Property">) {
       <View
         style={{
           backgroundColor: C.white,
-          borderTopLeftRadius: 25,
-          borderTopRightRadius: 25,
+          borderTopLeftRadius: radius.card,
+          borderTopRightRadius: radius.card,
           marginTop: p ? -24 : 0,
           padding: 20,
           gap: 20,

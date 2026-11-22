@@ -1,3 +1,4 @@
+import { View } from "react-native";
 import { useCallback } from "react";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import type { Property } from "../../domain/models";
@@ -19,7 +20,7 @@ export function PublicationReadiness({ property }: { property: Property }) {
     <Title>Status tampil di User</Title>
     <Load {...q} />
     {q.data && <>
-      {issues.length ? issues.map(issue => <T key={issue}>{issue}</T>) : <T>Syarat verifikasi, status tayang, kamar, dan paket aktif sudah terpenuhi.</T>}
+      {issues.length ? issues.map(issue => <View key={issue} className="rounded-control bg-accent-soft p-3"><T>{issue}</T></View>) : <T>Syarat verifikasi, status tayang, kamar, dan paket aktif sudah terpenuhi.</T>}
       <T muted>Hasil pencarian tetap mengikuti periode sewa, harga, lokasi, dan filter User. Video tidak wajib. Status akun atau pembatasan server juga dapat memengaruhi akses.</T>
       {["DRAFT", "INACTIVE"].includes(property.publication_status) && <>
         <Button title="Atur status tayang" secondary onPress={() => nav.navigate("PropertyForm", { property })} />

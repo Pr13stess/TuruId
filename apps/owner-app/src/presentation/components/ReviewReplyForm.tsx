@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import type { Review } from "../../domain/models";
 import { createReplySubmission, reviewReplyText } from "../../domain/reviewReply";
-import { Button, C, Feedback, Field, T } from "./UI";
+import { Button, Feedback, Field, T } from "./UI";
 
 export function ReviewReplyForm({ review }: { review: Review }) {
   const { properties, mode } = useRepositories();
@@ -35,7 +35,7 @@ export function ReviewReplyForm({ review }: { review: Review }) {
     } catch (e) { setError(e instanceof Error ? e.message : "Status balasan gagal diperiksa."); }
     finally { lock.current = false; setBusy(false); }
   }
-  if (reply) return <View style={{ padding: 12, gap: 6, backgroundColor: C.soft, borderRadius: 10 }}>
+  if (reply) return <View className="p-4 gap-2 bg-soft rounded-card border-l-2 border-accent">
     <T style={{ fontWeight: "700" }}>Balasan pemilik</T><T>{reply}</T>
     {mode === "demo" && <T muted>Mode demo · balasan tersimpan di perangkat ini.</T>}
   </View>;

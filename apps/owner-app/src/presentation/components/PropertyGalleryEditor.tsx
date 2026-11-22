@@ -61,8 +61,8 @@ export function PropertyGalleryEditor({ value, onChange, disabled, onBusyChange,
       setError(e instanceof Error ? e.message : String(e));
     } finally { setBusy(false); onBusyChange(false); }
   };
-  return <View style={{ gap: 12 }}>
-    <Row><Title>Galeri kos</Title><Badge>{value.photos.length}/10 foto · {value.video_path ? 1 : 0}/1 video</Badge></Row>
+  return <View className="gap-4">
+    <Row style={{ flexWrap: "wrap", gap: 12 }}><Title>Galeri kos</Title><Badge>{value.photos.length}/10 foto · {value.video_path ? 1 : 0}/1 video</Badge></Row>
     <T muted>Foto dan video dapat dipilih sekaligus. Video MP4 maksimal 60 detik dan 50 MB.</T>
     <Row style={{ alignItems: "stretch" }}>
       <View style={{ flex: 1 }}><Button title={busy ? "Mengunggah…" : "Pilih foto & video"}
@@ -75,7 +75,7 @@ export function PropertyGalleryEditor({ value, onChange, disabled, onBusyChange,
       <T muted>Foto yang berhasil diunggah tetap tersimpan dalam pilihan. Retry hanya mengunggah sisanya.</T>
     </>}
     <Feedback text={error} error />
-    {value.photos.map((path, i) => <Card key={`${path}-${i}`} style={{ padding: 10 }}>
+    {value.photos.map((path, i) => <Card key={`${path}-${i}`} style={{ padding: 12 }}>
       <Photo path={path} height={195} />
       <Row><T muted>{i === 0 ? "Foto sampul" : `Foto ${i + 1}`}</T>
         <View pointerEvents={locked ? "none" : "auto"}><IconButton name="close" label={`Hapus foto ${i + 1}`}

@@ -29,3 +29,5 @@ export const typography = {
   caption: { fontSize: 13, fontWeight: "600" as const },
   badge: { fontSize: 12, fontWeight: "600" as const },
 };
+
+export const textSize = { caption: 11, label: 12, body: 14, header: 16, section: 17, price: 18, title: 24, timer: 30, symbol: 22, display: 42 } as const;

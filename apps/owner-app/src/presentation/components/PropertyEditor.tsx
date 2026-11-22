@@ -1,3 +1,4 @@
+import { textSize, radius } from "../theme";
 import React, { useState } from "react";
 import { Pressable, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -112,7 +113,7 @@ export function PropertyEditor({
   const saveButtons = (section: "profile" | "facilities" | "photos") => (
     <View style={{ gap: 10 }}>
       {dirty(section) && (
-        <T style={{ fontSize: 11, color: C.orangeDark }}>
+        <T style={{ fontSize: textSize.caption, color: C.orangeDark }}>
           Ada perubahan yang belum disimpan.
         </T>
       )}
@@ -144,7 +145,7 @@ export function PropertyEditor({
     setLocalError("");
   };
   return (
-    <View style={{ gap: 20 }}>
+    <View className="gap-5">
       {pickingLocation && (
         <PropertyLocationPicker
           initial={location}
@@ -200,7 +201,7 @@ export function PropertyEditor({
             />
             <Card>
               <T style={{ fontWeight: "700" }}>Titik lokasi kos</T>
-              <T muted style={{ fontSize: 12 }}>
+              <T muted style={{ fontSize: textSize.label }}>
                 {location
                   ? "Sesuaikan pin agar lokasi kos di peta lebih akurat."
                   : "Pilih titik lokasi kos di peta."}
@@ -211,7 +212,7 @@ export function PropertyEditor({
                 disabled={busy}
                 onPress={() => setPickingLocation(true)}
               />
-              <T muted style={{ fontSize: 11 }}>
+              <T muted style={{ fontSize: textSize.caption }}>
                 Titik baru diterapkan setelah menekan Simpan perubahan.
               </T>
             </Card>
@@ -227,13 +228,13 @@ export function PropertyEditor({
             />
             <Row style={{ alignItems: "stretch" }}>
               <Card style={{ flex: 1, backgroundColor: C.soft }}>
-                <T muted style={{ fontSize: 11 }}>
+                <T muted style={{ fontSize: textSize.caption }}>
                   Jumlah tipe kamar
                 </T>
                 <T style={{ fontWeight: "800" }}>{rooms.length}</T>
               </Card>
               <Card style={{ flex: 1, backgroundColor: C.soft }}>
-                <T muted style={{ fontSize: 11 }}>
+                <T muted style={{ fontSize: textSize.caption }}>
                   Jumlah total kamar
                 </T>
                 <T style={{ fontWeight: "800" }}>
@@ -248,7 +249,7 @@ export function PropertyEditor({
               multiline
               disabled={busy}
             />
-            <T muted style={{ fontSize: 11 }}>
+            <T muted style={{ fontSize: textSize.caption }}>
               Jumlah kamar dihitung dari tab Tipe kamar. Informasi yang disimpan
               mengikuti pemeriksaan ulang properti.
             </T>
@@ -266,11 +267,11 @@ export function PropertyEditor({
                     backgroundColor: C.soft,
                     paddingLeft: 14,
                     paddingRight: 3,
-                    borderRadius: 12,
+                    borderRadius: radius.control,
                   }}
                 >
                   <Icon name="check" size={18} color={C.orange} />
-                  <T style={{ flex: 1, fontSize: 13 }}>{value}</T>
+                  <T style={{ flex: 1, fontSize: textSize.body }}>{value}</T>
                   <IconButton
                     name="close"
                     label={`Hapus fasilitas ${value}`}
@@ -320,8 +321,8 @@ export function PropertyEditor({
         </View>
       </View>
       {tab === "reviews" && (
-        <View style={{ gap: 16 }}>
-          <T muted style={{ fontSize: 12 }}>
+        <View className="gap-4">
+          <T muted style={{ fontSize: textSize.label }}>
             Ulasan ditulis oleh penyewa. Laporkan ulasan yang tidak sesuai untuk
             ditinjau.
           </T>
@@ -329,7 +330,7 @@ export function PropertyEditor({
             <Card style={{ backgroundColor: C.peach, alignItems: "center" }}>
               <T
                 style={{
-                  fontSize: 30,
+                  fontSize: textSize.timer,
                   lineHeight: 36,
                   fontWeight: "800",
                   color: C.orangeDark,
@@ -351,7 +352,7 @@ export function PropertyEditor({
               </Row>
               <T>{review.review_text}</T>
               <ReviewReplyForm key={review.id} review={review} />
-              <T muted style={{ fontSize: 11 }}>
+              <T muted style={{ fontSize: textSize.caption }}>
                 {date(review.created_at)}
               </T>
               <Pressable
@@ -363,12 +364,12 @@ export function PropertyEditor({
                   setReportText("");
                 }}
               >
-                <T style={{ fontSize: 12, color: C.orangeDark }}>
+                <T style={{ fontSize: textSize.label, color: C.orangeDark }}>
                   Laporkan ulasan →
                 </T>
               </Pressable>
               {reporting === review.id && (
-                <View style={{ gap: 12 }}>
+                <View className="gap-3">
                   <Choices
                     label="Kategori laporan"
                     value={reportCategory}

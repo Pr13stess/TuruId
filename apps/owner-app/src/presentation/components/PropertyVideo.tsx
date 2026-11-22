@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { AppState, Pressable, Text, View } from "react-native";
+import { AppState, Pressable, View } from "react-native";
+import { Text } from "./Typography";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -14,9 +15,9 @@ export function PropertyVideo({ path, resolve }: { path: string; resolve: (path:
   return <View style={{ marginVertical: 12 }}>
     {open ? (focused && foreground ? <Video key={path} path={path} resolve={resolve} /> : null) :
       <Pressable accessibilityRole="button" accessibilityLabel="Lihat video kos" onPress={() => setOpen(true)}
-        style={{ height: 160, backgroundColor: "#2A2D45", borderRadius: 12, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ color: "white", fontSize: 18 }}>▶ Lihat video kos</Text>
-        <Text style={{ color: "white", marginTop: 8 }}>Maksimal 60 detik</Text>
+        className="h-40 bg-primary rounded-card items-center justify-center">
+        <Text className="text-price font-bold text-surface">▶ Lihat video kos</Text>
+        <Text className="text-label text-surface mt-2">Maksimal 60 detik</Text>
       </Pressable>}
   </View>;
 }
@@ -44,12 +45,12 @@ function Video({ path, resolve }: { path: string; resolve: (path: string) => Pro
     // Expo may already have released the shared native object at that point.
     return () => { active = false; status.remove(); };
   }, [path, resolve, player, retry]);
-  return <View>
+  return <View className="gap-3">
     <VideoView player={player} nativeControls contentFit="contain" fullscreenOptions={{ enable: true }}
-      style={{ width: "100%", height: 220, backgroundColor: "#000" }} />
-    {!!error && <Text accessibilityRole="alert">{error}</Text>}
-    <Pressable accessibilityRole="button" accessibilityLabel="Muat ulang video" onPress={() => setRetry(n => n + 1)} style={{ paddingVertical: 12 }}>
-      <Text>Muat ulang video</Text>
+      style={{ width: "100%", height: 220 }} />
+    {!!error && <Text className="text-body text-danger" accessibilityRole="alert">{error}</Text>}
+    <Pressable accessibilityRole="button" accessibilityLabel="Muat ulang video" onPress={() => setRetry(n => n + 1)} className="min-h-12 py-3 px-4 rounded-control bg-soft items-center">
+      <Text className="text-body font-semibold text-primary">Muat ulang video</Text>
     </Pressable>
   </View>;
 }

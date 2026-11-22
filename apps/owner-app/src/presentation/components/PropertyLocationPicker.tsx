@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { canConfirmLocation, initialMapState, receiveMapEvent, type MapPoint } from "../../domain/propertyLocation";
 import { propertyMapHtml } from "./propertyMapHtml";
 import { PropertyMapSurface } from "./PropertyMapSurface";
 import { Button } from "./UI";
-import { colors } from "../theme";
+import { Text } from "./Typography";
 import { currentPropertyLocation } from "../currentPropertyLocation";
 
 export function PropertyLocationPicker({ initial, onClose, onConfirm }: {
@@ -48,25 +48,25 @@ export function PropertyLocationPicker({ initial, onClose, onConfirm }: {
     setAttempt(n => n + 1);
   };
   return <Modal visible animationType="slide" onRequestClose={onClose}>
-    <SafeAreaView style={styles.root}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Pilih lokasi kos</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Tutup peta tanpa menyimpan" onPress={onClose} style={styles.close}>
-          <Text style={styles.cross}>×</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-row items-center justify-between bg-surface px-5 py-2">
+        <Text className="flex-1 text-header font-bold text-primary">Pilih lokasi kos</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Tutup peta tanpa menyimpan" onPress={onClose} className="h-12 w-12 items-center justify-center rounded-pill bg-soft">
+          <Text className="text-timer text-primary">×</Text>
         </Pressable>
       </View>
-      <Text style={styles.hint}>Geser atau ketuk peta hingga pin berada tepat di lokasi kos.</Text>
-      <View style={styles.map} pointerEvents={locating ? "none" : "auto"}>
+      <Text className="px-5 py-4 text-body text-muted">Geser atau ketuk peta hingga pin berada tepat di lokasi kos.</Text>
+      <View className="flex-1 min-h-[180px]" pointerEvents={locating ? "none" : "auto"}>
         <PropertyMapSurface key={attempt} html={html} onEvent={onEvent} />
       </View>
-      <View style={styles.footer}>
+      <View className="p-4 gap-3 bg-surface rounded-t-card">
         <Button title={locating ? "Mencari lokasi…" : "Pakai lokasi sekarang"}
           secondary disabled={locating} onPress={() => void locate()} />
-        {!!locationError && <Text accessibilityRole="alert" style={styles.error}>{locationError}</Text>}
+        {!!locationError && <Text accessibilityRole="alert" className="text-center text-body text-danger">{locationError}</Text>}
         {!!state.error ? <>
-          <Text accessibilityRole="alert" style={styles.error}>{state.error}</Text>
+          <Text accessibilityRole="alert" className="text-center text-body text-danger">{state.error}</Text>
           <Button title="Muat ulang peta" secondary disabled={locating} onPress={retry} />
-        </> : <Text accessibilityLiveRegion="polite" style={styles.status}>
+        </> : <Text accessibilityLiveRegion="polite" className="text-center text-label text-muted">
           {!state.ready ? "Memuat peta…" : state.moving ? "Menentukan titik…" : state.point ? "Titik siap dipilih." : "Ketuk atau geser peta untuk memilih titik."}
         </Text>}
         <Button title="Gunakan lokasi ini" disabled={locating || !canConfirmLocation(state)} onPress={() => {
@@ -76,15 +76,3 @@ export function PropertyLocationPicker({ initial, onClose, onConfirm }: {
     </SafeAreaView>
   </Modal>;
 }
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.surface },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20 },
-  title: { fontSize: 18, fontWeight: "700", color: colors.primary },
-  close: { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
-  cross: { fontSize: 30, color: colors.primary },
-  hint: { paddingHorizontal: 20, paddingBottom: 16, color: colors.muted },
-  map: { flex: 1, minHeight: 180 },
-  footer: { padding: 16, gap: 12 },
-  status: { textAlign: "center", color: colors.muted },
-  error: { textAlign: "center", color: colors.danger },
-});

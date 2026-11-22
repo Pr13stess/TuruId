@@ -1,3 +1,4 @@
+import { textSize } from "../theme";
 import React, { useCallback, useState } from "react";
 import { View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -175,7 +176,7 @@ export function PropertyFormScreen({
             { value: "INACTIVE", label: "Nonaktif" },
           ]}
         />
-        <T muted style={{ fontSize: 13 }}>
+        <T muted style={{ fontSize: textSize.body }}>
           Kos tampil publik setelah owner dan properti disetujui admin. Edit
           informasi mengajukan pemeriksaan ulang.
         </T>
@@ -188,7 +189,7 @@ export function PropertyFormScreen({
           <View key={p + i}>
             <Photo path={p} />
             <Row style={{ flexWrap: "wrap" }}>
-              <T muted style={{ fontSize: 13 }}>
+              <T muted style={{ fontSize: textSize.body }}>
                 {i === 0 ? "Foto sampul" : `Foto ${i + 1}`}
               </T>
               <Link
