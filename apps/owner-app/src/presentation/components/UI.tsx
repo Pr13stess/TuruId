@@ -17,7 +17,7 @@ import { useNav } from "../navigation";
 import { Icon, IconName } from "./Icon";
 import { OwnerBrand } from "./OwnerBrand";
 import { Text, TextInput } from "./Typography";
-import { colors } from "../theme";
+import { colors, radius as themeRadius } from "../theme";
 
 export const C = {
   navy: colors.primary,
@@ -194,7 +194,7 @@ export function Field({
   disabled?: boolean;
 }) {
   return (
-    <View style={{ gap: 7, marginBottom: 15 }}>
+    <View className="gap-2 mb-4">
       <T style={{ fontSize: 12, fontWeight: "600" }}>{label}</T>
       <TextInput
         accessibilityLabel={label}
@@ -237,22 +237,11 @@ export function Choices<TValue extends string>({
             accessibilityRole="radio"
             accessibilityState={{ selected: value === o.value }}
             onPress={() => onChange(o.value)}
-            style={[
-              styles.chip,
-              value === o.value && {
-                backgroundColor: C.orange,
-                borderColor: C.orange,
-              },
-            ]}
+            className={"min-h-12 justify-center rounded-chip border px-4 py-3 " + (value === o.value ? "bg-accent-soft border-accent" : "bg-surface border-line")}
           >
-            <T
-              style={{
-                fontSize: 12,
-                color: value === o.value ? C.white : C.navy,
-              }}
-            >
+            <Text className={value === o.value ? "text-label font-semibold text-accent-strong" : "text-label text-primary"}>
               {o.label}
-            </T>
+            </Text>
           </Pressable>
         ))}
       </Row>
@@ -309,12 +298,7 @@ export function Feedback({
   return (
     <View
       accessibilityRole="alert"
-      style={{
-        padding: 12,
-        borderRadius: 12,
-        backgroundColor: error ? "#FCECE8" : "#FFF0DA",
-        marginVertical: 8,
-      }}
+      className={"p-3 rounded-control my-2 " + (error ? "bg-danger-soft" : "bg-accent-soft")}
     >
       <T style={{ fontSize: 12, color: error ? C.red : C.navy }}>{text}</T>
     </View>
@@ -361,7 +345,7 @@ export function Load({
 export function Photo({
   path,
   height = 160,
-  radius = 14,
+  radius = themeRadius.card,
 }: {
   path?: string;
   height?: number;
@@ -469,37 +453,18 @@ export function Segments<TValue extends string>({
       accessibilityLabel={option.label}
       accessibilityState={{ selected: option.value === value }}
       onPress={() => onChange(option.value)}
-      style={{
-        flex: scrollable ? undefined : 1,
-        paddingHorizontal: scrollable ? 17 : 0,
-        minHeight: 42,
-        borderRadius: 24,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: option.value === value ? C.orange : "transparent",
-      }}
+      className={"min-h-12 items-center justify-center rounded-pill " + (option.value === value ? "bg-primary" : "bg-soft")}
+      style={{ flex: scrollable ? undefined : 1, paddingHorizontal: scrollable ? 17 : 0 }}
     >
-      <T
-        style={{
-          fontSize: 12,
-          fontWeight: option.value === value ? "700" : "500",
-          color: option.value === value ? C.white : C.navy,
-        }}
-      >
+      <Text className={option.value === value ? "text-label font-bold text-surface" : "text-label font-medium text-primary"}>
         {option.label}
-      </T>
+      </Text>
     </Pressable>
   ));
   return (
     <View
       accessibilityRole="tablist"
-      style={{
-        backgroundColor: C.peach,
-        borderRadius: 28,
-        padding: 4,
-        overflow: "hidden",
-        flexDirection: "row",
-      }}
+      className="bg-soft rounded-pill p-1 overflow-hidden flex-row"
     >
       {scrollable ? (
         <ScrollView
@@ -538,8 +503,8 @@ export function IconButton({
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => ({
-        width: 44,
-        height: 44,
+        width: 48,
+        height: 48,
         justifyContent: "center",
         alignItems: "center",
         opacity: disabled ? 0.4 : pressed ? 0.6 : 1,

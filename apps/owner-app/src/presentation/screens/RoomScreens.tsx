@@ -1,3 +1,4 @@
+import { textSize } from "../theme";
 import React, { useCallback, useState } from "react";
 import { Pressable } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -211,14 +212,14 @@ export function InventoryEditor({
         <T
           style={{
             color: C.orange,
-            fontSize: 38,
+            fontSize: textSize.display,
             fontWeight: "800",
             lineHeight: 45,
           }}
         >
           {available(i)}
         </T>
-        <T style={{ color: "#D1D2DC", fontSize: 12 }}>
+        <T style={{ color: C.white, fontSize: textSize.label }}>
           Dihitung otomatis dari kapasitas dan seluruh alokasi.
         </T>
       </Card>
@@ -238,7 +239,7 @@ export function InventoryEditor({
               accessibilityLabel={`Kurangi ${label}`}
               disabled={busy}
               onPress={() => setI({ ...i, [key]: Math.max(0, i[key] - 1) })}
-              style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
+              className="h-12 w-12 rounded-control bg-soft items-center justify-center"
             >
               <T>−</T>
             </Pressable>
@@ -249,7 +250,7 @@ export function InventoryEditor({
               accessibilityLabel={`Tambah ${label}`}
               disabled={busy}
               onPress={() => setI({ ...i, [key]: i[key] + 1 })}
-              style={{ padding: 12, backgroundColor: C.soft, borderRadius: 10 }}
+              className="h-12 w-12 rounded-control bg-soft items-center justify-center"
             >
               <T>+</T>
             </Pressable>
@@ -272,7 +273,7 @@ export function InventoryEditor({
         placeholder="Contoh: satu kamar selesai dibersihkan"
         multiline
       />
-      <T muted style={{ fontSize: 12 }}>
+      <T muted style={{ fontSize: textSize.label }}>
         Penyewa dengan booking aktif harus keluar melalui checkout booking.
         Akhir periode sewa tidak mengosongkan kamar otomatis.
       </T>
@@ -314,13 +315,13 @@ export function PlansScreen({ route, navigation }: Props<"Plans">) {
       <Load {...q} />
       {q.data?.map((p) => (
         <Card key={p.id}>
-          <Row>
+          <Row style={{ flexWrap: "wrap" }}>
             <Title>{p.name}</Title>
             <Badge tone={p.is_active ? "green" : "navy"}>
               {p.is_active ? "Aktif" : "Nonaktif"}
             </Badge>
           </Row>
-          <T style={{ color: C.orange, fontSize: 22, fontWeight: "800" }}>
+          <T style={{ color: C.orangeDark, fontSize: textSize.symbol, fontWeight: "800" }}>
             {money(p.price)}
           </T>
           <T muted>
@@ -331,7 +332,7 @@ export function PlansScreen({ route, navigation }: Props<"Plans">) {
               ]
             }
           </T>
-          <T style={{ fontSize: 12 }}>
+          <T style={{ fontSize: textSize.label }}>
             DP {money(costs(p).dp)} · Deposit {money(costs(p).deposit)}
           </T>
           <Link
@@ -452,7 +453,7 @@ export function PlanEditor({
             onChange={(v) => set("down_payment_value", Number(v))}
           />
         )}
-        <T muted style={{ fontSize: 11 }}>
+        <T muted style={{ fontSize: textSize.caption }}>
           Tanpa DP: seluruh harga sewa dibayar saat booking.
         </T>
         <Choices
@@ -506,8 +507,8 @@ export function PlanEditor({
           ["Sisa sewa saat masuk", c.remaining],
         ].map(([label, value]) => (
           <Row key={label}>
-            <T style={{ fontSize: 12 }}>{label}</T>
-            <T style={{ fontWeight: "700", fontSize: 12 }}>
+            <T style={{ fontSize: textSize.label }}>{label}</T>
+            <T style={{ fontWeight: "700", fontSize: textSize.label }}>
               {money(Number(value))}
             </T>
           </Row>

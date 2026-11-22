@@ -1,3 +1,4 @@
+import { textSize } from "../theme";
 import React, { useCallback, useState } from "react";
 import { View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -46,7 +47,7 @@ export function RoomsInlinePanel({
     );
   };
   return (
-    <View style={{ gap: 16 }}>
+    <View className="gap-4">
       <Row>
         <Title>Tipe kamar</Title>
         <Badge>{rooms.length} tipe</Badge>
@@ -59,7 +60,7 @@ export function RoomsInlinePanel({
         }}
       />
       {adding && (
-        <View style={{ gap: 15 }}>
+        <View className="gap-4">
           <T style={{ fontWeight: "700" }}>Tipe kamar baru</T>
           <RoomEditor
             propertyId={propertyId}
@@ -71,7 +72,7 @@ export function RoomsInlinePanel({
       {rooms.map((room) => (
         <Card key={room.id}>
           <Row>
-            <T style={{ fontSize: 17, fontWeight: "800", flex: 1 }}>
+            <T style={{ fontSize: textSize.section, fontWeight: "800", flex: 1 }}>
               {room.name}
             </T>
             <Badge tone={room.is_active ? "green" : "navy"}>
@@ -80,11 +81,11 @@ export function RoomsInlinePanel({
                 : "Nonaktif"}
             </Badge>
           </Row>
-          <T muted style={{ fontSize: 12 }}>
+          <T muted style={{ fontSize: textSize.label }}>
             {room.floor_label} · {room.room_size_m2} m² · KM{" "}
             {room.bathroom_type === "PRIVATE" ? "dalam" : "bersama"}
           </T>
-          <T style={{ fontSize: 12 }}>
+          <T style={{ fontSize: textSize.label }}>
             {room.facilities.join(" · ") || "Fasilitas belum diisi"}
           </T>
           <View>
@@ -198,10 +199,10 @@ function InlinePlans({ room }: { room: Room }) {
               {plan.is_active ? "Aktif" : "Nonaktif"}
             </Badge>
           </Row>
-          <T style={{ color: C.orangeDark, fontSize: 18, fontWeight: "800" }}>
+          <T style={{ color: C.orangeDark, fontSize: textSize.price, fontWeight: "800" }}>
             {money(plan.price)}
           </T>
-          <T muted style={{ fontSize: 12 }}>
+          <T muted style={{ fontSize: textSize.label }}>
             {plan.duration_value}{" "}
             {
               { DAY: "hari", WEEK: "minggu", MONTH: "bulan", YEAR: "tahun" }[
@@ -209,7 +210,7 @@ function InlinePlans({ room }: { room: Room }) {
               ]
             }
           </T>
-          <T style={{ fontSize: 11 }}>
+          <T style={{ fontSize: textSize.caption }}>
             DP {money(costs(plan).dp)} · Deposit {money(costs(plan).deposit)}
           </T>
           <Link
