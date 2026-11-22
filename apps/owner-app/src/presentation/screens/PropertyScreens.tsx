@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text, TextInput } from "../components/Typography";
+import { radius } from "../theme";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { available, Property } from "../../domain/models";
 import { Props, useNav } from "../navigation";
@@ -49,38 +51,26 @@ export function PropertyCard({
   const nav = useNav();
   const [menu, setMenu] = useState(false);
   return (
-    <Card style={{ padding: 12, gap: 0, borderRadius: 13 }}>
+    <Card style={{ padding: 12, gap: 0 }}>
       <Row style={{ alignItems: "center", gap: 12 }}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Kelola ${property.name}`}
           onPress={() => nav.navigate("Property", { id: property.id })}
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            gap: 12,
-            alignItems: "center",
-          }}
+          className="flex-1 flex-row gap-3 items-center"
         >
-          <View style={{ width: 74 }}>
-            <Photo path={property.photos[0]} height={78} radius={8} />
+          <View className="w-24">
+            <Photo path={property.photos[0]} height={100} radius={radius.control} />
           </View>
           <View style={{ flex: 1, gap: 4 }}>
-            <T style={{ fontWeight: "800", fontSize: 14 }}>{property.name}</T>
-            <T muted style={{ fontSize: 11, lineHeight: 16 }}>
+            <Text className="text-header font-bold text-ink">{property.name}</Text>
+            <Text className="text-label leading-muted text-muted">
               {capacity ??
                 `${property.city} · ${publicationLabel[property.publication_status]}`}
-            </T>
-            <T
-              style={{
-                fontSize: 11,
-                color: C.orangeDark,
-                fontWeight: "600",
-                marginTop: 4,
-              }}
-            >
+            </Text>
+            <Text className="mt-1 text-label font-semibold text-accent-strong">
               Kelola properti →
-            </T>
+            </Text>
           </View>
         </Pressable>
         <Pressable
@@ -88,18 +78,13 @@ export function PropertyCard({
           accessibilityLabel={`Opsi ${property.name}`}
           accessibilityState={{ expanded: menu }}
           onPress={() => setMenu(!menu)}
-          style={{
-            width: 34,
-            height: 44,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          className="h-12 w-12 items-center justify-center rounded-pill bg-soft"
         >
           <Icon name="more" size={20} color={C.navy} />
         </Pressable>
       </Row>
       {menu && (
-        <View style={{ borderTopWidth: 1, borderColor: C.line, marginTop: 12 }}>
+        <View className="mt-3 border-t border-line">
           <Link
             title="Lihat detail properti"
             onPress={() => nav.navigate("Property", { id: property.id })}
@@ -124,7 +109,7 @@ function SectionHeading({
 }) {
   return (
     <Row style={{ marginTop: 10, minHeight: 44 }}>
-      <T style={{ fontSize: 17, fontWeight: "800" }}>{title}</T>
+      <Text className="flex-1 text-section font-bold text-ink">{title}</Text>
       {action}
     </Row>
   );
@@ -154,44 +139,20 @@ export function HomeScreen() {
           accessibilityRole="button"
           accessibilityLabel="Notifikasi"
           onPress={() => nav.navigate("Notifications")}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            backgroundColor: C.orange,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          className="h-12 w-12 rounded-pill bg-accent-soft items-center justify-center"
         >
-          <Icon name="bell" color={C.white} size={22} />
+          <Icon name="bell" color={C.orangeDark} size={22} />
           {notices.data?.some((n) => !n.read_at) && (
-            <View
-              style={{
-                position: "absolute",
-                top: 7,
-                right: 8,
-                width: 7,
-                height: 7,
-                borderRadius: 5,
-                backgroundColor: C.white,
-              }}
-            />
+            <View className="absolute top-2 right-2 h-2 w-2 rounded-pill bg-accent" />
           )}
         </Pressable>
       }
     >
       <View style={{ gap: 3 }}>
-        <T style={{ fontSize: 15 }}>Selamat datang,</T>
-        <T
-          style={{
-            fontSize: 24,
-            lineHeight: 30,
-            letterSpacing: -0.6,
-            fontWeight: "800",
-          }}
-        >
+        <Text className="text-body text-muted">Selamat datang,</Text>
+        <Text className="text-title font-extrabold text-ink">
           {q.data?.p.full_name ?? "Pemilik kos"}
-        </T>
+        </Text>
       </View>
       <Load {...q} />
       {d && q.data && (
@@ -321,22 +282,13 @@ export function Metric({
       disabled={!onPress}
       style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.75 : 1 })}
     >
-      <View style={s.metric}>
-        <View style={s.metricIcon}>
-          <Icon name={icon} size={22} color={C.white} />
+      <View className="flex-1 min-h-32 rounded-card border border-line bg-surface p-4 gap-3">
+        <View className="h-10 w-10 rounded-control bg-accent-soft items-center justify-center">
+          <Icon name={icon} size={22} color={C.orangeDark} />
         </View>
-        <View style={{ flex: 1, gap: 3 }}>
-          <T style={{ fontSize: 10, lineHeight: 14 }}>{title}</T>
-          <T
-            style={{
-              color: C.orangeDark,
-              fontSize: value.length > 9 ? 12 : 17,
-              lineHeight: 21,
-              fontWeight: "800",
-            }}
-          >
-            {value}
-          </T>
+        <View className="gap-1">
+          <Text className="text-label text-muted">{title}</Text>
+          <Text className={value.length > 9 ? "text-body font-extrabold text-accent-strong" : "text-title font-extrabold text-accent-strong"}>{value}</Text>
         </View>
       </View>
     </Pressable>
@@ -349,16 +301,10 @@ function ActivityCard({
   activity: { title: string; body: string; created_at: string };
 }) {
   return (
-    <Card style={{ padding: 16, gap: 7, borderRadius: 13 }}>
-      <T style={{ fontWeight: "700", fontSize: 13 }}>{activity.title}</T>
-      <Row style={{ gap: 12 }}>
-        <T muted style={{ fontSize: 11, flex: 1 }}>
-          {activity.body}
-        </T>
-        <T muted style={{ fontSize: 10 }}>
-          {date(activity.created_at)}
-        </T>
-      </Row>
+    <Card style={{ padding: 16, gap: 8 }}>
+      <Text className="text-body font-bold text-ink">{activity.title}</Text>
+      <Text className="text-label leading-muted text-muted">{activity.body}</Text>
+      <Text className="text-caption text-muted">{date(activity.created_at)}</Text>
     </Card>
   );
 }
@@ -392,13 +338,7 @@ export function PropertiesScreen() {
   );
   return (
     <Page title="Properti saya">
-      <Row
-        style={{
-          backgroundColor: C.soft,
-          borderRadius: 13,
-          paddingHorizontal: 14,
-        }}
-      >
+      <View className="flex-row items-center gap-3 rounded-control border border-line bg-surface px-4">
         <Icon name="home" size={19} color={C.muted} />
         <TextInput
           accessibilityLabel="Cari properti"
@@ -406,9 +346,9 @@ export function PropertiesScreen() {
           placeholderTextColor={C.muted}
           value={search}
           onChangeText={setSearch}
-          style={{ flex: 1, paddingVertical: 15, fontSize: 13, color: C.navy }}
+          className="flex-1 min-h-12 py-3 text-body text-ink"
         />
-      </Row>
+      </View>
       <Button
         title="+ Tambahkan properti"
         onPress={() => nav.navigate("PropertyForm", {})}
@@ -572,24 +512,3 @@ export function PropertyScreen({ route }: Props<"Property">) {
     </Page>
   );
 }
-
-const s = StyleSheet.create({
-  metric: {
-    flex: 1,
-    minHeight: 76,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 9,
-    padding: 12,
-    backgroundColor: C.peach,
-    borderRadius: 13,
-  },
-  metricIcon: {
-    width: 32,
-    height: 34,
-    borderRadius: 9,
-    backgroundColor: C.orange,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
