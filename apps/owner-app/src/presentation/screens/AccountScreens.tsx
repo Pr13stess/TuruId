@@ -1,7 +1,7 @@
 import { radius, textSize } from "../theme";
 import React, { useCallback, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "../components/SafeAreaView";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Profile } from "../../domain/models";
 import { Props, useNav } from "../navigation";

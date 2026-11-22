@@ -11,7 +11,7 @@ import {
   ViewStyle,
   StyleProp,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "./SafeAreaView";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { useNav } from "../navigation";
 import { Icon, IconName } from "./Icon";

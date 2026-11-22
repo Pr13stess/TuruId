@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Modal, Pressable, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "./SafeAreaView";
 import { canConfirmLocation, initialMapState, receiveMapEvent, type MapPoint } from "../../domain/propertyLocation";
 import { propertyMapHtml } from "./propertyMapHtml";
 import { PropertyMapSurface } from "./PropertyMapSurface";
