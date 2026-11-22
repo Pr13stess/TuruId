@@ -18,6 +18,9 @@ export const colors = {
   danger: "#AA4141",
   dangerSoft: "#FBEDED",
   dangerLine: "#EBCACA",
+  media: "#080808",
+  mediaControl: "#08080888",
+  receipt: "#38BDF8",
 };
 export const radius = { chip: 8, control: 12, card: 16, button: 12, badge: 9999, pill: 9999 };
 export const spacing = { xs: 4, sm: 8, md: 12, page: 16, section: 20 };

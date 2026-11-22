@@ -1,19 +1,20 @@
+import { radius, textSize, colors } from "../theme";
+import { Text } from "./Typography";
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme';
 
 export function CallButton({ icon, label, onPress, selected = false, tone = 'neutral', disabled = false }: {
   icon: 'mic' | 'mic-off' | 'volume-high' | 'ear' | 'call' | 'close' | 'refresh';
   label: string; onPress: () => void; selected?: boolean; tone?: 'neutral' | 'accept' | 'end'; disabled?: boolean;
 }) {
   const strong = selected || tone !== 'neutral';
-  const backgroundColor = tone === 'end' ? '#D94343' : tone === 'accept' ? '#29845E' : selected ? ACCENT : colors.soft;
+  const backgroundColor = tone === 'end' ? colors.danger : tone === 'accept' ? colors.success : selected ? ACCENT : colors.soft;
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled, selected }}
     disabled={disabled} onPress={onPress} style={({ pressed }) => [s.action, (disabled || pressed) && { opacity: 0.45 }]}>
     <View style={[s.circle, { backgroundColor }]}>
-      <Ionicons name={icon} size={27} color={strong ? '#fff' : colors.primary}
+      <Ionicons name={icon} size={27} color={strong ? colors.surface : colors.primary}
         style={tone === 'end' && icon === 'call' ? { transform: [{ rotate: '135deg' }] } : undefined} />
     </View>
     <Text style={s.actionLabel}>{label}</Text>
@@ -51,26 +52,26 @@ export function CallLayout({ name, status, onBack, children, video = false }: {
     </ScrollView>
   </SafeAreaView>;
 }
-const ACCENT = colors.orange;
+const ACCENT = colors.accentStrong;
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, height: 56 },
-  back: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  brand: { color: colors.primary, fontSize: 17, fontWeight: '700' },
+  back: { width: 48, height: 48, justifyContent: 'center', alignItems: 'center' },
+  brand: { color: colors.primary, fontSize: textSize.section, fontWeight: '700' },
   content: { flexGrow: 1, paddingHorizontal: 24, paddingBottom: 20, gap: 20, maxWidth: 600, width: '100%', alignSelf: 'center' },
   identity: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 32, gap: 16, minHeight: 300 },
   kind: { flexDirection: 'row', gap: 7, alignItems: 'center', marginBottom: 14 },
-  kindText: { fontSize: 11, letterSpacing: 1.6, fontWeight: '700', color: ACCENT },
-  halo: { padding: 10, borderRadius: 90, borderWidth: 1, borderColor: colors.line },
-  avatar: { width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', backgroundColor: ACCENT },
-  initial: { color: '#fff', fontSize: 42, fontWeight: '600' },
-  name: { fontSize: 27, fontWeight: '700', color: colors.primary, textAlign: 'center' },
-  status: { fontSize: 14, lineHeight: 21, color: colors.muted, textAlign: 'center', maxWidth: 300 },
-  panel: { backgroundColor: colors.surface, borderRadius: 28, paddingVertical: 24, paddingHorizontal: 12, gap: 20, borderWidth: 1, borderColor: colors.line },
+  kindText: { fontSize: textSize.caption, letterSpacing: 1.6, fontWeight: '700', color: ACCENT },
+  halo: { padding: 10, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.line },
+  avatar: { width: 120, height: 120, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.accentSoft },
+  initial: { color: colors.accentStrong, fontSize: textSize.display, fontWeight: '600' },
+  name: { fontSize: textSize.title, fontWeight: '700', color: colors.primary, textAlign: 'center' },
+  status: { fontSize: textSize.body, lineHeight: 21, color: colors.muted, textAlign: 'center', maxWidth: 300 },
+  panel: { backgroundColor: colors.surface, borderRadius: radius.card, paddingVertical: 24, paddingHorizontal: 12, gap: 20, borderWidth: 1, borderColor: colors.line },
   controls: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-evenly', gap: 12, flexWrap: 'wrap' },
   action: { alignItems: 'center', gap: 9, width: 92, minHeight: 92 },
-  circle: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
-  actionLabel: { color: colors.primary, fontSize: 12, textAlign: 'center', lineHeight: 17 },
-  notice: { color: colors.danger, fontSize: 13, lineHeight: 20, textAlign: 'center', paddingHorizontal: 8 },
-  footnote: { color: colors.muted, fontSize: 11, textAlign: 'center' },
+  circle: { width: 60, height: 60, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  actionLabel: { color: colors.primary, fontSize: textSize.label, textAlign: 'center', lineHeight: 17 },
+  notice: { color: colors.danger, fontSize: textSize.body, lineHeight: 20, textAlign: 'center', paddingHorizontal: 8 },
+  footnote: { color: colors.muted, fontSize: textSize.caption, textAlign: 'center' },
 });

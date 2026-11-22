@@ -1,5 +1,7 @@
+import { colors, radius } from "../theme";
+import { Text } from "./Typography";
 import { useEffect, useRef, useState } from "react";
-import { AppState, Image, Pressable, Text, View } from "react-native";
+import { AppState, Image, Pressable, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { imageRenewal } from "../../domain/chatImage";
 
@@ -18,10 +20,10 @@ export function ChatImage({ path, fallback = "", height = 200, width = height, r
     return () => { current.stop(); listener.remove(); };
   }, [path, fallback, support]);
   const visible = state.source === (path || fallback || "") ? state : { url: "", failed: false };
-  return <View style={{ width, height, borderRadius: 8, overflow: "hidden" }}>
+  return <View style={{ width, height, borderRadius: radius.chip, overflow: "hidden" }}>
     {visible.url ? <Image source={{ uri: visible.url }} style={{ width: "100%", height: "100%" }} resizeMode={resizeMode} onError={() => controller.current?.failed()} /> :
       <Pressable accessibilityRole="button" accessibilityLabel="Muat ulang gambar" onPress={() => void controller.current?.refresh()} style={{ flex: 1, justifyContent: "center" }}>
-        <Text style={resizeMode === "contain" ? { color: "#fff" } : undefined}>{visible.failed ? "Gambar belum tersedia. Coba lagi." : "Memuat gambar…"}</Text>
+        <Text style={resizeMode === "contain" ? { color: colors.surface } : undefined}>{visible.failed ? "Gambar belum tersedia. Coba lagi." : "Memuat gambar…"}</Text>
       </Pressable>}
   </View>;
 }

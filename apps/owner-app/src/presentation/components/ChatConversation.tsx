@@ -1,10 +1,11 @@
+import { textSize, radius } from "../theme";
+import { Text, TextInput } from "./Typography";
 import { CallEventCard } from "./CallEventCard";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Conversation, Message } from "../../domain/models";
-import { radius } from "../theme";
 import { ChatImageViewer } from "./ChatImageViewer";
 import { galleryImages, type GalleryItem } from "../../domain/chatGallery";
 import { ChatImageCollage } from "./ChatImageCollage";
@@ -79,7 +80,7 @@ export function ChatConversation(p: Props) {
           <Text numberOfLines={1} style={styles.headerTitle}>{p.conversation.tenant}</Text>
           <Text numberOfLines={1} style={styles.headerSub}>{p.conversation.property_name}</Text>
         </View>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+        <View className="flex-row items-center">
         <IconButton label="Panggilan suara" disabled={p.busy} onPress={() => p.onCall("VOICE")}><CallIcon color={colors.primary} size={22} /></IconButton>
         <IconButton label="Panggilan video" disabled={p.busy} onPress={() => p.onCall("VIDEO")}><VideoCallIcon color={colors.primary} size={22} /></IconButton>
         <IconButton label={menu ? "Tutup menu chat" : "Menu chat"} onPress={() => setMenu(!menu)}><Ionicons name="ellipsis-vertical" size={22} color={colors.primary} /></IconButton>
@@ -139,31 +140,31 @@ export function ChatConversation(p: Props) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  header: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingBottom: 10, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.line },
-  iconButton: { width: 36, minHeight: 44, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.soft, borderWidth: 1, borderColor: colors.line, alignItems: "center", justifyContent: "center" },
-  avatarText: { color: colors.primary, fontSize: 16, fontWeight: "700" },
+  header: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 8, paddingBottom: 10, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.line },
+  iconButton: { width: 48, minHeight: 48, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  avatar: { width: 40, height: 40, borderRadius: radius.pill, backgroundColor: colors.soft, borderWidth: 1, borderColor: colors.line, alignItems: "center", justifyContent: "center" },
+  avatarText: { color: colors.primary, fontSize: textSize.header, fontWeight: "700" },
   headerText: { flex: 1, minWidth: 0 },
-  headerTitle: { color: colors.ink, fontSize: 16, fontWeight: "700" },
-  headerSub: { color: colors.muted, fontSize: 12, marginTop: 1 },
-  more: { color: colors.primary, fontSize: 26 },
+  headerTitle: { color: colors.ink, fontSize: textSize.header, fontWeight: "700" },
+  headerSub: { color: colors.muted, fontSize: textSize.label, marginTop: 1 },
+  more: { color: colors.primary, fontSize: textSize.title },
   menu: { backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.line, paddingHorizontal: 16 },
   menuItem: { minHeight: 44, justifyContent: "center", paddingVertical: 10 },
-  menuText: { fontSize: 14, color: colors.primary },
+  menuText: { fontSize: textSize.body, color: colors.primary },
   load: { padding: 16 },
   list: { padding: 16, gap: 8, flexGrow: 1 },
-  empty: { color: colors.muted, fontSize: 14, textAlign: "center", marginTop: 24 },
+  empty: { color: colors.muted, fontSize: textSize.body, textAlign: "center", marginTop: 24 },
   dateWrap: { alignItems: "center", marginVertical: 8 },
-  dateChip: { backgroundColor: colors.soft, color: colors.muted, fontSize: 11, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, overflow: "hidden" },
+  dateChip: { backgroundColor: colors.soft, color: colors.muted, fontSize: textSize.caption, paddingHorizontal: 12, paddingVertical: 4, borderRadius: radius.control, overflow: "hidden" },
   bubbleRow: { flexDirection: "row" },
-  bubble: { maxWidth: "78%", backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: radius.card, padding: 10, gap: 4 },
+  bubble: { maxWidth: "78%", backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: radius.card, padding: 12, gap: 6 },
   bubbleMine: { backgroundColor: colors.primary, borderColor: colors.primary },
-  bubbleText: { color: colors.ink, fontSize: 14 },
-  bubbleTime: { color: colors.muted, fontSize: 10, alignSelf: "flex-end" },
-  error: { color: colors.danger, fontSize: 12, paddingHorizontal: 16, paddingVertical: 4 },
+  bubbleText: { color: colors.ink, fontSize: textSize.body },
+  bubbleTime: { color: colors.muted, fontSize: textSize.caption, alignSelf: "flex-end" },
+  error: { color: colors.danger, fontSize: textSize.label, paddingHorizontal: 16, paddingVertical: 4 },
   preview: { backgroundColor: colors.surface, padding: 12, flexDirection: "row", alignItems: "center", gap: 16 },
   composer: { flexShrink: 0, flexDirection: "row", alignItems: "flex-end", gap: 8, paddingTop: 12, paddingHorizontal: 12, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.surface },
-  input: { flex: 1, minWidth: 0, minHeight: 44, maxHeight: 100, backgroundColor: colors.soft, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10, color: colors.ink, fontSize: 14 },
-  send: { width: 40, height: 40, marginBottom: 2, borderRadius: 20, backgroundColor: colors.soft, alignItems: "center", justifyContent: "center" },
-  sendIcon: { color: colors.surface, fontSize: 16 },
+  input: { flex: 1, minWidth: 0, minHeight: 48, maxHeight: 100, backgroundColor: colors.soft, borderRadius: radius.button, paddingHorizontal: 14, paddingVertical: 10, color: colors.ink, fontSize: textSize.body },
+  send: { width: 48, height: 48, marginBottom: 2, borderRadius: radius.pill, backgroundColor: colors.soft, alignItems: "center", justifyContent: "center" },
+  sendIcon: { color: colors.surface, fontSize: textSize.header },
 });

@@ -1,5 +1,7 @@
+import { radius, textSize, colors } from "../theme";
+import { Text } from "../components/Typography";
 import React, { useCallback, useRef, useState } from "react";
-import { Alert, Platform, Pressable, Text, View } from "react-native";
+import { Alert, Platform, Pressable, View } from "react-native";
 import * as Crypto from "expo-crypto";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Restriction } from "../../domain/models";
@@ -8,7 +10,6 @@ import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
 import { ChatConversation } from "../components/ChatConversation";
 import { OwnerChatListLayout } from "../components/OwnerChatListLayout";
-import { colors } from "../theme";
 import {
   Badge,
   Button,
@@ -70,19 +71,19 @@ export function ChatListScreen() {
                 minHeight: 44,
               }}
             >
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.orangeSoft, alignItems: "center", justifyContent: "center" }}>
-                <Text style={{ color: colors.orange, fontSize: 21, fontWeight: "700" }}>{conversation.tenant.trim().charAt(0).toUpperCase() || "?"}</Text>
+              <View style={{ width: 44, height: 44, borderRadius: radius.pill, backgroundColor: colors.orangeSoft, alignItems: "center", justifyContent: "center" }}>
+                <Text style={{ color: colors.accentStrong, fontSize: textSize.symbol, fontWeight: "700" }}>{conversation.tenant.trim().charAt(0).toUpperCase() || "?"}</Text>
               </View>
               <View style={{ flex: 1, gap: 4 }}>
-                <Text numberOfLines={1} style={{ color: colors.primary, fontSize: 17, fontWeight: "700" }}>
+                <Text numberOfLines={1} style={{ color: colors.primary, fontSize: textSize.section, fontWeight: "700" }}>
                   {conversation.tenant}
                 </Text>
-                <Text numberOfLines={1} style={{ color: colors.muted, fontSize: 15, lineHeight: 21 }}>
+                <Text numberOfLines={1} style={{ color: colors.muted, fontSize: textSize.body, lineHeight: 21 }}>
                   {conversation.last_message || "Mulai percakapan"}
                 </Text>
               </View>
             <View style={{ alignItems: "flex-end", gap: 6 }}>
-              <Text style={{ color: colors.muted, fontSize: 12 }}>{conversation.updated_at && Number.isFinite(Date.parse(conversation.updated_at)) ? new Date(conversation.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : ""}</Text>
+              <Text style={{ color: colors.muted, fontSize: textSize.label }}>{conversation.updated_at && Number.isFinite(Date.parse(conversation.updated_at)) ? new Date(conversation.updated_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }) : ""}</Text>
               {conversation.unread > 0 && <Badge>{conversation.unread}</Badge>}
             </View>
             </Pressable>
@@ -134,7 +135,7 @@ export function ChatListScreen() {
                   </T>
                   <Badge tone="navy">{call.status}</Badge>
                 </Row>
-                <T muted style={{ fontSize: 11 }}>
+                <T muted style={{ fontSize: textSize.caption }}>
                   {date(call.created_at)} · {call.duration_seconds} detik
                 </T>
               </Card>
@@ -286,7 +287,7 @@ function RestrictionForm({ initial }: { initial: Restriction }) {
         onChange={(v) => setR({ ...r, notes: v })}
         multiline
       />
-      <T muted style={{ fontSize: 12 }}>
+      <T muted style={{ fontSize: textSize.label }}>
         Pembatasan berlaku untuk kos Anda. Booking confirmed/active dan riwayat
         transaksi tetap berlaku.
       </T>

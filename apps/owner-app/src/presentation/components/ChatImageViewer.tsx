@@ -1,5 +1,7 @@
+import { colors, textSize } from "../theme";
+import { Text } from "./Typography";
 import { useState } from "react";
-import { Animated, Modal, PanResponder, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated, Modal, PanResponder, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { initialPhoto, type GalleryItem } from "../../domain/chatGallery";
 import { photoGesture } from "../../domain/chatGesture";
@@ -55,7 +57,7 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
       onPanResponderTerminate: () => gesture.end(true),
     });
   });
-  return <View collapsable={false} style={{ width, height, overflow: "hidden", backgroundColor: "#080808" }} {...responder.panHandlers}>
+  return <View collapsable={false} style={{ width, height, overflow: "hidden", backgroundColor: colors.media }} {...responder.panHandlers}>
     <Animated.View pointerEvents="none" style={{ transform: [{ translateX: pan.x }, { translateY: pan.y }, { scale }] }}>
       <ChatImage path={item.path} fallback={item.fallback} width={width} height={height} resizeMode="contain" />
     </Animated.View>
@@ -63,10 +65,10 @@ function ZoomPhoto({ item, width, height, onPrevious, onNext, onClose }: { item:
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#080808", justifyContent: "center", alignItems: "center" },
+  root: { flex: 1, backgroundColor: colors.media, justifyContent: "center", alignItems: "center" },
   top: { position: "absolute", left: 16, right: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   bottom: { position: "absolute", left: 8, right: 8, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  text: { color: "#fff", fontSize: 18, fontWeight: "600" },
+  text: { color: colors.surface, fontSize: textSize.price, fontWeight: "600" },
   button: { minWidth: 48, minHeight: 48, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   disabled: { opacity: 0.3 },
 });
