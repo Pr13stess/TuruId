@@ -1,3 +1,4 @@
+import { colors, textSize } from "../theme";
 import React, { useCallback, useState } from "react";
 import { Pressable, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
@@ -59,16 +60,16 @@ export function BookingsScreen() {
           onPress={() => nav.navigate("Booking", { id: b.id })}
         >
           <Card>
-            <Row style={{ flexWrap: "wrap", justifyContent: "flex-start" }}>
-              <T style={{ fontWeight: "700", fontSize: 15 }}>{b.tenant}</T>
+            <Row style={{ flexWrap: "wrap", justifyContent: "space-between" }}>
+              <T style={{ fontWeight: "700", fontSize: textSize.header }}>{b.tenant}</T>
               <Badge>{b.status}</Badge>
             </Row>
-            <T muted style={{ fontSize: 13 }}>
+            <T muted style={{ fontSize: textSize.body }}>
               {b.property_name_snapshot} · {b.room_type_name_snapshot}
             </T>
             <Row style={{ flexWrap: "wrap" }}>
-              <T style={{ fontSize: 13 }}>{b.booking_code}</T>
-              <T muted style={{ fontSize: 13 }}>Pembayaran: {b.payment_status}</T>
+              <T style={{ fontSize: textSize.body }}>{b.booking_code}</T>
+              <T muted style={{ fontSize: textSize.body }}>Pembayaran: {b.payment_status}</T>
             </Row>
           </Card>
         </Pressable>
@@ -131,8 +132,8 @@ export function BookingScreen({ route }: Props<"Booking">) {
               ["Sisa sewa saat masuk", b.remaining_rent_snapshot],
             ].map(([k, v]) => (
               <Row key={k} style={{ flexWrap: "wrap" }}>
-                <T style={{ fontSize: 13 }}>{k}</T>
-                <T style={{ fontWeight: "700", fontSize: 13 }}>
+                <T style={{ fontSize: textSize.body }}>{k}</T>
+                <T style={{ fontWeight: "700", fontSize: textSize.body, color: colors.accentStrong }}>
                   {money(Number(v))}
                 </T>
               </Row>
@@ -190,7 +191,7 @@ export function BookingScreen({ route }: Props<"Booking">) {
                   )
                 }
               />
-              <T muted style={{ fontSize: 13 }}>
+              <T muted style={{ fontSize: textSize.body }}>
                 Booking terkonfirmasi tidak memerlukan persetujuan owner.
                 Permintaan khusus tidak membatalkan booking otomatis.
               </T>
@@ -200,10 +201,10 @@ export function BookingScreen({ route }: Props<"Booking">) {
           <Feedback text={a.message} />
           <Title>Riwayat status</Title>
           {b.events.map((e, i) => (
-            <Card key={i}>
+            <Card key={i} style={{ borderLeftWidth: 3, borderLeftColor: colors.accentSoft }}>
               <Row style={{ flexWrap: "wrap" }}>
                 <Badge tone="navy">{e.to_status}</Badge>
-                <T muted style={{ fontSize: 13 }}>
+                <T muted style={{ fontSize: textSize.body }}>
                   {date(e.created_at)}
                 </T>
               </Row>
@@ -238,13 +239,13 @@ export function FinanceScreen() {
               ["Refund berhasil", q.data.refund_amount],
               ["Payout simulasi", q.data.payout_amount],
             ].map(([k, v]) => (
-              <Row key={k}>
-                <T style={{ flex: 1, fontSize: 12 }}>{k}</T>
-                <T style={{ fontWeight: "800" }}>{money(Number(v))}</T>
+              <Row key={k} style={{ flexWrap: "wrap", paddingVertical: 8 }}>
+                <T style={{ flex: 1, fontSize: textSize.label }}>{k}</T>
+                <T style={{ fontWeight: "800", fontSize: textSize.price, color: colors.accentStrong }}>{money(Number(v))}</T>
               </Row>
             ))}
           </Card>
-          <T muted style={{ fontSize: 11 }}>
+          <T muted style={{ fontSize: textSize.caption }}>
             Penerimaan ditampilkan sebelum refund. Deposit bukan pendapatan.
             Sisa sewa yang dicatat saat check-in tidak dianggap pembayaran
             gateway.
@@ -253,8 +254,8 @@ export function FinanceScreen() {
           {q.data.items.map((i) => (
             <Card key={i.id}>
               <T>{i.label}</T>
-              <Row>
-                <T style={{ fontWeight: "800" }}>{money(i.amount)}</T>
+              <Row style={{ flexWrap: "wrap" }}>
+                <T style={{ fontWeight: "800", fontSize: textSize.price, color: colors.accentStrong }}>{money(i.amount)}</T>
                 <Badge>{i.status}</Badge>
               </Row>
             </Card>
