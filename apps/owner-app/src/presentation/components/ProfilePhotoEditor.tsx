@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { useRepositories } from '../../application/RepositoriesProvider';
 import { chooseImage } from '../media';
 import { ProfileButton } from './ProfileUi';
-import { colors } from '../theme';
+import { Text } from './Typography';
 
 export function ProfilePhotoEditor() {
   const { profile, refresh } = useRepositories();
@@ -26,14 +26,14 @@ export function ProfilePhotoEditor() {
     } catch (e) { setError(e instanceof Error ? e.message : 'Foto belum berhasil diperbarui.'); }
     finally { lock.current = false; setBusy(false); }
   };
-  return <View style={{ gap: 12 }}>
-    {draft && <Image source={{ uri: `data:${draft.mime};base64,${draft.base64}` }} style={{ width: 100, height: 100, borderRadius: 50, alignSelf: 'center' }} accessibilityLabel="Pratinjau foto profil baru" />}
+  return <View className="gap-3">
+    {draft && <Image source={{ uri: `data:${draft.mime};base64,${draft.base64}` }} className="h-24 w-24 rounded-pill self-center" accessibilityLabel="Pratinjau foto profil baru" />}
     <ProfileButton title={draft ? 'Pilih foto lain' : 'Ubah foto profil'} variant="outline" busy={busy} onPress={() => void run(false)} />
     {draft && <>
       <ProfileButton title="Simpan foto" busy={busy} onPress={() => void run(true)} />
       <ProfileButton title="Batal" variant="outline" busy={busy} onPress={() => { setDraft(null); setError(''); }} />
     </>}
-    {!!error && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text>}
-    {!!notice && <Text accessibilityLiveRegion="polite" style={{ color: colors.green }}>{notice}</Text>}
+    {!!error && <Text accessibilityRole="alert" className="text-body text-danger">{error}</Text>}
+    {!!notice && <Text accessibilityLiveRegion="polite" className="text-body text-success">{notice}</Text>}
   </View>;
 }

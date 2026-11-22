@@ -1,3 +1,4 @@
+import { radius, textSize } from "../theme";
 import React, { useCallback, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -36,12 +37,17 @@ export function AuthScreen() {
   const [phone, setPhone] = useState("");
   const [agree, setAgree] = useState(false);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: C.cream }}>
+    <SafeAreaView className="flex-1 bg-accent-soft">
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: 28, gap: 20, paddingTop: 70 }}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
-        <Brand />
+        <View className="relative h-48 items-center justify-center overflow-hidden bg-accent-soft">
+          <View pointerEvents="none" className="absolute -left-16 -top-20 h-56 w-56 rounded-pill bg-surface opacity-50" />
+          <View pointerEvents="none" className="absolute -right-16 -bottom-28 h-64 w-64 rounded-pill bg-accent opacity-20" />
+          <View className="rounded-pill bg-surface px-6 py-3"><Brand /></View>
+        </View>
+        <View className="-mt-6 flex-1 rounded-t-auth bg-surface px-6 pt-8 pb-10 gap-5">
         <Badge>OWNER APP</Badge>
         <Title>
           {stage === "login"
@@ -51,7 +57,7 @@ export function AuthScreen() {
               : "Pulihkan akses akun."}
         </Title>
         <T muted>Kelola properti dan terhubung dengan calon penghuni.</T>
-        <Card>
+        <View className="gap-3">
           {stage === "register" && (
             <>
               <Field label="Nama lengkap" value={name} onChange={setName} />
@@ -69,7 +75,7 @@ export function AuthScreen() {
           )}
           {stage === "register" && (
             <>
-              <T style={{ fontSize: 12 }}>
+              <T style={{ fontSize: textSize.label }}>
                 Demo akademik: gunakan data dan dokumen uji. Informasi profil,
                 kos, chat, dan transaksi simulasi disimpan untuk menjalankan
                 layanan. Tidak ada perekaman panggilan. Penghapusan akun dapat
@@ -132,10 +138,11 @@ export function AuthScreen() {
             }
             onPress={() => setStage(stage === "login" ? "register" : "login")}
           />
-        </Card>
+        </View>
         {mode === "demo" && (
           <Feedback text="Mode demo: email dan password apa pun yang valid dapat digunakan. Tidak ada email yang dikirim." />
         )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -150,24 +157,25 @@ export function ProfileScreen() {
       <Load {...q} />
       {q.data && (
         <>
-          <View style={{ alignItems: "center", gap: 7, paddingBottom: 9 }}>
+          <View className="flex-row items-center gap-4 rounded-card bg-surface p-4 border border-line">
             <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} />
+            <View className="flex-1 gap-2">
             <T
               style={{
-                fontSize: 19,
+                fontSize: textSize.price,
                 lineHeight: 26,
                 fontWeight: "800",
-                textAlign: "center",
+                textAlign: "left",
               }}
             >
               {q.data.full_name}
             </T>
-            <T muted style={{ fontSize: 12, textAlign: "center" }}>
+            <T muted style={{ fontSize: textSize.label }}>
               {q.data.email}
             </T>
             <Row
               style={{
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 flexWrap: "wrap",
                 marginTop: 3,
               }}
@@ -188,6 +196,7 @@ export function ProfileScreen() {
                 }
               </Badge>
             </Row>
+            </View>
           </View>
           <Section title="Properti">
             <Link
@@ -380,7 +389,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
               style={{
                 width: 30,
                 height: 30,
-                borderRadius: 20,
+                borderRadius: radius.pill,
                 backgroundColor: i <= step ? C.orange : C.navy,
                 alignItems: "center",
                 justifyContent: "center",
@@ -388,7 +397,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
             >
               <T style={{ color: C.white, fontWeight: "800" }}>{i + 1}</T>
             </View>
-            <T style={{ fontSize: 11 }}>{label}</T>
+            <T style={{ fontSize: textSize.caption }}>{label}</T>
           </View>
         ))}
       </Row>
@@ -406,7 +415,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
               style={{
                 height: 210,
                 backgroundColor: C.soft,
-                borderRadius: 14,
+                borderRadius: radius.card,
                 alignItems: "center",
                 justifyContent: "center",
               }}
@@ -453,7 +462,7 @@ export function OnboardingScreen({ navigation }: Props<"Onboarding">) {
               }
             />
           )}
-          <T muted style={{ fontSize: 11 }}>
+          <T muted style={{ fontSize: textSize.caption }}>
             Dengan mengirim, Anda menyetujui Privacy Policy dan Terms demo.
             Tidak diperlukan rekening submerchant; payout hanya simulasi.
           </T>

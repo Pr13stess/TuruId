@@ -1,25 +1,26 @@
 import { useState, type PropsWithChildren } from "react";
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, radius, spacing, typography } from "../theme";
+import { ActivityIndicator, Image, Pressable, View } from "react-native";
+import { Text } from "./Typography";
+import { colors } from "../theme";
 
 // Presentational components: navigation, repository calls and state stay in the screen.
 export function ProfileAvatar({ name, uri }: { name: string; uri?: string | null }) {
   const [failed, setFailed] = useState<string | null>(null);
-  if (uri && uri !== failed) return <Image source={{ uri }} style={s.avatar} accessibilityLabel={`Foto profil ${name}`} onError={() => setFailed(uri)} />;
+  if (uri && uri !== failed) return <Image source={{ uri }} className="h-16 w-16 rounded-pill bg-accent-soft items-center justify-center" accessibilityLabel={`Foto profil ${name}`} onError={() => setFailed(uri)} />;
   const initials = name.trim().split(/\s+/).slice(0, 2)
     .map((word) => word[0]?.toUpperCase() ?? "").join("") || "?";
   return (
-    <View style={s.avatar} accessibilityLabel={`Inisial ${name || "pemilik kos"}`}>
-      <Text style={s.avatarText}>{initials}</Text>
+    <View className="h-16 w-16 rounded-pill bg-accent-soft items-center justify-center" accessibilityLabel={`Inisial ${name || "pemilik kos"}`}>
+      <Text className="text-title font-bold text-accent-strong">{initials}</Text>
     </View>
   );
 }
 
 export function MenuSection({ title, children }: PropsWithChildren<{ title: string }>) {
   return (
-    <View style={s.section}>
-      <Text style={s.sectionTitle}>{title}</Text>
-      <View style={s.menuCard}>{children}</View>
+    <View className="mt-5">
+      <Text className="text-label font-semibold text-muted mb-2 ml-1">{title}</Text>
+      <View className="bg-surface rounded-card border border-line overflow-hidden">{children}</View>
     </View>
   );
 }
@@ -32,9 +33,10 @@ export function MenuRow({ title, onPress, danger = false, last = false }: {
 }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress}
-      style={({ pressed }) => [s.row, !last && s.divider, pressed && s.pressed]}>
-      <Text style={[s.rowText, danger && { color: colors.danger }]}>{title}</Text>
-      <Text style={s.chevron} accessibilityElementsHidden importantForAccessibility="no">›</Text>
+      className={"min-h-14 flex-row items-center justify-between px-4 py-3 gap-3 " + (!last ? "border-b border-line" : "")}
+      style={({ pressed }) => ({ backgroundColor: pressed ? colors.soft : colors.surface })}>
+      <Text className={danger ? "flex-1 text-body text-danger" : "flex-1 text-body text-ink"}>{title}</Text>
+      <Text className="text-symbol text-muted" accessibilityElementsHidden importantForAccessibility="no">›</Text>
     </Pressable>
   );
 }
@@ -49,32 +51,11 @@ export function ProfileButton({ title, onPress, busy = false, variant = "primary
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title}
       accessibilityState={{ disabled: busy, busy }} disabled={busy} onPress={onPress}
-      style={({ pressed }) => [s.button, variant === "outline" && s.outline,
-        variant === "danger" && s.danger, (pressed || busy) && { opacity: 0.7 }]}>
+      className={"min-h-12 rounded-control px-4 py-3 flex-row gap-2 items-center justify-center " + (variant === "outline" ? "bg-soft border border-line" : variant === "danger" ? "bg-danger-soft border border-danger-line" : "bg-accent")}
+      style={({ pressed }) => ({ opacity: pressed || busy ? 0.7 : 1 })}>
       {busy && <ActivityIndicator color={tint} size="small" />}
-      <Text style={[s.buttonText, { color: tint }]}>{title}</Text>
+      <Text className="text-body font-bold text-center shrink" style={{ color: tint }}>{title}</Text>
     </Pressable>
   );
 }
 
-const s = StyleSheet.create({
-  avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.primary,
-    alignItems: "center", justifyContent: "center" },
-  avatarText: { fontSize: 27, fontWeight: "700", color: colors.surface },
-  section: { marginTop: spacing.section },
-  sectionTitle: { ...typography.caption, color: colors.muted, marginBottom: spacing.sm, marginLeft: spacing.xs },
-  menuCard: { backgroundColor: colors.surface, borderRadius: radius.card,
-    borderWidth: 1, borderColor: colors.line, overflow: "hidden" },
-  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    minHeight: 48, paddingHorizontal: spacing.page, paddingVertical: 15, gap: spacing.md },
-  rowText: { ...typography.menu, color: colors.ink, flex: 1 },
-  divider: { borderBottomWidth: 1, borderBottomColor: colors.line },
-  chevron: { fontSize: 22, color: colors.muted },
-  pressed: { backgroundColor: colors.soft },
-  button: { minHeight: 48, borderRadius: radius.button, backgroundColor: colors.primary,
-    paddingVertical: 14, paddingHorizontal: spacing.page, flexDirection: "row",
-    gap: spacing.sm, alignItems: "center", justifyContent: "center" },
-  buttonText: { ...typography.menu, fontWeight: "700", textAlign: "center", flexShrink: 1 },
-  outline: { backgroundColor: "transparent", borderWidth: 1, borderColor: colors.primary },
-  danger: { backgroundColor: colors.dangerSoft, borderWidth: 1, borderColor: colors.dangerLine },
-});
