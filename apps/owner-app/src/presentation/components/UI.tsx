@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   View,
@@ -652,6 +653,8 @@ export function Page({
   fullBleed = false,
   contentStyle,
   navigationRole = "owner",
+  onRefresh,
+  refreshing = false,
 }: {
   children: React.ReactNode;
   title: string;
@@ -663,6 +666,8 @@ export function Page({
   fullBleed?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
   navigationRole?: "owner" | "customer";
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const nav = useNav();
   const insets = useSafeAreaInsets();
@@ -706,6 +711,8 @@ export function Page({
           </View>
         )}
         <ScrollView
+          refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.accent]} tintColor={colors.accent} accessibilityLabel="Muat ulang booking" /> : undefined}
+          alwaysBounceVertical={onRefresh ? true : undefined}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[

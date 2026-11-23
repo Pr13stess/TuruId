@@ -35,7 +35,7 @@ export function BookingsScreen() {
           : b.status === filter),
   );
   return (
-    <Page title="Pemesanan" tab="Bookings" back={false}>
+    <Page title="Pemesanan" tab="Bookings" back={false} onRefresh={q.retry} refreshing={q.loading && !!q.data}>
       <Title>Setiap kedatangan, terpantau.</Title>
       <View className="gap-2 mb-4">
         <T style={{ fontSize: textSize.caption, fontWeight: "600" }}>Status booking</T>
@@ -61,8 +61,7 @@ export function BookingsScreen() {
           ))}
         </ScrollView>
       </View>
-      <Load {...q} />
-      <Button title="Muat ulang booking" secondary disabled={q.loading} onPress={q.retry} />
+      <Load {...q} loading={q.loading && !q.data} />
       {list?.map((b) => (
         <Pressable
           key={b.id}
