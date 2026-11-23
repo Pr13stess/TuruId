@@ -1,9 +1,10 @@
-import { radius, textSize } from "../theme";
+import { colors, radius, textSize } from "../theme";
 import React, { useCallback, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, View } from "react-native";
 import { AuthLayout } from "../components/AuthLayout";
 import { Input } from "../components/Input";
 import { Text } from "../components/Typography";
+import { Icon } from "../components/Icon";
 import { SafeAreaView } from "../components/SafeAreaView";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Profile } from "../../domain/models";
@@ -271,12 +272,20 @@ export function ProfileScreen() {
             />
           </MenuSection>
           <View className="mt-[28px]" style={{ marginTop: 28 }}>
-          <Button
-            title="Keluar"
-            secondary
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Keluar"
+            accessibilityState={{ disabled: a.busy, busy: a.busy }}
             disabled={a.busy}
             onPress={() => void a.run(() => auth.signOut())}
-          />
+            className="min-h-[48px] flex-row items-center justify-center gap-[8px] rounded-control border border-danger-line bg-danger-soft px-[14px]"
+            style={({ pressed }) => ({ minHeight: 48, columnGap: 8, paddingHorizontal: 14,
+              backgroundColor: colors.dangerSoft, borderColor: colors.dangerLine,
+              opacity: a.busy ? 0.7 : pressed ? 0.6 : 1 })}
+          >
+            <Icon name="logout" size={20} color={colors.danger} />
+            <Text className="text-body font-bold text-danger" style={{ color: colors.danger }}>Keluar</Text>
+          </Pressable>
           </View>
           {mode === "demo" && (
             <Card>
