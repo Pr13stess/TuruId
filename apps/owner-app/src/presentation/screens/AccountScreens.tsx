@@ -1,6 +1,9 @@
 import { radius, textSize } from "../theme";
 import React, { useCallback, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, View } from "react-native";
+import { AuthLayout } from "../components/AuthLayout";
+import { Input } from "../components/Input";
+import { Text } from "../components/Typography";
 import { SafeAreaView } from "../components/SafeAreaView";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Profile } from "../../domain/models";
@@ -11,7 +14,6 @@ import { ProfilePhotoEditor } from "../components/ProfilePhotoEditor";
 import { ProfileAvatar } from "../components/ProfileUi";
 import {
   Badge,
-  Brand,
   Button,
   C,
   Card,
@@ -37,40 +39,36 @@ export function AuthScreen() {
   const [phone, setPhone] = useState("");
   const [agree, setAgree] = useState(false);
   return (
-    <SafeAreaView className="flex-1 bg-accent-soft">
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
-        <View className="relative h-48 items-center justify-center overflow-hidden bg-accent-soft">
-          <View pointerEvents="none" className="absolute -left-16 -top-20 h-56 w-56 rounded-pill bg-surface opacity-50" />
-          <View pointerEvents="none" className="absolute -right-16 -bottom-28 h-64 w-64 rounded-pill bg-accent opacity-20" />
-          <View className="rounded-pill bg-surface px-6 py-3"><Brand /></View>
-        </View>
-        <View className="-mt-6 flex-1 rounded-t-auth bg-surface px-6 pt-8 pb-10 gap-5">
-        <Badge>OWNER APP</Badge>
-        <Title>
-          {stage === "login"
-            ? "Selamat datang kembali."
-            : stage === "register"
-              ? "Mulai perjalanan Anda."
-              : "Pulihkan akses akun."}
-        </Title>
-        <T muted>Kelola properti dan terhubung dengan calon penghuni.</T>
-        <View className="gap-3">
+    <SafeAreaView edges={["left", "right"]} className="flex-1 bg-accent-soft">
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : Platform.OS === "android" ? "height" : undefined} className="flex-1">
+        <AuthLayout
+          compact={stage !== "login"}
+          title={stage === "login" ? "Selamat datang kembali." : stage === "register" ? "Mulai perjalanan Anda." : "Pulihkan akses akun."}
+          subtitle="Kelola properti dan terhubung dengan calon penghuni."
+          footer={
+            <Pressable accessibilityRole="button" onPress={() => setStage(stage === "login" ? "register" : "login")} className="min-h-[48px] items-center justify-center px-[8px]">
+              <Text className="text-center text-label text-muted">
+                {stage === "login" ? <>Belum punya akun? <Text className="font-semibold text-accent-strong">Daftar</Text></> : <Text className="font-semibold text-accent-strong">Kembali ke masuk</Text>}
+              </Text>
+            </Pressable>
+          }
+        >
           {stage === "register" && (
             <>
-              <Field label="Nama lengkap" value={name} onChange={setName} />
-              <Field label="Nomor HP" value={phone} onChange={setPhone} />
+              <Input appearance="pill" label="Nama lengkap" value={name} onChangeText={setName} autoCapitalize="sentences" />
+              <Input appearance="pill" label="Nomor HP" value={phone} onChangeText={setPhone} autoCapitalize="sentences" />
             </>
           )}
-          <Field label="Email" value={email} onChange={setEmail} />
+          <Input appearance="pill" label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" placeholder="nama@email.com" />
           {stage !== "reset" && (
-            <Field
+            <Input
+              appearance="pill"
               label="Password"
               value={password}
-              onChange={setPassword}
-              secure
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              placeholder={"\u2022".repeat(8)}
+              secureTextEntry
             />
           )}
           {stage === "register" && (
@@ -90,6 +88,7 @@ export function AuthScreen() {
           )}
           <Feedback text={a.error} error />
           <Feedback text={a.message} />
+          <View className="mt-[8px] overflow-hidden rounded-pill">
           <Button
             title={
               stage === "login"
@@ -127,23 +126,17 @@ export function AuthScreen() {
               )
             }
           />
+          </View>
           {stage === "login" && (
-            <Link title="Lupa password?" onPress={() => setStage("reset")} />
+            <Pressable accessibilityRole="button" onPress={() => setStage("reset")} className="min-h-[48px] items-center justify-center">
+              <Text className="text-label font-semibold text-accent-strong">Lupa password?</Text>
+            </Pressable>
           )}
-          <Link
-            title={
-              stage === "login"
-                ? "Belum punya akun? Daftar"
-                : "Kembali ke masuk"
-            }
-            onPress={() => setStage(stage === "login" ? "register" : "login")}
-          />
-        </View>
-        {mode === "demo" && (
-          <Feedback text="Mode demo: email dan password apa pun yang valid dapat digunakan. Tidak ada email yang dikirim." />
-        )}
-        </View>
-      </ScrollView>
+          {mode === "demo" && (
+            <Feedback text="Mode demo: email dan password apa pun yang valid dapat digunakan. Tidak ada email yang dikirim." />
+          )}
+        </AuthLayout>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
