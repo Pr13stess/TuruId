@@ -5,7 +5,7 @@ import { Alert, Platform, Pressable, View } from "react-native";
 import * as Crypto from "expo-crypto";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Restriction } from "../../domain/models";
-import { callEventDisplay } from "../../domain/callEventDisplay";
+import { formatChatPreview } from "../components/chatPreview";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
@@ -29,13 +29,6 @@ import {
   Title,
   Toggle,
 } from "../components/UI";
-function chatPreview(text: string | null) {
-  if (!text) return "Mulai percakapan";
-  if (!/^Panggilan (VOICE|VIDEO|suara|video)\s+[•·.]\s+/i.test(text.trim())) return text;
-  const call = callEventDisplay(text.replace(/\s*\(demo\)\s*$/i, "").replace(/\s+\.\s+/g, " · "));
-  return call.title === "Panggilan" ? "Riwayat panggilan" : `${call.title} · ${call.detail}`;
-}
-
 export function ChatListScreen() {
   const { communication } = useRepositories();
   const nav = useNav();
@@ -87,7 +80,7 @@ export function ChatListScreen() {
                   {conversation.tenant}
                 </Text>
                 <Text numberOfLines={1} style={{ color: colors.muted, fontSize: textSize.body, lineHeight: 21 }}>
-                  {chatPreview(conversation.last_message)}
+                  {formatChatPreview(conversation.last_message)}
                 </Text>
               </View>
             <View style={{ alignItems: "flex-end", gap: 6 }}>
