@@ -139,9 +139,9 @@ export function HomeScreen() {
           accessibilityRole="button"
           accessibilityLabel="Notifikasi"
           onPress={() => nav.navigate("Notifications")}
-          className="h-12 w-12 rounded-pill bg-accent-soft items-center justify-center"
+          className="h-11 w-11 items-center justify-center rounded-control border border-line bg-surface"
         >
-          <Icon name="bell" color={C.orangeDark} size={22} />
+          <Icon name="bell" color={C.navy} size={20} />
           {notices.data?.some((n) => !n.read_at) && (
             <View className="absolute top-2 right-2 h-2 w-2 rounded-pill bg-accent" />
           )}

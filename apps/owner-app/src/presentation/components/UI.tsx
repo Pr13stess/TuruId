@@ -668,7 +668,9 @@ export function Page({
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         {header && (
-          <View className="min-h-16 flex-row items-center justify-between bg-surface px-4 py-2 border-b border-line">
+          <View className={brand
+            ? "flex-row items-center justify-between bg-background px-5 pt-4 pb-5"
+            : "min-h-16 flex-row items-center justify-between bg-surface px-4 py-2 border-b border-line"}>
             {brand ? (
               <Brand />
             ) : (
@@ -692,7 +694,7 @@ export function Page({
                 </Text>
               </>
             )}
-            <View className="min-w-12 items-end">
+            <View className={brand ? "min-w-11 items-end" : "min-w-12 items-end"}>
               {action}
             </View>
           </View>
