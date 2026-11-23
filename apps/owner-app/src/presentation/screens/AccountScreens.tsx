@@ -150,7 +150,7 @@ export function ProfileScreen() {
       <Load {...q} />
       {q.data && (
         <>
-          <View className="flex-row items-start gap-[12px] bg-surface py-[8px]">
+          <View className="flex-row items-start gap-[12px] bg-surface py-[8px]" style={{ columnGap: 12, paddingVertical: 8 }}>
             <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} size={48} />
             <View className="flex-1">
             <T
@@ -270,7 +270,7 @@ export function ProfileScreen() {
               onPress={() => nav.navigate("Policy", { kind: "terms" })}
             />
           </MenuSection>
-          <View className="mt-[28px]">
+          <View className="mt-[28px]" style={{ marginTop: 28 }}>
           <Button
             title="Keluar"
             secondary
