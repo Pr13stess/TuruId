@@ -1,6 +1,6 @@
 import { colors, textSize } from "../theme";
 import React, { useCallback, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
@@ -9,7 +9,6 @@ import {
   Badge,
   Button,
   Card,
-  Choices,
   date,
   Empty,
   Feedback,
@@ -38,18 +37,30 @@ export function BookingsScreen() {
   return (
     <Page title="Pemesanan" tab="Bookings" back={false}>
       <Title>Setiap kedatangan, terpantau.</Title>
-      <Choices
-        label="Status booking"
-        value={filter}
-        onChange={setFilter}
-        options={[
-          { value: "ALL", label: "Semua" },
-          { value: "WAIT", label: "Menunggu bayar" },
-          { value: "CONFIRMED", label: "Terkonfirmasi" },
-          { value: "ACTIVE", label: "Ditempati" },
-          { value: "HISTORY", label: "Riwayat" },
-        ]}
-      />
+      <View className="gap-2 mb-4">
+        <T style={{ fontSize: textSize.caption, fontWeight: "600" }}>Status booking</T>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {[
+            { value: "ALL", label: "Semua" },
+            { value: "WAIT", label: "Menunggu bayar" },
+            { value: "CONFIRMED", label: "Terkonfirmasi" },
+            { value: "ACTIVE", label: "Ditempati" },
+            { value: "HISTORY", label: "Riwayat" },
+          ].map((option) => (
+            <Pressable
+              key={option.value}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: filter === option.value }}
+              onPress={() => setFilter(option.value)}
+              className={"min-h-12 justify-center rounded-chip border px-4 py-3 " + (filter === option.value ? "bg-accent-soft border-accent" : "bg-surface border-line")}
+            >
+              <T style={{ fontSize: textSize.label, fontWeight: "600", color: filter === option.value ? colors.accentStrong : colors.primary }}>
+                {option.label}
+              </T>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
       <Load {...q} />
       <Button title="Muat ulang booking" secondary disabled={q.loading} onPress={q.retry} />
       {list?.map((b) => (
