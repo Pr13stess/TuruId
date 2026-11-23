@@ -270,15 +270,6 @@ export function ProfileScreen() {
               onPress={() => nav.navigate("Policy", { kind: "terms" })}
             />
           </Section>
-          <Section title="Pengaturan akun">
-            <Link
-              title="Hapus akun"
-              icon="logout"
-              danger
-              last
-              onPress={() => nav.navigate("DeleteAccount")}
-            />
-          </Section>
           <Button
             title="Keluar"
             secondary
