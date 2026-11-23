@@ -651,6 +651,7 @@ export function Page({
   brand = false,
   header = true,
   fullBleed = false,
+  surface = false,
   contentStyle,
   navigationRole = "owner",
   onRefresh,
@@ -664,6 +665,7 @@ export function Page({
   brand?: boolean;
   header?: boolean;
   fullBleed?: boolean;
+  surface?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
   navigationRole?: "owner" | "customer";
   onRefresh?: () => void;
@@ -672,7 +674,7 @@ export function Page({
   const nav = useNav();
   const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className={surface ? "flex-1 bg-surface" : "flex-1 bg-background"}>
       {header && !brand && <View pointerEvents="none" className="absolute left-0 right-0 top-0 bg-surface" style={{ height: insets.top }} />}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -681,7 +683,7 @@ export function Page({
         {header && (
           <View className={brand
             ? "flex-row items-center justify-between bg-background px-5 pt-4 pb-5"
-            : "min-h-16 flex-row items-center justify-between bg-surface px-4 py-2 border-b border-line"}>
+            : "min-h-16 flex-row items-center justify-between bg-surface px-4 py-2 " + (surface ? "" : "border-b border-line")}>
             {brand ? (
               <Brand />
             ) : (

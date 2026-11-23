@@ -2,6 +2,7 @@ import { useState, type PropsWithChildren } from "react";
 import { ActivityIndicator, Image, Pressable, View } from "react-native";
 import { Text } from "./Typography";
 import { colors } from "../theme";
+import { Icon, type IconName } from "./Icon";
 
 // Presentational components: navigation, repository calls and state stay in the screen.
 export function ProfileAvatar({ name, uri }: { name: string; uri?: string | null }) {
@@ -18,25 +19,27 @@ export function ProfileAvatar({ name, uri }: { name: string; uri?: string | null
 
 export function MenuSection({ title, children }: PropsWithChildren<{ title: string }>) {
   return (
-    <View className="mt-5">
-      <Text className="text-label font-semibold text-muted mb-2 ml-1">{title}</Text>
-      <View className="bg-surface rounded-card border border-line overflow-hidden">{children}</View>
+    <View className="mt-6">
+      <Text className="text-body font-bold text-ink mb-2">{title}</Text>
+      <View>{children}</View>
     </View>
   );
 }
 
-export function MenuRow({ title, onPress, danger = false, last = false }: {
+export function MenuRow({ title, onPress, danger = false, last = false, icon }: {
   title: string;
   onPress: () => void;
   danger?: boolean;
   last?: boolean;
+  icon?: IconName;
 }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress}
-      className={"min-h-14 flex-row items-center justify-between px-4 py-3 gap-3 " + (!last ? "border-b border-line" : "")}
+      className={"min-h-[52px] flex-row items-center justify-between py-3 gap-3 " + (!last ? "border-b border-line" : "")}
       style={({ pressed }) => ({ backgroundColor: pressed ? colors.soft : colors.surface })}>
+      {icon && <View className="w-6 items-center" accessible={false}><Icon name={icon} size={20} color={danger ? colors.danger : colors.primary} /></View>}
       <Text className={danger ? "flex-1 text-body text-danger" : "flex-1 text-body text-ink"}>{title}</Text>
-      <Text className="text-symbol text-muted" accessibilityElementsHidden importantForAccessibility="no">›</Text>
+      <Icon name="chevron" size={16} color={colors.muted} />
     </Pressable>
   );
 }

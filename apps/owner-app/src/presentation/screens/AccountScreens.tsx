@@ -11,7 +11,7 @@ import { Props, useNav } from "../navigation";
 import { useAction, useLoad } from "../hooks";
 import { chooseImage } from "../media";
 import { ProfilePhotoEditor } from "../components/ProfilePhotoEditor";
-import { ProfileAvatar } from "../components/ProfileUi";
+import { ProfileAvatar, MenuSection, MenuRow } from "../components/ProfileUi";
 import {
   Badge,
   Button,
@@ -24,7 +24,6 @@ import {
   Page,
   Photo,
   Row,
-  Section,
   T,
   Title,
   Toggle,
@@ -147,11 +146,11 @@ export function ProfileScreen() {
   const a = useAction();
   const q = useLoad(useCallback(() => profile.get(), [profile]));
   return (
-    <Page title="Profil" tab="Profile" back={false}>
+    <Page title="Profil" tab="Profile" back={false} surface contentStyle={{ paddingHorizontal: 20, gap: 12 }}>
       <Load {...q} />
       {q.data && (
         <>
-          <View className="flex-row items-center gap-4 rounded-card bg-surface p-4 border border-line">
+          <View className="flex-row items-center gap-4 bg-surface py-4">
             <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} />
             <View className="flex-1 gap-2">
             <T
@@ -192,14 +191,14 @@ export function ProfileScreen() {
             </Row>
             </View>
           </View>
-          <Section title="Properti">
-            <Link
+          <MenuSection title="Properti">
+            <MenuRow
               title="Lihat properti saya"
               icon="home"
               last
               onPress={() => nav.navigate("Properties")}
             />
-          </Section>
+          </MenuSection>
           {q.data.verification_status !== "APPROVED" && (
             <Card>
               <Title>Lengkapi data diri</Title>
@@ -213,63 +212,63 @@ export function ProfileScreen() {
               />
             </Card>
           )}
-          <Section title="Akun">
-            <Link
+          <MenuSection title="Akun">
+            <MenuRow
               title="Ubah profil"
               icon="user"
               onPress={() => nav.navigate("EditProfile")}
             />
-            <Link
+            <MenuRow
               title="Ubah password"
               icon="key"
               last
               onPress={() => nav.navigate("Password")}
             />
-          </Section>
-          <Section title="Pengelolaan">
-            <Link
+          </MenuSection>
+          <MenuSection title="Pengelolaan">
+            <MenuRow
               title="Ringkasan keuangan"
               icon="wallet"
               onPress={() => nav.navigate("Finance")}
             />
-            <Link
+            <MenuRow
               title="Laporan & permintaan"
               icon="shield"
               last
               onPress={() => nav.navigate("Reports")}
             />
-          </Section>
-          <Section title="Notifikasi">
-            <Link
+          </MenuSection>
+          <MenuSection title="Notifikasi">
+            <MenuRow
               title="Notifikasi"
               icon="bell"
               onPress={() => nav.navigate("Notifications")}
             />
-            <Link
+            <MenuRow
               title="Pengaturan notifikasi"
               icon="settings"
               last
               onPress={() => nav.navigate("Settings")}
             />
-          </Section>
-          <Section title="Bantuan dan kebijakan">
-            <Link
+          </MenuSection>
+          <MenuSection title="Bantuan dan kebijakan">
+            <MenuRow
               title="Bantuan & tentang aplikasi"
               icon="help"
               onPress={() => nav.navigate("Policy", { kind: "help" })}
             />
-            <Link
+            <MenuRow
               title="Privacy Policy"
               icon="shield"
               onPress={() => nav.navigate("Policy", { kind: "privacy" })}
             />
-            <Link
+            <MenuRow
               title="Terms"
               icon="bookings"
               last
               onPress={() => nav.navigate("Policy", { kind: "terms" })}
             />
-          </Section>
+          </MenuSection>
           <Button
             title="Keluar"
             secondary
