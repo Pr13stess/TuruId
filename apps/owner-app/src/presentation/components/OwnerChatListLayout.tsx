@@ -3,9 +3,9 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "./Typography";
 import { colors } from "../theme";
-import { Dock, IconButton } from "./UI";
+import { Dock } from "./UI";
 
-export function OwnerChatListLayout({ children, onHistory }: { children: ReactNode; onHistory: () => void }) {
+export function OwnerChatListLayout({ children }: { children: ReactNode; onHistory: () => void }) {
   const insets = useSafeAreaInsets();
   return <SafeAreaView style={s.root}>
     <View pointerEvents="none" className="absolute left-0 right-0 top-0 bg-surface" style={{ height: insets.top }} />
@@ -13,7 +13,7 @@ export function OwnerChatListLayout({ children, onHistory }: { children: ReactNo
     <View className="min-h-16 flex-row items-center bg-surface px-4 py-2 border-b border-line">
       <View className="w-12" />
       <Text className="flex-1 px-3 text-center text-header font-bold text-primary">Chat</Text>
-      <View className="w-12 items-center"><IconButton name="more" color={colors.primary} label="Tampilkan atau tutup riwayat panggilan" onPress={onHistory} /></View>
+      <View className="w-12" />
     </View>
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.content}>
       {children}
