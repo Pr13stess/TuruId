@@ -197,7 +197,8 @@ export function Field({
 }) {
   return (
     <View className="gap-2 mb-4">
-      <T style={{ fontSize: 12, fontWeight: "600" }}>{label}</T>
+      <Text className="px-1 text-label font-semibold text-ink">{label}</Text>
+      <View className="rounded-control border border-line bg-soft px-4">
       <TextInput
         accessibilityLabel={label}
         accessibilityState={{ disabled }}
@@ -212,9 +213,10 @@ export function Field({
         autoCapitalize={
           secure || label.toLowerCase().includes("email") ? "none" : "sentences"
         }
-        className="min-h-12 rounded-control border border-line bg-soft px-4 py-3 text-body text-ink"
-        style={multiline ? { minHeight: 90, textAlignVertical: "top" } : undefined}
+        className="min-h-12 py-3 text-body text-ink"
+        style={{ paddingHorizontal: 0, ...(multiline ? { minHeight: 90, textAlignVertical: "top" as const } : {}) }}
       />
+      </View>
     </View>
   );
 }
