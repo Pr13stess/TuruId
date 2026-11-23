@@ -146,13 +146,13 @@ export function ProfileScreen() {
   const a = useAction();
   const q = useLoad(useCallback(() => profile.get(), [profile]));
   return (
-    <Page title="Profil" tab="Profile" back={false} surface contentStyle={{ paddingHorizontal: 20, gap: 12 }}>
+    <Page title="Profil" tab="Profile" back={false} surface contentStyle={{ padding: 20, paddingBottom: 130, gap: 0, width: "100%", maxWidth: 600, alignSelf: "center" }}>
       <Load {...q} />
       {q.data && (
         <>
-          <View className="flex-row items-center gap-4 bg-surface py-4">
-            <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} />
-            <View className="flex-1 gap-2">
+          <View className="flex-row items-start gap-[12px] bg-surface py-[8px]">
+            <ProfileAvatar name={q.data.full_name} uri={q.data.avatar_url} size={48} />
+            <View className="flex-1">
             <T
               style={{
                 fontSize: textSize.price,
@@ -163,14 +163,15 @@ export function ProfileScreen() {
             >
               {q.data.full_name}
             </T>
-            <T muted style={{ fontSize: textSize.label }}>
+            <T muted style={{ fontSize: textSize.label, marginTop: 3 }}>
               {q.data.email}
             </T>
             <Row
               style={{
                 justifyContent: "flex-start",
                 flexWrap: "wrap",
-                marginTop: 3,
+                marginTop: 8,
+                gap: 6,
               }}
             >
               <Badge>Owner</Badge>
@@ -200,7 +201,7 @@ export function ProfileScreen() {
             />
           </MenuSection>
           {q.data.verification_status !== "APPROVED" && (
-            <Card>
+            <Card style={{ marginTop: 24 }}>
               <Title>Lengkapi data diri</Title>
               <T muted>
                 {q.data.review_reason ||
@@ -269,12 +270,14 @@ export function ProfileScreen() {
               onPress={() => nav.navigate("Policy", { kind: "terms" })}
             />
           </MenuSection>
+          <View className="mt-[28px]">
           <Button
             title="Keluar"
             secondary
             disabled={a.busy}
             onPress={() => void a.run(() => auth.signOut())}
           />
+          </View>
           {mode === "demo" && (
             <Card>
               <Badge>DEMO</Badge>

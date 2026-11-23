@@ -5,13 +5,13 @@ import { colors } from "../theme";
 import { Icon, type IconName } from "./Icon";
 
 // Presentational components: navigation, repository calls and state stay in the screen.
-export function ProfileAvatar({ name, uri }: { name: string; uri?: string | null }) {
+export function ProfileAvatar({ name, uri, size = 64 }: { name: string; uri?: string | null; size?: number }) {
   const [failed, setFailed] = useState<string | null>(null);
-  if (uri && uri !== failed) return <Image source={{ uri }} className="h-16 w-16 rounded-pill bg-accent-soft items-center justify-center" accessibilityLabel={`Foto profil ${name}`} onError={() => setFailed(uri)} />;
+  if (uri && uri !== failed) return <Image source={{ uri }} className="rounded-pill bg-accent-soft items-center justify-center" style={{ width: size, height: size }} accessibilityLabel={`Foto profil ${name}`} onError={() => setFailed(uri)} />;
   const initials = name.trim().split(/\s+/).slice(0, 2)
     .map((word) => word[0]?.toUpperCase() ?? "").join("") || "?";
   return (
-    <View className="h-16 w-16 rounded-pill bg-accent-soft items-center justify-center" accessibilityLabel={`Inisial ${name || "pemilik kos"}`}>
+    <View className="rounded-pill bg-accent-soft items-center justify-center" style={{ width: size, height: size }} accessibilityLabel={`Inisial ${name || "pemilik kos"}`}>
       <Text className="text-title font-bold text-accent-strong">{initials}</Text>
     </View>
   );
@@ -19,8 +19,8 @@ export function ProfileAvatar({ name, uri }: { name: string; uri?: string | null
 
 export function MenuSection({ title, children }: PropsWithChildren<{ title: string }>) {
   return (
-    <View className="mt-6">
-      <Text className="text-body font-bold text-ink mb-2">{title}</Text>
+    <View className="mt-[24px]">
+      <Text className="text-body font-bold text-ink mb-[6px]">{title}</Text>
       <View>{children}</View>
     </View>
   );
@@ -35,7 +35,7 @@ export function MenuRow({ title, onPress, danger = false, last = false, icon }: 
 }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress}
-      className={"min-h-[52px] flex-row items-center justify-between py-3 gap-3 " + (!last ? "border-b border-line" : "")}
+      className={"min-h-[52px] flex-row items-center justify-between py-[12px] gap-[12px] " + (!last ? "border-b border-line" : "")}
       style={({ pressed }) => ({ backgroundColor: pressed ? colors.soft : colors.surface })}>
       {icon && <View className="w-6 items-center" accessible={false}><Icon name={icon} size={20} color={danger ? colors.danger : colors.primary} /></View>}
       <Text className={danger ? "flex-1 text-body text-danger" : "flex-1 text-body text-ink"}>{title}</Text>
