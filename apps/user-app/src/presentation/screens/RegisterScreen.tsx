@@ -15,9 +15,9 @@ export function RegisterScreen({ navigation }: ScreenProps<"Register">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [campus, setCampus] = useState("");
+  const [fullName] = useState("");
+  const [phone] = useState("");
+  const [campus] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
