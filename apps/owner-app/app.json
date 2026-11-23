@@ -44,7 +44,9 @@
           "isAndroidBackgroundLocationEnabled": false
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-status-bar",
+      "expo-video"
     ],
     "extra": {
       "eas": {

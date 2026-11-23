@@ -3,6 +3,8 @@ import {
   StyleSheet,
   Text as NativeText,
   TextInput as NativeTextInput,
+  type TextInstance,
+  type TextInputInstance,
   type TextProps,
   type TextInputProps,
   type TextStyle,
@@ -37,7 +39,7 @@ function textFont(className: string, style: TextStyle | undefined, inherited: Te
 }
 
 /** Native Text props and refs are forwarded unchanged; only typography is supplied. */
-export const Text = forwardRef<NativeText, TextProps>(function Text({ className = "", style, ...props }, ref) {
+export const Text = forwardRef<TextInstance, TextProps>(function Text({ className = "", style, ...props }, ref) {
   const inherited = useContext(WeightContext);
   const flat = StyleSheet.flatten(style);
   const font = textFont(className, flat, inherited);
@@ -49,7 +51,7 @@ export const Text = forwardRef<NativeText, TextProps>(function Text({ className 
   );
 });
 
-export const TextInput = forwardRef<NativeTextInput, TextInputProps>(function TextInput({ className = "", style, ...props }, ref) {
+export const TextInput = forwardRef<TextInputInstance, TextInputProps>(function TextInput({ className = "", style, ...props }, ref) {
   const flat = StyleSheet.flatten(style);
   const font = textFont(className, flat, "400");
   return <NativeTextInput {...props} ref={ref} className={`${font.face.className} ${font.className}`}

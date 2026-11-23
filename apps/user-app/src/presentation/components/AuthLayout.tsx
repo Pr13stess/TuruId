@@ -1,3 +1,4 @@
+import type { ScrollViewInstance } from "react-native";
 import { useCallback, useEffect, useRef, type PropsWithChildren, type ReactNode } from "react";
 import { Keyboard, Platform, ScrollView, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,7 +15,7 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
 }>) {
   const insets = useSafeAreaInsets();
   const headerHeight = (compact ? 172 : 200) + insets.top;
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   const revealFocusedInput = useCallback(() => {
     if (Platform.OS === "web" || !Keyboard.isVisible()) return;
     const input = TextInput.State.currentlyFocusedInput();

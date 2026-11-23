@@ -1,3 +1,4 @@
+import type { ScrollViewInstance } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -562,7 +563,7 @@ export function ChatLayout({
   heading?: React.ReactNode;
   footer?: React.ReactNode;
   tab?: "ChatList";
-  scrollRef?: React.RefObject<ScrollView | null>;
+  scrollRef?: React.RefObject<ScrollViewInstance | null>;
   onContentSizeChange?: () => void;
 }) {
   const nav = useNav();

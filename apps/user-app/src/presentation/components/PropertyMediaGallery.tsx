@@ -1,3 +1,4 @@
+import type { ScrollViewInstance } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, View, useWindowDimensions } from "react-native";
 import Svg, { Path } from "react-native-svg";
@@ -18,7 +19,7 @@ export function PropertyMediaGallery({ photos, video, resolve }: {
   const height = Math.min(400, Math.max(280, width * 0.85));
   const [index, setIndex] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   useEffect(() => { scroll.current?.scrollTo({ x: index * width, animated: false }); }, [width, index]);
   if (!items.length) return <PropertyImage style={{ height }} />;
   return <View onLayout={event => setWidth(event.nativeEvent.layout.width)}>

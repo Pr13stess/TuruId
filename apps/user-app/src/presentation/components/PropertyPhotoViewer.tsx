@@ -1,3 +1,4 @@
+import type { ScrollViewInstance } from "react-native";
 import { useRef, useState } from "react";
 import { Animated, Modal, PanResponder, Pressable, ScrollView, View, useWindowDimensions } from "react-native";
 import { Text } from "./Typography";
@@ -17,7 +18,7 @@ export function PropertyPhotoViewer({ photos, video, resolveVideo, initialIndex,
   const [index, setIndex] = useState(() => initialPhoto(items, initialId ?? ""));
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const pager = useRef<ScrollView>(null);
+  const pager = useRef<ScrollViewInstance>(null);
   const [zoomed, setZoomed] = useState(false);
   const pageHeight = Math.max(1, height - insets.top - insets.bottom - 120);
   const go = (i: number) => {

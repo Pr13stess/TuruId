@@ -43,7 +43,9 @@
         {
           "locationWhenInUsePermission": "Turu.Id memakai lokasimu hanya untuk menghitung jarak ke kos. Lokasi tidak disimpan."
         }
-      ]
+      ],
+      "expo-status-bar",
+      "expo-video"
     ],
     "extra": {
       "eas": {
