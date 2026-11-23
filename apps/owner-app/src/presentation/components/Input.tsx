@@ -24,7 +24,7 @@ export function Input({
     <View className="gap-[6px]">
       <Text className={appearance === "pill" ? "ml-[2px] text-label font-medium text-ink" : "text-body font-semibold text-ink"}>{label}</Text>
       {appearance === "pill" ? (
-        <View className={`flex-row items-center rounded-pill border bg-soft px-[20px] ${error ? "border-danger" : "border-soft"}`}>
+        <View className={`flex-row items-center rounded-pill bg-soft px-[20px] ${error ? "border border-danger" : "border-0"}`}>
           {field}
         </View>
       ) : (

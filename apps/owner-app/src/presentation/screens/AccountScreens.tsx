@@ -43,8 +43,8 @@ export function AuthScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : Platform.OS === "android" ? "height" : undefined} className="flex-1">
         <AuthLayout
           compact={stage !== "login"}
-          title={stage === "login" ? "Selamat datang kembali." : stage === "register" ? "Mulai perjalanan Anda." : "Pulihkan akses akun."}
-          subtitle="Kelola properti dan terhubung dengan calon penghuni."
+          title={stage === "login" ? "Masuk ke Turu.Id" : stage === "register" ? "Mulai perjalanan Anda." : "Pulihkan akses akun."}
+          subtitle={stage === "login" ? "Gunakan email dan kata sandi akunmu." : "Kelola properti dan terhubung dengan calon penghuni."}
           footer={
             <Pressable accessibilityRole="button" onPress={() => setStage(stage === "login" ? "register" : "login")} className="min-h-[48px] items-center justify-center px-[8px]">
               <Text className="text-center text-label text-muted">
@@ -63,7 +63,8 @@ export function AuthScreen() {
           {stage !== "reset" && (
             <Input
               appearance="pill"
-              label="Password"
+              label="Kata sandi"
+              accessibilityLabel="Password"
               value={password}
               onChangeText={setPassword}
               autoCapitalize="none"

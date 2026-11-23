@@ -36,7 +36,7 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
       showsVerticalScrollIndicator={false}
       contentInsetAdjustmentBehavior="never"
     >
-      <View className="w-full max-w-[480px] grow shrink-0 self-center bg-surface">
+      <View className="w-full grow shrink-0 self-center bg-surface">
         <View className="shrink-0 bg-accent-soft" style={{ height: headerHeight }}>
           <Svg width="100%" height={headerHeight} viewBox="0 0 480 200" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0 }} accessible={false} pointerEvents="none">
             <Defs>
@@ -51,9 +51,8 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
             <Path d="M372 145C405 108 460 117 502 145L510 215H302C302 180 343 177 372 145Z" fill={colors.accentSoft} opacity={0.45} />
           </Svg>
           <View className="flex-1 items-center justify-center pb-[24px]" style={{ paddingTop: insets.top }}>
-            <View className="items-center gap-[6px] rounded-pill bg-surface px-[18px] py-[10px]">
+            <View className="rounded-pill bg-surface px-[18px] py-[10px]">
               <OwnerBrand />
-              <Text className="text-label font-bold tracking-[2px] text-accent-strong">OWNER APP</Text>
             </View>
           </View>
         </View>
@@ -61,6 +60,7 @@ export function AuthLayout({ title, subtitle, compact = false, children, footer 
         <SafeAreaView edges={["bottom"]} style={{ flexGrow: 1 }}>
           <View className="grow shrink-0 px-[24px] pt-[30px] pb-[20px]">
             <View className="mb-[30px] items-center gap-[10px]">
+              <Text className="text-label font-bold tracking-[2px] text-accent-strong">OWNER APP</Text>
               <Text className="text-center text-title font-semibold text-ink">{title}</Text>
               <Text className="max-w-[300px] text-center text-label leading-muted text-muted">{subtitle}</Text>
             </View>
