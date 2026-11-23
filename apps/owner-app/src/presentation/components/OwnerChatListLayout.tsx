@@ -1,12 +1,14 @@
 import { type ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "./Typography";
 import { colors } from "../theme";
 import { Dock, IconButton } from "./UI";
 
 export function OwnerChatListLayout({ children, onHistory }: { children: ReactNode; onHistory: () => void }) {
+  const insets = useSafeAreaInsets();
   return <SafeAreaView style={s.root}>
+    <View pointerEvents="none" className="absolute left-0 right-0 top-0 bg-surface" style={{ height: insets.top }} />
     <View style={s.body}>
     <View className="min-h-16 flex-row items-center bg-surface px-4 py-2 border-b border-line">
       <View className="w-12" />

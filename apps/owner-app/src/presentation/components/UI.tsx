@@ -13,6 +13,7 @@ import {
   StyleProp,
 } from "react-native";
 import { SafeAreaView } from "./SafeAreaView";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRepositories } from "../../application/RepositoriesProvider";
 import { useNav } from "../navigation";
 import { Icon, IconName } from "./Icon";
@@ -662,8 +663,10 @@ export function Page({
   navigationRole?: "owner" | "customer";
 }) {
   const nav = useNav();
+  const insets = useSafeAreaInsets();
   return (
     <SafeAreaView className="flex-1 bg-background">
+      {header && !brand && <View pointerEvents="none" className="absolute left-0 right-0 top-0 bg-surface" style={{ height: insets.top }} />}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}

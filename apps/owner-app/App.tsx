@@ -205,7 +205,7 @@ function Root() {
       style={{
         flex: 1,
         width: "100%",
-        maxWidth: session || Platform.OS === "web" ? 500 : undefined,
+        maxWidth: Platform.OS === "web" ? 500 : undefined,
         alignSelf: "center",
         backgroundColor: C.cream,
       }}
