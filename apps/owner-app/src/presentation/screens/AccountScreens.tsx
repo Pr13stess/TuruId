@@ -278,12 +278,12 @@ export function ProfileScreen() {
             accessibilityState={{ disabled: a.busy, busy: a.busy }}
             disabled={a.busy}
             onPress={() => void a.run(() => auth.signOut())}
-            className="min-h-[48px] flex-row items-center justify-center gap-[8px] rounded-control border border-danger-line bg-danger-soft px-[14px]"
-            style={({ pressed }) => ({ minHeight: 48, columnGap: 8, paddingHorizontal: 14,
+            className="min-h-[48px] flex-row items-center justify-center rounded-control border border-danger-line bg-danger-soft px-[14px]"
+            style={({ pressed }) => ({ minHeight: 48, columnGap: 0, paddingHorizontal: 14,
               backgroundColor: colors.dangerSoft, borderColor: colors.dangerLine,
               opacity: a.busy ? 0.7 : pressed ? 0.6 : 1 })}
           >
-            <Icon name="logout" size={20} color={colors.danger} />
+            <View style={{ marginRight: 10 }}><Icon name="logout" size={20} color={colors.danger} /></View>
             <Text className="text-body font-bold text-danger" style={{ color: colors.danger }}>Keluar</Text>
           </Pressable>
           </View>

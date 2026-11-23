@@ -51,9 +51,9 @@ export function MenuRow({ title, onPress, danger = false, last = false, icon }: 
 }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress}
-      className={"min-h-[52px] flex-row items-center justify-between py-[12px] gap-[12px] " + (!last ? "border-b border-line" : "")}
-      style={({ pressed }) => ({ minHeight: 52, paddingVertical: 12, columnGap: 12, backgroundColor: pressed ? colors.soft : colors.surface })}>
-      {icon && <View className="w-6 items-center" style={{ width: 24, flexShrink: 0 }} accessible={false}><ProfileMenuIcon name={icon} color={danger ? colors.danger : colors.primary} /></View>}
+      className={"min-h-[52px] flex-row items-center justify-between py-[12px] " + (!last ? "border-b border-line" : "")}
+      style={({ pressed }) => ({ minHeight: 52, paddingVertical: 12, columnGap: 0, backgroundColor: pressed ? colors.soft : colors.surface })}>
+      {icon && <View className="w-6 items-center" style={{ width: 24, flexShrink: 0, marginRight: 16 }} accessible={false}><ProfileMenuIcon name={icon} color={danger ? colors.danger : colors.primary} /></View>}
       <Text className={danger ? "flex-1 text-body text-danger" : "flex-1 text-body text-ink"}>{title}</Text>
       <Icon name="chevron" size={16} color={colors.muted} />
     </Pressable>
